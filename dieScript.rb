@@ -112,19 +112,21 @@ module DiceGen
             definition = $main_model.definitions.add(name);
             entities = definition.entities();
 
-            # Keep a running tally of the current x position, starting at the leftmost point.
-            xPos = -(totalWidth / 2);
+            # Keep a running tally of the current x position, starting at the rightmost point.
+            xPos = totalWidth / 2;
 
             # Create instances of the component glyphs in the new definition.
             glyphs.each() do |glyph|
                 # Calculate the x position to place the glyph at so the new spliced glyph is still centered.
                 width = glyph.bounds().width();
-                offset = Geom::Point3d.new(xPos + (width / 2), 0, 0);
+                offset = Geom::Point3d.new(xPos - (width / 2), 0, 0);
                 # Create an instance of the component glyph to splice it into the definition.
                 entities.add_instance(glyph, Geom::Transformation.translation(offset));
                 # Increment the width by the width of the glyph we just placed, plus the padding between glyphs.
-                xPos += width + padding;
+                xPos -= width + padding;
             end
+
+            return definition;
         end
     end
 
@@ -174,9 +176,7 @@ module DiceGen
         # group: The group to place the glyph's model into.
         # transform: The external transformation to apply to the glyph after instantiating it.
         def createGlyph(index, group, transform)
-            glyph_group = group.entities().add_group();
-            glyph_group.entities().add_instance(@glyphs[index], transform);
-            return glyph_group;
+            return group.entities().add_instance(@glyphs[index], transform);
         end
     end
 
