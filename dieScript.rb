@@ -143,6 +143,23 @@ module DiceGen
 
             return definition
         end
+
+        # Transforms the provided value to a first place percentile (percentile for the digits place) by subtracting 1.
+        # Value must a string that represents an integer, calling this with anything else will raise an error.
+        # value: The integer value to convert to a first place percentile, passed as a string.
+        # return: The converted value.
+        def convertForPercentile0(value:)
+            return String(Integer(value) - 1)
+        end
+
+        # Transforms the provided value to a second place percentile (percentile for the tens place) by subtracting 1
+        # and concatenating a '0' on the end. Value must a string that represents an integer, calling this with anything
+        # else will raise an error.
+        # value: The integer value to convert to a second place percentile, passed as a string.
+        # return: The converted value.
+        def convertForPercentile00(value:)
+            return String(Integer(value) - 1) + '0'
+        end
     end
 
 
@@ -184,7 +201,7 @@ module DiceGen
         # Translate the glyphs by a hash of (x,y) offset pairs.
         #   offsets: A hash of offset pairs; Keys must correspond to the name of a glyph in this font, and it's value is
         #            a pair of offsets specifying how much to translate the glyph in each direction (x and y).
-        def set_offset(offsets:)
+        def set_offsets(offsets:)
             offsets.each() do |name, offset|
                 entities = @glyphs[name].entities()
                 vectorOffset = Geom::Vector3d::new(offset[0], offset[1], 0)
@@ -258,37 +275,72 @@ module DiceGen
     end
 
 
-    #TODO
-    class SplicedPercentileFont1 < SplicedFont
-        # Delegates to the constructor of 'SplicedFont'.
-        def initialize(name:, folder:, padding:)
-            super
-        end
 
-        # Delegates to the implementation of 'SplicedFont', but first transforms the provided name to make it a first
-        # place percentile by subtracting 1 from the value. This class can only create glyphs corresponding to numbers,
-        # calling 'create_glyph' with anything other than an integer will raise an error.
-        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
-            # Subtract 1 from the number it a first place percentile.
-            name = String(Integer(name) - 1)
-            return super
+    ##### FONT INSTANCES #####
+
+    # Module for storing all the font instances we've created in one easy to access central location.
+    module Fonts
+        MADIFONT_2 = SplicedFont(name: "madifont 2", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 1)
+        MADIFONT_2.set_offsets({})
+        MADIFONT_2.set_scales({})
+
+        GRAFFITI   = SplicedFont(name: "graffiti", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiGraffitiFont", padding: 1)
+        GRAFFITI.set_offsets({})
+        GRAFFITI.set_scales({})
+    end
+
+
+
+    ##### DICE #####
+
+
+
+
+
+    #TODO
+    module SharpEdgedStandard
+        #TODO
+        class D4
+            # Create a new definition for the die.
+            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            @mesh = definition.entities()
+
+            # Define all the points that make up the vertices of the die.
+            p111 = Geom::Point3d.new( 1,  1,  1)
+            p001 = Geom::Point3d.new(-1, -1,  1)
+            p010 = Geom::Point3d.new(-1,  1, -1)
+            p100 = Geom::Point3d.new( 1, -1, -1)
+
+            # Create the faces of the die by joining the vertices with edges.
+            @faces = Array.new(4)
+            @faces[0] = die_mesh.add_face([p010, p001, p111])
+            @faces[1] = die_mesh.add_face([p100, p010, p001])
+            @faces[2] = die_mesh.add_face([p010, p111, p100])
+            @faces[3] = die_mesh.add_face([p001, p111, p100])
         end
     end
 
-    #TODO
-    class SplicedPercentileFont10 < SplicedFont
-        # Delegates to the constructor of 'SplicedFont'.
-        def initialize(name:, folder:, padding:)
-            super
+
+    module Test11
+
+        class Whatever
+            @@stuffthings = "austin"
+
+            def functionstuff()
+                puts @@stuffthings + "??"
+            end
         end
 
-        # Delegates to the implementation of 'SplicedFont', but first transforms the provided name to make it a second
-        # place percentile by subtracting 1 from the value and concatanating a 0. This class can only create glyphs
-        # corresponding to numbers, calling 'create_glyph' with anything other than an integer will raise an error.
-        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
-            # Subtract 1 from the number, add append a zero to the end of it to make it a second place percentile.
-            name = String(Integer(name) - 1) + '0'
-            return super
+        class Something < Whatever
+            @@stuffthings = "hello there!"
+
+            def functionstuff()
+                super
+            end
+
+            def notstuff()
+                puts @@stuffthings + "!!"
+            end
         end
     end
 
@@ -296,8 +348,7 @@ module DiceGen
 
     ##### DICE #####
 
-    require 'singleton'
-
+    #  Module containing dice specific utility code.
     module DiceUtil
         # The mathematical constant known as the "golden ratio".
         $PHI = (1.0 + Math::sqrt(5)) / 2.0
@@ -306,6 +357,11 @@ module DiceGen
         $IHP = 1.0 / $PHI
     end
 
+
+    #TODO
+    class
+        attr_reader :face_groups
+    end
 
     # Abstract base class for all dice.
     class Die
@@ -733,4 +789,13 @@ end
 
 
 
+
+
+        So, what code is common to all dice? I think after we define the points, faces, and face groups, everything else can be automated...
+        In fact if we return an array of the faces, I think that we can autogenerate the face groups anyways. So all that we really need to do
+        for any of the dice is just make the actual model, then define an array of faces that we can work off of. So... How to model this.
+        We have a base Die class obviously, and then I guess the other ones just derive from it and only ever override initialize? Yeah, I guess.
+        But... That still seems kind of lazy. We only need to define the model once, right? So... We define a class variable that contains the
+        ComponentDefinition, and then we just create a new instance, and return another class variable representing the face groups? Yeah I guess.
+        Seems a little overkill to use classes for this, but okay, we'll go for it.
 
