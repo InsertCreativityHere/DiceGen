@@ -88,7 +88,7 @@ module DiceGen
             if (mesh_names.nil?)
                 (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
-                    filename = File.basename(file, ".html")
+                    filename = File.basename(file, ".dae")
                     meshes[filename] = Util.import_definition(file: file)
                     puts "    Loaded '#{filename}.dae'"
                 end
@@ -98,7 +98,7 @@ module DiceGen
                     file = "#{font_folder}/meshes/#{mesh}.dae"
                     if (File.exists?(file))
                         meshes[mesh] = Util.import_definition(file: file)
-                        puts "    Loaded '#{filename}.dae'"
+                        puts "    Loaded '#{mesh}.dae'"
                     else
                         puts "    Failed to load '#{mesh}.dae'"
                     end
@@ -210,13 +210,13 @@ module DiceGen
         end
 
         # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
-        # enclosing group, and this group is placed into the provided group (instead of placing the glyph directly).
+        # enclosing group, and this group is added to the provided entities (instead of placing the glyph directly).
         #   name: The name of the glyph to create, usually this is the text the glyph represents.
-        #   group: The group to place the glyph's group into, and hence the glyph itself.
+        #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
-            return group.entities().add_instance(@glyphs[name], transform)
+        def create_glyph(name:, entities:, transform: Util::DUMMY_TRANSFORM)
+            return entities.add_instance(@glyphs[name], transform).make_unique()
         end
     end
 
@@ -258,17 +258,17 @@ module DiceGen
         end
 
         # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
-        # enclosing group, and this group is placed into the provided group (instead of placing the glyph directly).
+        # enclosing group, and this group is added to the provided entities (instead of placing the glyph directly).
         # This method delegates to the base implementation, but just makes sure to generate the requested glyph via
         # splicing if it hasn't been created yet. After the check (and possible splicing), the base method is called.
         #   name: The name of the glyph to create, usually this is the text the glyph represents.
-        #   group: The group to place the glyph's group into, and hence the glyph itself.
+        #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
+        def create_glyph(name:, entities:, transform: Util::DUMMY_TRANSFORM)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding);
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding); #TODO
             end
             return super
         end
@@ -324,35 +324,42 @@ module DiceGen
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create Die', true)
 
-            # Create groups for placing the die and glyphs into.
-            die_group = group.entities().add_group()
-            glyph_group = group.entities().add_group()
+            # Create an instance of the die model within the enclosing group.
+            instance = group.entities().add_instance(@definition, Util::DUMMY_TRANSFORM).make_unique()
+            die_def = instance.definition()
+            die_mesh = die_def.entities()
 
-            # Create an instance of the die model in the die group.
-            die_mesh = die_group.entities()
-            die_mesh.add_instance(@definition, Util::DUMMY_TRANSFORM)
+            # Create a separate group for placing glyphs into.
+            glyph_group = group.entities().add_group()
+            glyph_mesh = glyph_group.entities()
 
             # Create glyphs for each face of the die and align them in preperation for embossing.
             @face_transforms.each_with_index() do |face_transform, i|
-                font.create_glyph(name: i.to_s(), group: glyph_group, transform: face_transform)
+                font.create_glyph(name: (i+1).to_s(), entities: glyph_mesh, transform: face_transform)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
-            die_group.definition().invalidate_bounds()
+            die_def.invalidate_bounds()
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_group.entities().to_a())
-            glyph_group.erase!()
+            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_mesh.to_a()) #TODO
+            #glyph_group.erase!()
 
-            # Combine the scaling transformation with the provided external transform and apply them to the finished die.
+            # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(Geom::Transformation.scaling(scale) * transform, die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
             Util::MAIN_MODEL.commit_operation()
 
-            return die_group
+            return instance
         end
+    end
+
+
+    #TODO
+    class D4Die < Die
+        #TODO
     end
 
 
@@ -361,7 +368,7 @@ module DiceGen
     module SharpEdgedStandard
 
         # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
-        class D4 < Die
+        class D4 < D4Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -552,6 +559,10 @@ module DiceGen
     end
 
 end
+
+# These lines just make life easier when typing things into IRB.
+include DiceGen
+include Fonts
 
 
 
