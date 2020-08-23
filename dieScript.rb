@@ -3,7 +3,7 @@ module DiceGen
 
     ##### UTILITIES #####
 
-    # Module for grouping together general use utility code.
+    # Module containing general use utility code.
     module Util
         module_function
 
@@ -28,7 +28,11 @@ module DiceGen
             end
         end
 
-        # Imports a file and returns a reference to the imported definition.
+        # Imports a file and returns a reference to the imported definition. Note that this function will cause the
+        # imported definition to appear at the mouse cursor in the UI, this is a limitation of the API. Hitting <ESC>
+        # Will get rid of the extra instance.
+        #   file: The absolute path of the file to import from.
+        #   return: A ComponentDefinition corresponding to the imported definition.
         def import_definition(file:)
             # Check if the file exists and is reachable.
             if !File.exist?(file)
@@ -47,35 +51,26 @@ module DiceGen
             # Return the most recently created definition, ie: the one we just imported.
             return Util::MAIN_MODEL.definitions[-1]
         end
-
-        def get_digits(number:, base: 10)
-            result = []
-            temp = number
-
-            # Divide the number by 10 and check the remainder until there's nothing left to divide (it reaches 0).
-            while (temp > 0)
-                quotient, remainder = temp.divmod(base)
-                result.push(remainder)
-                temp = quotient
-            end
-
-            return result
-        end
     end
 
 
 
     ##### FONTS #####
 
-    # Module for grouping together any font specific utility code.
+    # Module containing font specific utility code.
     module FontUtil
         module_function
 
-        # The maximum numerical glyph we ever expect to need. This is just used for a default value in some places.
-        GLYPH_MAX = 20
-
-        #TODO
-        def import_meshes(font_folder:, mesh_names:)
+        # Imports all the mesh definitions that make up a font.
+        #   font_folder: The absolute path of the base font folder. This is NOT the folder immediately containing
+        #                the mesh files, but the one above it; This function expects our custom directory scheme to be
+        #                followed, and so it's the actual font folder that it expects to get.
+        #   mesh_names:  Array listing the names of the meshes that should be imported (without file extensions). When
+        #                specified, only these meshes are loaded, and a warning message is issues if any names aren't
+        #                loaded. When set to 'nil', all meshes are loaded instead. Defaults to 'nil'
+        #   return: A hash of mesh definitions whose keys are the names of each imported file (without their extensions)
+        #           and each value is the ComponentDefinition for the mesh that was imported from that file.
+        def import_meshes(font_folder:, mesh_names: nil)
             # Check the provided font folder exists.
             unless File.exists?(font_folder)
                 raise "Folder '#{font_folder}' does not exist or is inaccessible."
@@ -85,20 +80,39 @@ module DiceGen
                 raise "Folder '#{font_folder}' does not contain a 'meshes' subdirectory."
             end
 
-            # Load any mesh files from the "meshes" subdirectory that correspond to a glyph index.
-            meshes = Array::new(mesh_names.count())
-            mesh_names.each_with_index() do |name, i|
-                file = font_folder + "/meshes/" + name.to_s() + ".dae"
-                if File.exists?(file)
-                    meshes[i] = Util.import_definition(file: file)
-                    puts "    Loaded definition from '#{file}'."
+            meshes = Hash::new()
+            puts "Importing meshes from '#{font_folder}/meshes':"
+
+            # If no meshes were explicitely listed, try to import every mesh file for the font.
+            # Otherwise, only attempt to import the specified mesh files.
+            if (mesh_names.nil?)
+                (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
+                    # Get the file name on it's own, and without it's extension.
+                    filename = File.basename(file, ".html")
+                    meshes[filename] = Util.import_definition(file: file)
+                    puts "    Loaded '#{filename}.dae'"
+                end
+            else
+                mesh_names.each() do |mesh|
+                    # Get the absolute path of the mesh file to import.
+                    file = "#{font_folder}/meshes/#{mesh}.dae"
+                    if (File.exists?(file))
+                        meshes[mesh] = Util.import_definition(file: file)
+                        puts "    Loaded '#{filename}.dae'"
+                    else
+                        puts "    Failed to load '#{mesh}.dae'"
+                    end
                 end
             end
 
             return meshes
         end
 
-        #TODO
+        # Combines 2 glyphs together into a composite glyph, with the glyphs placed to the left and right of each other.
+        #   glyphs: Array of ComponentDefinitions containing the glyphs to be spliced together. The original glyphs are
+        #           in no way altered by this function.
+        #   padding: The amount of horizontal space to place between the glyphs when combining them.
+        #   return: The ComponentDefinition of the new composite glyph.
         def splice_glyphs(glyphs:, padding:)
             # The new glyph's definition name is formed by concatenating the names of the component glyphs.
             name = ""
@@ -132,116 +146,149 @@ module DiceGen
     end
 
 
-    # A bare-bones font class that generates glyphs from pre-made ComponentDefinition objects, and the base class for all fonts.
+    # A bare-bones font that creates glyphs directly from ComponentDefinition objects, and the base class for all fonts.
     class Font
+        # The plain-text name of the font.
         attr_reader :name
-        attr_accessor :glyphs, :count
+        # Hash of all the glyphs making up the font, it's keys are the names for each glyph (the text that the glyph
+        # represents), and it's values are ComponentDefinitions containing the actual mesh definitions for each glyph.
+        attr_reader :glyphs
 
-        # Create a new font with the specified name and whose glyphs are defined by an array of ComponentDefinitions.
-        # name: The plain-text name of the font.
-        # definitions: An array of ComponentDefinitions that store the 2D glyph mesh models making up the font.
+        # Create a new font with the specified name and whose glyphs are provided by a hash of ComponentDefinitions.
+        #   name: The plain-text name of the font.
+        #   definitions: A hash of ComponentDefinitions that store the 2D glyph mesh models making up the font. It's
+        #                keys must be the names for each glyph (usually the text it represents), and the corresponding
+        #                values are the ComponentDefinitions of the glyph's meshes.
         def initialize(name:, definitions:)
             @name = name
             @glyphs = definitions
-            @count = definitions.count()
         end
 
-        # Sets the definition for a specific glyph.
-        # index: The index of the glyph to replace.
-        # definition: The new definition for the glyph.
-        def set_glyph(index:, definition:)
-            @glyphs[index] = definition
+        # Sets the definition for a collection of glyphs.
+        #   glyphs: A hash of glyphs to add into the font, following the same scheme as '@glyphs'. If the font already
+        #           contains a glyph with the same name as one of the new glyphs, it is replaced with the new glyph.
+        def set_glyphs(glyphs:)
+            @glyphs.merge(glyphs);
         end
 
-        # Scales the font's glyphs according to an array of scale factors.
-        # scales: An array of scale factors which the glyphs are scaled by respectively. The length of the array must
-        #         match the number of glyphs in the font.
+        # Scales the glyphs by a hash of scale factors.
+        #   scales: A hash of scale factors; Keys must correspond to the name of a glyph in this font, and it's value is
+        #           the factor to scale the glyphs definition by. A factor of 1 will have no effect on the glyph.
         def set_scales(scales:)
-            scales.each_with_index() do |scale, i|
-                entities = @glyphs[i].entities()
+            scales.each() do |name, scale|
+                entities = @glyphs[name].entities()
                 entities.transform_entities(Geom::Transformation.scaling(scale), entities.to_a())
             end
         end
 
-        # Translates the font's glyphs according to an array of (x,y) offset pairs.
-        # offsets: An array of (x,y) coordinate pairs specifying how much to translate each glyph by in each direction.
-        #          The length of the array must match the number of glyphs in the font.
+        # Translate the glyphs by a hash of (x,y) offset pairs.
+        #   offsets: A hash of offset pairs; Keys must correspond to the name of a glyph in this font, and it's value is
+        #            a pair of offsets specifying how much to translate the glyph in each direction (x and y).
         def set_offset(offsets:)
-            offsets.each_with_index() do |offset, i|
-                entities = @glyphs[i].entities()
+            offsets.each() do |name, offset|
+                entities = @glyphs[name].entities()
                 vectorOffset = Geom::Vector3d::new(offset[0], offset[1], 0)
                 entities.transform_entities(Geom::Transformation.translation(vectorOffset), entities.to_a())
             end
         end
 
-        # Creates and returns an instance of the specified glyph as a 2D model with the specified transformations applied to it.
-        # The glyph is created in an enclosing group, and it is the enclosing group which is returned.
-        # index: The numerical index of the glyph to create. Usually this is the actual number to create.
-        # group: The group to place the glyph's model into.
-        # transform: The external transformation to apply to the glyph after instantiating it.
-        def create_glyph(index:, group:, transform: Util::DUMMY_TRANSFORM)
-            return group.entities().add_instance(@glyphs[index], transform)
+        # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
+        # enclosing group, and this group is placed into the provided group (instead of placing the glyph directly).
+        #   name: The name of the glyph to create, usually this is the text the glyph represents.
+        #   group: The group to place the glyph's group into, and hence the glyph itself.
+        #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
+        #   return: The group that immediately components the glyph's mesh.
+        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
+            return group.entities().add_instance(@glyphs[name], transform)
         end
     end
 
 
-    # Class that represents a font whose glyphs are made of 2D mesh models, and where each glyph has it's own unique
-    # mesh model. This is in contrast to SplicedCustomFont, where each glyph is made by combining glyphs for each digit.
-    class RawCustomFont < Font
-        # Create a new font with the specified name and whose glyphs are stored as DAE mesh files in the provided font folder.
+    # A font where every glyph is defined by it's own unique mesh model, and no combining of glyphs is performed.
+    class RawFont < Font
+        # The absolute path of the base folder that contains all the data for this font.
+        attr_reader :folder
+
+        # Create a new raw font with the specified name, and whose glyphs are defined by meshes stored in DAE files.
         # name: The plain-text name of the font.
-        # folder: The folder where all the glyph meshes are contained. This script expects our made up directory structure
-        #         to exist, where all the mesh files are stored in a "meshes" subdirectory. Hence you have to pass in the
-        #         parent font folder, and not the directory that immediately contains the mesh files.
-        #         It loads any mesh files whose filename is just a number between 0 and the max_index.
-        # max_index: The maximum index glyph to load. the constructor will only loads glyphs up to this number, starting at
-        #           the glyph "0.dae". Defaults to GLYPH_MAX".
-        def initialize(name:, folder:, max_index: FontUtil::GLYPH_MAX)
+        # folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
+        #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
+        #         it's the actual font folder that it expects to get.
+        def initialize(name:, folder:)
             @folder = folder
             # Construct the base Font object using the imported mesh definitions.
-            super(name: name, definitions: FontUtil.import_meshes(font_folder: @folder, mesh_names: (0..max_index).to_a()))
+            super(name: name, definitions: FontUtil.import_meshes(font_folder: @folder))
         end
     end
 
 
-    # Class that represents a font whose glyphs are made of combinations of 2D mesh models, where each mesh represents a
-    # single digit, and then all the glyphs are made by composing the digits together. This is in contrast to RawCustomFont
-    # where each glyph has it's own unique mesh model.
-    class SplicedCustomFont < Font
-        #TODO
-        def initialize(name:, folder:, padding:, max_index: FontUtil::GLYPH_MAX)
-            @folder = folder
+    # A font where a base set of glyphs is provided that all other composite glyphs can be generated from. For instance,
+    # supplying an glyphs for every single individual digits, allows for generating glyphs for any base 10 number.
+    class SplicedFont < RawFont
+        # The amount of horizontal space to leave in between glyphs when splicing them together
+        attr_reader :padding;
 
-            # Load in definitions for the glyphs '0' through '9' (or the max_index if it's less than 9).
-            definitions = FontUtil.import_meshes(font_folder: @folder, mesh_names: (0..[9, max_index].min()).to_a())
+        # Create a new spliced font with the specified font, and whose base glyphs are defined by meshes stored in DAE
+        # files. Every mesh in the font folder is loaded, and afterwards, composite glyphs are generated as needed.
+        # name: The plain-text name of the font.
+        # folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
+        #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
+        #         it's the actual font folder that it expects to get.
+        # padding: The amount of horizontal space to leave in between glyphs when splicing them together.
+        def initialize(name:, folder:, padding:)
+            super(name, folder)
+            @padding = padding;
+        end
 
-            # Iterate through the remaining glyphs that need definitions and generate them by splicing together the
-            # glyphs that represent their individual digits.
-            (10..max_index).each() do |i|
-                definitions[i] = FontUtil.splice_glyphs(glyphs: Util::get_digits(number: i).map{ |j| definitions[j] }, padding: padding)
+        # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
+        # enclosing group, and this group is placed into the provided group (instead of placing the glyph directly).
+        # This method delegates to the base implementation, but just makes sure to generate the requested glyph via
+        # splicing if it hasn't been created yet. After the check (and possible splicing), the base method is called.
+        #   name: The name of the glyph to create, usually this is the text the glyph represents.
+        #   group: The group to place the glyph's group into, and hence the glyph itself.
+        #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
+        #   return: The group that immediately components the glyph's mesh.
+        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
+            # Lazily create the requested glyph via splicing if it doesn't already have a definition.
+            unless @glyphs.key?(name)
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars(), padding: padding);
             end
-
-            # Construct the base Font.
-            super(name: name, definitions: definitions)
+            return super
         end
     end
 
 
     #TODO
-    class SplicedCustomPercentileFont < SplicedCustomFont
-        #TODO
-        def initialize(name, folder, padding, max_index = @@glyphMax)
-            # Splice together the font normally by calling the superclass's constructor.
-            super(name: name, folder: folder, padding: padding, max_index: max_index)
+    class SplicedPercentileFont1 < SplicedFont
+        # Delegates to the constructor of 'SplicedFont'.
+        def initialize(name:, folder:, padding:)
+            super
+        end
 
-            # Load the definition for '0' again. I don't know how to clone a ComponentDefinition, and since we're
-            # modifying the original definition of '0' to be '00', we need a separate definition of '0' to use. TODO
-            zero_def = FontUtil.import_meshes(font_folder: @folder, mesh_names: ['0'])
+        # Delegates to the implementation of 'SplicedFont', but first transforms the provided name to make it a first
+        # place percentile by subtracting 1 from the value. This class can only create glyphs corresponding to numbers,
+        # calling 'create_glyph' with anything other than an integer will raise an error.
+        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
+            # Subtract 1 from the number it a first place percentile.
+            name = String(Integer(name) - 1)
+            return super
+        end
+    end
 
-            # Append an extra '0' to the end of every glyph to make them percentiles.
-            @glyphs.each() do |glyph|
-                glyph = FontUtil.splice_glyphs(glyphs: [glyph, zero_def], padding: padding)
-            end
+    #TODO
+    class SplicedPercentileFont10 < SplicedFont
+        # Delegates to the constructor of 'SplicedFont'.
+        def initialize(name:, folder:, padding:)
+            super
+        end
+
+        # Delegates to the implementation of 'SplicedFont', but first transforms the provided name to make it a second
+        # place percentile by subtracting 1 from the value and concatanating a 0. This class can only create glyphs
+        # corresponding to numbers, calling 'create_glyph' with anything other than an integer will raise an error.
+        def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
+            # Subtract 1 from the number, add append a zero to the end of it to make it a second place percentile.
+            name = String(Integer(name) - 1) + '0'
+            return super
         end
     end
 
@@ -663,3 +710,27 @@ end
 
 
 ##### EXECUTION ####
+
+
+        # Converts a number into an array of it's individual digits over the specified base.
+        #   number: The number to decompose into it's digits.
+        #   base: The numerical base to decompose the number on. Defaults to base 10.
+        #   return: An array containing the digits making up the number in order from least significant to most.
+        #           (The opposite direction they're written in arabic numerals)
+        def get_digits(number:, base: 10)
+            result = []
+            temp = number
+
+            # Divide the number by 10 and check the remainder until there's nothing left to divide (temp reaches 0).
+            while (temp > 0)
+                quotient, remainder = temp.divmod(base)
+                result.push(remainder)
+                temp = quotient
+            end
+
+            return result
+        end
+
+
+
+
