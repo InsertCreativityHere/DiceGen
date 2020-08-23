@@ -253,7 +253,7 @@ module DiceGen
         #         it's the actual font folder that it expects to get.
         # padding: The amount of horizontal space to leave in between glyphs when splicing them together.
         def initialize(name:, folder:, padding:)
-            super(name, folder)
+            super(name: name, folder: folder)
             @padding = padding;
         end
 
@@ -268,7 +268,7 @@ module DiceGen
         def create_glyph(name:, group:, transform: Util::DUMMY_TRANSFORM)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars(), padding: padding);
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding);
             end
             return super
         end
@@ -299,19 +299,59 @@ module DiceGen
 
         # The ComponentDefinition that defines the die's mesh model.
         attr_reader :definition
-        # Array of groups that are centered and aligned to the faces of the die. These groups have their axes oriented
-        # to be coplanar with the faces, and to have their origin lie at the geometric center of the face. The ordering
-        # of these groups matches the numbering of the die faces, and it's with these faces that numbers are added.
-        attr_reader :face_groups
+        # An array of transformations used to place glyphs onto the faces of this die. Each entry is a coordinate
+        # transformation that maps the standard world coordinates to a face-local system with it's origin at the
+        # geometric center of the face, and it's axes rotated to be coplanar to the face (with +z pointing out).
+        # Each face has it's respective transformation, and they're ordered in the same way faces are numbered by.
+        attr_reader :face_transforms
 
-        #TODO
+        # Super constructor for all dice that stores the die's definition, and computes a set of transformations from
+        # the die's faces that can be used to easily add glyphs to the die later on.
+        # definition: The ComponentDefinition that holds the die's mesh definition.
+        # faces: Array of all the die's faces, in the same order the face's should be numbered by.
         def initialize(definition:, faces:)
-            #TODO
+            @definition = definition
+
+            @face_transforms = Array::new(faces.length())
+            # Iterate over each of the faces and compute their transformations via translation and rotation.
+            faces.each_with_index() do |face, i|
+                @face_transforms [i]= Util::DUMMY_TRANSFORM
+            end
         end
 
-        #TODO
-        def create_die(font:, group:, transform: Util::DUMMY_TRANSFORM)
-            #TODO
+        #TODO FORREAL
+        def create_die(font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            # Start a new operation so that creating the die can be undone/aborted if necessary.
+            Util::MAIN_MODEL.start_operation('Create Die', true)
+
+            # Create groups for placing the die and glyphs into.
+            die_group = group.entities().add_group()
+            glyph_group = group.entities().add_group()
+
+            # Create an instance of the die model in the die group.
+            die_mesh = die_group.entities()
+            die_mesh.add_instance(@definition, Util::DUMMY_TRANSFORM)
+
+            # Create glyphs for each face of the die and align them in preperation for embossing.
+            @face_transforms.each_with_index() do |face_transform, i|
+                font.create_glyph(name: i.to_s(), group: glyph_group, transform: face_transform)
+            end
+
+            # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
+            die_group.definition().invalidate_bounds()
+            glyph_group.definition().invalidate_bounds()
+
+            # Emboss the glyphs onto the faces of the die, then delete the glyphs.
+            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_group.entities().to_a())
+            glyph_group.erase!()
+
+            # Combine the scaling transformation with the provided external transform and apply them to the finished die.
+            die_mesh.transform_entities(Geom::Transformation.scaling(scale) * transform, die_mesh.to_a())
+
+            # Commit the operation to signal to Sketchup that the die has been created.
+            Util::MAIN_MODEL.commit_operation()
+
+            return die_group
         end
     end
 
@@ -502,16 +542,32 @@ module DiceGen
 
     # Module for storing all the font instances we've created in one easy to access central location.
     module Fonts
-        MADIFONT_2 = SplicedFont(name: "madifont 2", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 1)
-        MADIFONT_2.set_offsets({})
-        MADIFONT_2.set_scales({})
+        MADIFONT_2 = SplicedFont::new(name: "madifont 2", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 1)
+        MADIFONT_2.set_offsets(offsets: {})
+        MADIFONT_2.set_scales(scales: {})
 
-        GRAFFITI   = SplicedFont(name: "graffiti", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiGraffitiFont", padding: 1)
-        GRAFFITI.set_offsets({})
-        GRAFFITI.set_scales({})
+        GRAFFITI   = SplicedFont::new(name: "graffiti", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiGraffitiFont", padding: 1)
+        GRAFFITI.set_offsets(offsets: {})
+        GRAFFITI.set_scales(scales: {})
     end
 
 end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -524,54 +580,6 @@ end
 
 
 #=======================================================================================================================
-
-
-
-
-
-
-
-
-
-class Font
-    def initialize(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, __00, __10, __20, __30, __40, __50, __60, __70, __80, __90)
-        self._1 = _1;
-        self._2 = _2;
-        self._3 = _3;
-        self._4 = _4;
-        self._5 = _5;
-        self._6 = _6;
-        self._7 = _7;
-        self._8 = _8;
-        self._9 = _9;
-        self._10 = _10;
-        self._11 = _11;
-        self._12 = _12;
-        self._13 = _13;
-        self._14 = _14;
-        self._15 = _15;
-        self._16 = _16;
-        self._17 = _17;
-        self._18 = _18;
-        self._19 = _19;
-        self._20 = _20;
-        self.__00 = __00;
-        self.__10 = __10;
-        self.__20 = __20;
-        self.__30 = __30;
-        self.__40 = __40;
-        self.__50 = __50;
-        self.__60 = __60;
-        self.__70 = __70;
-        self.__80 = __80;
-        self.__90 = __90;
-    end
-end
-
-// We'll have 2 main ways of handling fonts
-
-
-
 class ImageFontHolder
     def initialize(fontName, folder, numberScale, offsets, tunedOffsets)
         self.font_name = fontName;
@@ -585,11 +593,6 @@ end
 
 
 
-
-
-
-
-
 herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2, 
                             [[0,0], [0,-0.1], [-0.05,-0.05], [0,-0.11], [+0.03,-0.18]]                                                          //D4
                             [[0,0], [0,-0.1], [0,-0.1], [0,-0.15], [0,-0.12], [0,-0.18], [0,-0.1]]                                              //D6
@@ -598,18 +601,6 @@ herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2,
                             [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D12 TODO
                             [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D20 TODO
                            )
-
-
-
-$dieScale = 1
-$currentFont = herculanum
-
-
-
-$Dummy_Transformation = Geom::Transformation.new()
-$PHI = (1.0 + Math::sqrt(5)) / 2.0
-$IHP = 1.0 / $PHI
-
 
 
 def scalePoint(point, scale)
@@ -695,23 +686,7 @@ end
 
 class D4
     def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D4', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        die_scale = 0.8
-        p111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
-        p001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
-        p010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
-        p100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
-
-        # Create all the faces of the die.
-        f1 = die_mesh.add_face([p010, p001, p111])
-        f2 = die_mesh.add_face([p100, p010, p001])
-        f3 = die_mesh.add_face([p010, p111, p100])
-        f4 = die_mesh.add_face([p001, p111, p100])
+        ...
 
         # Create the numbers to emboss on each face.
         numbers_group = model.active_entities.add_group()
@@ -722,42 +697,13 @@ class D4
             end
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
-        final_scale = Geom::Transformation.scaling(0.36858)
-        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+        ...
     end
 end
 
 class D6
     def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D6', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        die_scale = 0.5
-        p000 = scalePoint(Geom::Point3d.new(-1, -1, -1), die_scale)
-        p001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
-        p010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
-        p100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
-        p011 = scalePoint(Geom::Point3d.new(-1,  1,  1), die_scale)
-        p101 = scalePoint(Geom::Point3d.new( 1, -1,  1), die_scale)
-        p110 = scalePoint(Geom::Point3d.new( 1,  1, -1), die_scale)
-        p111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
-
-        # Create all the faces of the die.
-        f1 = die_mesh.add_face([p111, p011, p001, p101])
-        f2 = die_mesh.add_face([p101, p001, p000, p100])
-        f3 = die_mesh.add_face([p001, p011, p010, p000])
-        f4 = die_mesh.add_face([p111, p101, p100, p110])
-        f5 = die_mesh.add_face([p011, p111, p110, p010])
-        f6 = die_mesh.add_face([p000, p100, p110, p010])
+        ...
 
         # Create the numbers to emboss on each face.
         numbers_group = model.active_entities.add_group()
@@ -765,42 +711,13 @@ class D6
             createNumberDigits(numbers_group, face, index + 1, 0, 0.1, 0, 0)
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
-        final_scale = Geom::Transformation.scaling(0.591)
-        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+        ...
     end
 end
 
 class D8
     def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D8', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        die_scale = 1
-        px = scalePoint(Geom::Point3d.new( 1,  0,  0), die_scale)
-        nx = scalePoint(Geom::Point3d.new(-1,  0,  0), die_scale)
-        py = scalePoint(Geom::Point3d.new( 0,  1,  0), die_scale)
-        ny = scalePoint(Geom::Point3d.new( 0, -1,  0), die_scale)
-        pz = scalePoint(Geom::Point3d.new( 0,  0,  1), die_scale)
-        nz = scalePoint(Geom::Point3d.new( 0,  0, -1), die_scale)
-
-        # Create all the faces of the die.
-        f1 = die_mesh.add_face([px, py, pz])
-        f2 = die_mesh.add_face([nx, py, nz])
-        f3 = die_mesh.add_face([nx, py, pz])
-        f4 = die_mesh.add_face([px, py, nz])
-        f5 = die_mesh.add_face([nx, ny, pz])
-        f6 = die_mesh.add_face([px, ny, nz])
-        f7 = die_mesh.add_face([px, ny, pz])
-        f8 = die_mesh.add_face([nx, ny, nz])
+        ...
 
         # Create the numbers to emboss on each face.
         numbers_group = model.active_entities.add_group()
@@ -808,61 +725,13 @@ class D8
             createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
-        final_scale = Geom::Transformation.scaling(0.48613576)
-        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+        ...
     end
 end
 
 class D20
     def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D20', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        die_scale = 1
-        pzp = scalePoint(Geom::Point3d.new(    0,     1,  $PHI), die_scale)
-        nzp = scalePoint(Geom::Point3d.new(    0,     1, -$PHI), die_scale)
-        pzn = scalePoint(Geom::Point3d.new(    0,    -1,  $PHI), die_scale)
-        nzn = scalePoint(Geom::Point3d.new(    0,    -1, -$PHI), die_scale)
-        pyp = scalePoint(Geom::Point3d.new(    1,  $PHI,     0), die_scale)
-        nyp = scalePoint(Geom::Point3d.new(    1, -$PHI,     0), die_scale)
-        pyn = scalePoint(Geom::Point3d.new(   -1,  $PHI,     0), die_scale)
-        nyn = scalePoint(Geom::Point3d.new(   -1, -$PHI,     0), die_scale)
-        pxp = scalePoint(Geom::Point3d.new( $PHI,     0,     1), die_scale)
-        nxp = scalePoint(Geom::Point3d.new(-$PHI,     0,     1), die_scale)
-        pxn = scalePoint(Geom::Point3d.new( $PHI,     0,    -1), die_scale)
-        nxn = scalePoint(Geom::Point3d.new(-$PHI,     0,    -1), die_scale)
-
-        # Create all the faces of the die.
-        #TODO I should re-arrange these to be in order.
-        f6 = die_mesh.add_face([pxn, pyp, pxp])
-        f9 = die_mesh.add_face([nyp, pxp, pxn])
-        f12 = die_mesh.add_face([pyn, nxn, nxp])
-        f15 = die_mesh.add_face([nxp, nyn, nxn])
-        f3 = die_mesh.add_face([pzn, pxp, pzp])
-        f17 = die_mesh.add_face([pzn, nxp, pzp])
-        f4 = die_mesh.add_face([nzp, pxn, nzn])
-        f18 = die_mesh.add_face([nzp, nxn, nzn])
-        f8 = die_mesh.add_face([pyp, pyn, pzp])
-        f20 = die_mesh.add_face([pyp, pyn, nzp])
-        f1 = die_mesh.add_face([nyn, nyp, pzn])
-        f13 = die_mesh.add_face([nyn, nyp, nzn])
-        f16 = die_mesh.add_face([pzp, pyp, pxp])
-        f19 = die_mesh.add_face([pzn, nyp, pxp])
-        f14 = die_mesh.add_face([nzp, pyp, pxn])
-        f11 = die_mesh.add_face([nzn, nyp, pxn])
-        f10 = die_mesh.add_face([pzp, pyn, nxp])
-        f7 = die_mesh.add_face([pzn, nyn, nxp])
-        f2 = die_mesh.add_face([nzp, pyn, nxn])
-        f5 = die_mesh.add_face([nzn, nyn, nxn])
+        ...
 
         # Create the numbers to emboss on each face.
         numbers_group = model.active_entities.add_group()
@@ -870,12 +739,7 @@ class D20
             createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
+        ...
     end
 end
 
@@ -957,12 +821,7 @@ class D12
             createNumberDigits(numbers_group, face, index + 1, 0, 0, 0, 0)
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
+        ...
     end
 end
 
@@ -1013,12 +872,7 @@ class D10
             end
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
+        ...
     end
 end
 
@@ -1072,12 +926,7 @@ class D12
             end
         end
 
-        # Emboss the numbers into the faces of the die and delete the numbers.
-        model.definitions.each do |definition|
-            definition.invalidate_bounds()
-        end
-        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
-        numbers_group.erase!()
+        ...
     end
 end
 
