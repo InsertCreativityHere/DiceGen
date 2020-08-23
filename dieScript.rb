@@ -320,12 +320,12 @@ module DiceGen
         end
 
         #TODO FORREAL
-        def create_die(font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def self.create_die(font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create Die', true)
 
             # Create an instance of the die model within the enclosing group.
-            instance = group.entities().add_instance(@definition, Util::DUMMY_TRANSFORM).make_unique()
+            instance = group.entities().add_instance(self.instance.definition, Util::DUMMY_TRANSFORM).make_unique()
             die_def = instance.definition()
             die_mesh = die_def.entities()
 
@@ -334,7 +334,7 @@ module DiceGen
             glyph_mesh = glyph_group.entities()
 
             # Create glyphs for each face of the die and align them in preperation for embossing.
-            @face_transforms.each_with_index() do |face_transform, i|
+            self.instance.face_transforms.each_with_index() do |face_transform, i|
                 font.create_glyph(name: (i+1).to_s(), entities: glyph_mesh, transform: face_transform)
             end
 
@@ -560,13 +560,18 @@ module DiceGen
 
 end
 
-# These lines just make life easier when typing things into IRB.
+# These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
+# modules for the 'DiceGen' and 'Fonts' namespaces.
 include DiceGen
 include Fonts
 
 
-
-
+# ===== TODO =====
+# Split up the create_die stuff so that the D4 and D10 can override behavior effectively.
+# Make the dice things into class methods and remove the need for 'instance'
+# Try to figure out why there's still coupling of definition edits?
+# Finish making the numbers appear where they should be.
+# Make a class for SystemFont again!
 
 
 
