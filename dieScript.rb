@@ -512,3 +512,617 @@ module DiceGen
     end
 
 end
+
+
+
+
+
+
+
+
+
+
+
+#=======================================================================================================================
+
+
+
+
+
+
+
+
+
+class Font
+    def initialize(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, __00, __10, __20, __30, __40, __50, __60, __70, __80, __90)
+        self._1 = _1;
+        self._2 = _2;
+        self._3 = _3;
+        self._4 = _4;
+        self._5 = _5;
+        self._6 = _6;
+        self._7 = _7;
+        self._8 = _8;
+        self._9 = _9;
+        self._10 = _10;
+        self._11 = _11;
+        self._12 = _12;
+        self._13 = _13;
+        self._14 = _14;
+        self._15 = _15;
+        self._16 = _16;
+        self._17 = _17;
+        self._18 = _18;
+        self._19 = _19;
+        self._20 = _20;
+        self.__00 = __00;
+        self.__10 = __10;
+        self.__20 = __20;
+        self.__30 = __30;
+        self.__40 = __40;
+        self.__50 = __50;
+        self.__60 = __60;
+        self.__70 = __70;
+        self.__80 = __80;
+        self.__90 = __90;
+    end
+end
+
+// We'll have 2 main ways of handling fonts
+
+
+
+class ImageFontHolder
+    def initialize(fontName, folder, numberScale, offsets, tunedOffsets)
+        self.font_name = fontName;
+        self.folder = folder;
+        self.number_scale = numberScale;
+        self.inter_number_offset = internumberOffset;
+        self.offsets = offsets;
+        self.tuned_offsets = tunedOffsets;
+    end
+end
+
+
+
+
+
+
+
+
+herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2, 
+                            [[0,0], [0,-0.1], [-0.05,-0.05], [0,-0.11], [+0.03,-0.18]]                                                          //D4
+                            [[0,0], [0,-0.1], [0,-0.1], [0,-0.15], [0,-0.12], [0,-0.18], [0,-0.1]]                                              //D6
+                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075]]                   //D8
+                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D10 TODO
+                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D12 TODO
+                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D20 TODO
+                           )
+
+
+
+$dieScale = 1
+$currentFont = herculanum
+
+
+
+$Dummy_Transformation = Geom::Transformation.new()
+$PHI = (1.0 + Math::sqrt(5)) / 2.0
+$IHP = 1.0 / $PHI
+
+
+
+def scalePoint(point, scale)
+    point.x *= scale
+    point.y *= scale
+    point.z *= scale
+    return point
+end
+
+def findFaceCenter(vertices)
+    # Create point for storing the sum of all the vertice's positions.
+    temp = Geom::Point3d.new
+    count = vertices.length()
+
+    # Iterate through each vertex and add it's sum to 'temp'.
+    vertices.each do |vertex|
+        temp += vertex.position.to_a
+    end
+    # Compute the average position by dividing through by the total number of vertices.
+    return Geom::Point3d.new(temp.x / count, temp.y / count, temp.z / count)
+end
+
+def findEdgeCenter(edge)
+    # Compute the sum of the start and end positions.
+    temp = edge.start.position + edge.end.position.to_a
+    # Compute the average of the endpoints by dividing by 2.
+    return Geom::Point3d.new(temp.x / 2, temp.y / 2, temp.z / 2)
+end
+
+def getLetterPlanePlace(face, offsetX, offsetY, angle, edgeIndex)
+    # Get the normal vector that's pointing out from the face, and the edges comprising the face.
+    normal = face.normal().reverse()
+    edges = face.edges()
+    # find the center of the face, and the midpoint of the top-edge.
+    faceCenter = findFaceCenter(face.vertices)
+    edgeCenter = findEdgeCenter(edges[edgeIndex])
+
+    # Compute the x and y unit vectors. The Y axis points from the center of the face to the midpoint of the top-edge.
+    # And the X axis points along the cross product of the Y and Z (normal) axes.
+    upVector = (edgeCenter - faceCenter).normalize()
+    sideVector = normal.cross(upVector)
+
+    # Compute the distance to offset the new center by to ensure that the text is centered correctly.
+    centerOffset = Geom::Vector3d.new((sideVector.x * offsetX) + (upVector.x * offsetY), (sideVector.y * offsetX) + (upVector.y * offsetY), (sideVector.z * offsetX) + (upVector.z * offsetY))
+    letterCenter = faceCenter - centerOffset
+
+    # Create and return the actual transformations for adjusting the axes to be parallel and centered on the face, along with any
+    # rotation within the plane of the face for special dice that need it.
+    axesTransform = Geom::Transformation.axes(letterCenter, sideVector, upVector, normal)
+    rotationTransform = Geom::Transformation.rotation(Geom::Point3d.new(offsetX, offsetY, 0), Z_AXIS, angle * Math::PI / 180.0)
+    return axesTransform * rotationTransform
+end
+
+def createNumberDigits(numbers_group, face, number, offsetX, offsetY, angle, edgeIndex)
+    digits = number.to_s().chars()
+    if(digits.length() == 1)
+        number_group = numbers_group.entities().add_group()
+        number_entities = number_group.entities()
+        index = digits[0].to_i()
+        number_entities.add_3d_text(digits[0], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
+        number_bounds = number_group.bounds()
+        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
+    elsif(digits.length() == 2)
+        number_group = numbers_group.entities().add_group()
+        number_entities = number_group.entities()
+        index = digits[0].to_i()
+        number_entities.add_3d_text(digits[0], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
+        number_bounds = number_group.bounds()
+        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX + $currentFont.doubleDigitOffset, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
+
+        number_group = numbers_group.entities().add_group()
+        number_entities = number_group.entities()
+        index = digits[1].to_i()
+        number_entities.add_3d_text(digits[1], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
+        number_bounds = number_group.bounds()
+        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX - $currentFont.doubleDigitOffset, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
+    else
+        raise "Number has less than 1 or more than 2 characters are we can't handle that."
+    end       
+end
+
+
+
+class D4
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D4', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        die_scale = 0.8
+        p111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
+        p001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
+        p010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
+        p100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
+
+        # Create all the faces of the die.
+        f1 = die_mesh.add_face([p010, p001, p111])
+        f2 = die_mesh.add_face([p100, p010, p001])
+        f3 = die_mesh.add_face([p010, p111, p100])
+        f4 = die_mesh.add_face([p001, p111, p100])
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        corner_numbers = [[1, 3, 2], [2, 3, 4], [4, 3, 1], [4, 1, 2]]
+        [f1, f2, f3, f4].each_with_index do |face, index|
+            3.times do |number_index|
+                createNumberDigits(numbers_group, face, corner_numbers[index][number_index], 0, -0.5, 180, number_index)
+            end
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+        final_scale = Geom::Transformation.scaling(0.36858)
+        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+    end
+end
+
+class D6
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D6', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        die_scale = 0.5
+        p000 = scalePoint(Geom::Point3d.new(-1, -1, -1), die_scale)
+        p001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
+        p010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
+        p100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
+        p011 = scalePoint(Geom::Point3d.new(-1,  1,  1), die_scale)
+        p101 = scalePoint(Geom::Point3d.new( 1, -1,  1), die_scale)
+        p110 = scalePoint(Geom::Point3d.new( 1,  1, -1), die_scale)
+        p111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
+
+        # Create all the faces of the die.
+        f1 = die_mesh.add_face([p111, p011, p001, p101])
+        f2 = die_mesh.add_face([p101, p001, p000, p100])
+        f3 = die_mesh.add_face([p001, p011, p010, p000])
+        f4 = die_mesh.add_face([p111, p101, p100, p110])
+        f5 = die_mesh.add_face([p011, p111, p110, p010])
+        f6 = die_mesh.add_face([p000, p100, p110, p010])
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        [f1, f2, f3, f4, f5, f6].each_with_index do |face, index|
+            createNumberDigits(numbers_group, face, index + 1, 0, 0.1, 0, 0)
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+        final_scale = Geom::Transformation.scaling(0.591)
+        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+    end
+end
+
+class D8
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D8', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        die_scale = 1
+        px = scalePoint(Geom::Point3d.new( 1,  0,  0), die_scale)
+        nx = scalePoint(Geom::Point3d.new(-1,  0,  0), die_scale)
+        py = scalePoint(Geom::Point3d.new( 0,  1,  0), die_scale)
+        ny = scalePoint(Geom::Point3d.new( 0, -1,  0), die_scale)
+        pz = scalePoint(Geom::Point3d.new( 0,  0,  1), die_scale)
+        nz = scalePoint(Geom::Point3d.new( 0,  0, -1), die_scale)
+
+        # Create all the faces of the die.
+        f1 = die_mesh.add_face([px, py, pz])
+        f2 = die_mesh.add_face([nx, py, nz])
+        f3 = die_mesh.add_face([nx, py, pz])
+        f4 = die_mesh.add_face([px, py, nz])
+        f5 = die_mesh.add_face([nx, ny, pz])
+        f6 = die_mesh.add_face([px, ny, nz])
+        f7 = die_mesh.add_face([px, ny, pz])
+        f8 = die_mesh.add_face([nx, ny, nz])
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        [f1, f2, f3, f4, f5, f6, f7, f8].each_with_index do |face, index|
+            createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+        final_scale = Geom::Transformation.scaling(0.48613576)
+        die_mesh.transform_entities(final_scale, die_mesh.to_a())
+    end
+end
+
+class D20
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D20', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        die_scale = 1
+        pzp = scalePoint(Geom::Point3d.new(    0,     1,  $PHI), die_scale)
+        nzp = scalePoint(Geom::Point3d.new(    0,     1, -$PHI), die_scale)
+        pzn = scalePoint(Geom::Point3d.new(    0,    -1,  $PHI), die_scale)
+        nzn = scalePoint(Geom::Point3d.new(    0,    -1, -$PHI), die_scale)
+        pyp = scalePoint(Geom::Point3d.new(    1,  $PHI,     0), die_scale)
+        nyp = scalePoint(Geom::Point3d.new(    1, -$PHI,     0), die_scale)
+        pyn = scalePoint(Geom::Point3d.new(   -1,  $PHI,     0), die_scale)
+        nyn = scalePoint(Geom::Point3d.new(   -1, -$PHI,     0), die_scale)
+        pxp = scalePoint(Geom::Point3d.new( $PHI,     0,     1), die_scale)
+        nxp = scalePoint(Geom::Point3d.new(-$PHI,     0,     1), die_scale)
+        pxn = scalePoint(Geom::Point3d.new( $PHI,     0,    -1), die_scale)
+        nxn = scalePoint(Geom::Point3d.new(-$PHI,     0,    -1), die_scale)
+
+        # Create all the faces of the die.
+        #TODO I should re-arrange these to be in order.
+        f6 = die_mesh.add_face([pxn, pyp, pxp])
+        f9 = die_mesh.add_face([nyp, pxp, pxn])
+        f12 = die_mesh.add_face([pyn, nxn, nxp])
+        f15 = die_mesh.add_face([nxp, nyn, nxn])
+        f3 = die_mesh.add_face([pzn, pxp, pzp])
+        f17 = die_mesh.add_face([pzn, nxp, pzp])
+        f4 = die_mesh.add_face([nzp, pxn, nzn])
+        f18 = die_mesh.add_face([nzp, nxn, nzn])
+        f8 = die_mesh.add_face([pyp, pyn, pzp])
+        f20 = die_mesh.add_face([pyp, pyn, nzp])
+        f1 = die_mesh.add_face([nyn, nyp, pzn])
+        f13 = die_mesh.add_face([nyn, nyp, nzn])
+        f16 = die_mesh.add_face([pzp, pyp, pxp])
+        f19 = die_mesh.add_face([pzn, nyp, pxp])
+        f14 = die_mesh.add_face([nzp, pyp, pxn])
+        f11 = die_mesh.add_face([nzn, nyp, pxn])
+        f10 = die_mesh.add_face([pzp, pyn, nxp])
+        f7 = die_mesh.add_face([pzn, nyn, nxp])
+        f2 = die_mesh.add_face([nzp, pyn, nxn])
+        f5 = die_mesh.add_face([nzn, nyn, nxn])
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20].each_with_index do |face, index|
+            createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+    end
+end
+
+def createSet()
+    D4.new()
+    D6.new()
+    D8.new()
+    D20.new()
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class D12
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D12', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        die_scale = $dieScale
+        t000 = scalePoint(Geom::Point3d.new(-1, -1, -1), die_scale)
+        t001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
+        t010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
+        t100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
+        t011 = scalePoint(Geom::Point3d.new(-1,  1,  1), die_scale)
+        t101 = scalePoint(Geom::Point3d.new( 1, -1,  1), die_scale)
+        t110 = scalePoint(Geom::Point3d.new( 1,  1, -1), die_scale)
+        t111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
+        1pp = scalePoint(Geom::Point3d.new(    0,  $IPH,  $PHI), die_scale)
+        1pn = scalePoint(Geom::Point3d.new(    0,  $IPH, -$PHI), die_scale)
+        1np = scalePoint(Geom::Point3d.new(    0, -$IPH,  $PHI), die_scale)
+        1nn = scalePoint(Geom::Point3d.new(    0, -$IPH, -$PHI), die_scale)
+        2pp = scalePoint(Geom::Point3d.new( $IPH,  $PHI,     0), die_scale)
+        2pn = scalePoint(Geom::Point3d.new( $IPH, -$PHI,     0), die_scale)
+        2np = scalePoint(Geom::Point3d.new(-$IPH,  $PHI,     0), die_scale)
+        2nn = scalePoint(Geom::Point3d.new(-$IPH, -$PHI,     0), die_scale)
+        3pp = scalePoint(Geom::Point3d.new( $PHI,     0,  $IPH), die_scale)
+        3pn = scalePoint(Geom::Point3d.new(-$PHI,     0,  $IPH), die_scale)
+        3np = scalePoint(Geom::Point3d.new( $PHI,     0, -$IPH), die_scale)
+        3nn = scalePoint(Geom::Point3d.new(-$PHI,     0, -$IPH), die_scale)
+
+        # Create all the faces of the die.
+        TODO
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12].each_with_index do |face, index|
+            createNumberDigits(numbers_group, face, index + 1, 0, 0, 0, 0)
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+    end
+end
+
+
+
+
+
+
+okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
+Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.
+I'll move the carpets back into the bathroom and blow-dry them to perfection.
+After that we'll break open the AC unit, and we'll make a pass over it with the shop-vac to suck up as much crap as we can.
+Then we'll take the blower port and use that to knock some crap off of the fins if possible.
+We'll go at it with a brush to knock shit loose, while vacuuming of course.
+Then one final pass of the blower and vacuum and we'll put it all back together and hopefully see some increased performance.
+THE AIR CONDITIONER SHOULD BE OFF THE ENTIRE TIME!
+If we finish all that in time, then we'll start on refurbishing the 2nd floor bathroom too!
+
+class D10
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D10', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        # TODO
+
+        # Create all the faces of the die.
+        # TODO
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        counter = 0
+        maxCount = 10
+        die_mesh.each_with_index do |face, index|
+            if face.is_a? Sketchup::Face
+                number_group = numbers_group.entities().add_group()
+                number_entities = number_group.entities()
+                number_entities.add_3d_text((index + 1).to_s(), TextAlignCenter, $fontName, $isBold, $isItalic, $letterHeight)
+                number_bounds = number_group.bounds()
+                # TODO CHANGE THE ANGLE OF THE TRANSFORMATION TO WHAT IT ACTUALLY SHOULD BE!!!
+                number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0], (number_bounds.height / 2) + $fontOffsets[index][1], 45), number_entities.to_a())
+                counter += 1
+                if counter == maxCount
+                    break
+                end
+            end
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+    end
+end
+
+class D12
+    def initialize()
+        model = Sketchup.active_model()
+        model.start_operation('Create D20', true)
+        die_group = model.active_entities.add_group()
+        die_mesh = die_group.entities()
+
+        # Specify all the points making up the vertices of the shape.
+        t000 = Geom::Point3d.new(-1, -1, -1)
+        t001 = Geom::Point3d.new(-1, -1,  1)
+        t010 = Geom::Point3d.new(-1,  1, -1)
+        t100 = Geom::Point3d.new( 1, -1, -1)
+        t011 = Geom::Point3d.new(-1,  1,  1)
+        t101 = Geom::Point3d.new( 1, -1,  1)
+        t110 = Geom::Point3d.new( 1,  1, -1)
+        t111 = Geom::Point3d.new( 1,  1,  1)
+        1pp = Geom::Point3d.new(    0,  $IPH,  $PHI)
+        1pn = Geom::Point3d.new(    0,  $IPH, -$PHI)
+        1np = Geom::Point3d.new(    0, -$IPH,  $PHI)
+        1nn = Geom::Point3d.new(    0, -$IPH, -$PHI)
+        2pp = Geom::Point3d.new( $IPH,  $PHI,     0)
+        2pn = Geom::Point3d.new( $IPH, -$PHI,     0)
+        2np = Geom::Point3d.new(-$IPH,  $PHI,     0)
+        2nn = Geom::Point3d.new(-$IPH, -$PHI,     0)
+        3pp = Geom::Point3d.new( $PHI,     0,  $IPH)
+        3pn = Geom::Point3d.new(-$PHI,     0,  $IPH)
+        3np = Geom::Point3d.new( $PHI,     0, -$IPH)
+        3nn = Geom::Point3d.new(-$PHI,     0, -$IPH)
+
+        # Create all the faces of the die.
+        TODO
+
+        # Create the numbers to emboss on each face.
+        numbers_group = model.active_entities.add_group()
+        counter = 0
+        maxCount = 20
+        die_mesh.each_with_index do |face, index|
+            if face.is_a? Sketchup::Face
+                number_group = numbers_group.entities().add_group()
+                number_entities = number_group.entities()
+                number_entities.add_3d_text((index + 1).to_s(), TextAlignCenter, $fontName, $isBold, $isItalic, $letterHeight)
+                number_bounds = number_group.bounds()
+                number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0], (number_bounds.height / 2) + $fontOffsets[index][1], 0), number_entities.to_a())
+                counter += 1
+                if counter == maxCount
+                    break
+                end
+            end
+        end
+
+        # Emboss the numbers into the faces of the die and delete the numbers.
+        model.definitions.each do |definition|
+            definition.invalidate_bounds()
+        end
+        die_mesh.intersect_with(false, $Dummy_Transformation, die_mesh, $Dummy_Transformation, true, numbers_group.entities.to_a())
+        numbers_group.erase!()
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+# The first vertex on a face MUST be immediately to the left of the top vector of the text.
+
+def create_d6
+    p000 = Geom::Point3d.new((-0.5 * scale), (-0.5 * scale), (-0.5 * scale))
+    p001 = Geom::Point3d.new((-0.5 * scale), (-0.5 * scale), ( 0.5 * scale))
+    p010 = Geom::Point3d.new((-0.5 * scale), ( 0.5 * scale), (-0.5 * scale))
+    p100 = Geom::Point3d.new(( 0.5 * scale), (-0.5 * scale), (-0.5 * scale))
+    p011 = Geom::Point3d.new((-0.5 * scale), ( 0.5 * scale), ( 0.5 * scale))
+    p101 = Geom::Point3d.new(( 0.5 * scale), (-0.5 * scale), ( 0.5 * scale))
+    p110 = Geom::Point3d.new(( 0.5 * scale), ( 0.5 * scale), (-0.5 * scale))
+    p111 = Geom::Point3d.new(( 0.5 * scale), ( 0.5 * scale), ( 0.5 * scale))
+
+    f1 = d6_mesh.add_face([p011, p111, p110, p010])
+    f2 = d6_mesh.add_face([p010, p110, p100, p000])
+    f3 = d6_mesh.add_face([p011, p010, p000, p001])
+    f4 = d6_mesh.add_face([p110, p111, p101, p100])
+    f5 = d6_mesh.add_face([p111, p011, p001, p101])
+    f6 = d6_mesh.add_face([p000, p100, p101, p001])
+
+    tempNumberGroup = model.active_entities.add_group()
+    faceCount = d6_mesh.length()
+    counter = 1
+    d6_mesh.first(faceCount).each do |face|
+        if face.is_a? Sketchup::Face
+            numberGroup = tempNumberGroup.entities.add_group()
+            numberEntities = numberGroup.entities()
+            numberEntities.add_3d_text(counter.to_s, TextAlignCenter, fontName, isBold, isItalic, letterHeight)
+            numberBounds = numberGroup.bounds()
+            numberEntities.transform_entities(getLetterPlanePlace(face, (numberBounds.width / 2) + fontOffsets[counter-1][0], (numberBounds.height / 2) + fontOffsets[counter-1][1], 0), numberEntities.to_a)
+            counter += 1
+        end
+    end
+
+end
