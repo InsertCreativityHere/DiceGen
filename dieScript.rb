@@ -357,11 +357,46 @@ module DiceGen
     end
 
 
-    #TODO
+    # Abstract base class for all D4 dice.
     class D4Die < Die
         #TODO
     end
 
+
+    # Abstract base class for all D6 dice.
+    class D6Die < Die
+        #TODO
+    end
+
+
+    # Abstract base class for all D6 dice.
+    class D8Die < Die
+        #TODO
+    end
+
+
+    # Abstract base class for all D6 dice.
+    class D10Die < Die
+        #TODO
+    end
+
+
+    # Abstract base class for all D6 dice.
+    class D100Die < Die
+        #TODO
+    end
+
+
+    # Abstract base class for all D6 dice.
+    class D12Die < Die
+        #TODO
+    end
+
+
+    # Abstract base class for all D6 dice.
+    class D20Die < Die
+        #TODO
+    end
 
 
     # Module containing all the sharp-edged standard dice definitions.
@@ -393,7 +428,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
-        class D6 < Die
+        class D6 < D6Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -424,7 +459,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octohedron).
-        class D8 < Die
+        class D8 < D8Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -455,7 +490,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
-        class D10 < Die
+        class D10 < D10Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -474,7 +509,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D12 die (a dodecahedron).
-        class D12 < Die
+        class D12 < D12Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -493,7 +528,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D20 die (an icosahedron).
-        class D20 < Die
+        class D20 < D20Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -568,12 +603,12 @@ include Fonts
 
 # ===== TODO =====
 # Split up the create_die stuff so that the D4 and D10 can override behavior effectively.
-# Make the dice things into class methods and remove the need for 'instance'
 # Try to figure out why there's still coupling of definition edits?
 # Finish making the numbers appear where they should be.
 # Make a class for SystemFont again!
 
-
+# We should separate out the shapes, from the dice themselves. So we should have a DieMesh base class, and a Die base class.
+# The mesh will make the actual shapes, and then the Die class will take a font, a mesh, and a group, and I guess optionally a transform, and combine them all together.
 
 
 
