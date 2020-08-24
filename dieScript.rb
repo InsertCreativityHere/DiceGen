@@ -146,8 +146,8 @@ module DiceGen
 
         # Transforms the provided value to a first place percentile (percentile for the digits place) by subtracting 1.
         # Value must a string that represents an integer, calling this with anything else will raise an error.
-        # value: The integer value to convert to a first place percentile, passed as a string.
-        # return: The converted value.
+        #   value: The integer value to convert to a first place percentile, passed as a string.
+        #   return: The converted value.
         def convertForPercentile0(value:)
             return String(Integer(value) - 1)
         end
@@ -155,8 +155,8 @@ module DiceGen
         # Transforms the provided value to a second place percentile (percentile for the tens place) by subtracting 1
         # and concatenating a '0' on the end. Value must a string that represents an integer, calling this with anything
         # else will raise an error.
-        # value: The integer value to convert to a second place percentile, passed as a string.
-        # return: The converted value.
+        #   value: The integer value to convert to a second place percentile, passed as a string.
+        #   return: The converted value.
         def convertForPercentile00(value:)
             return String(Integer(value) - 1) + '0'
         end
@@ -227,8 +227,8 @@ module DiceGen
         attr_reader :folder
 
         # Create a new raw font with the specified name, and whose glyphs are defined by meshes stored in DAE files.
-        # name: The plain-text name of the font.
-        # folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
+        #   name: The plain-text name of the font.
+        #   folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
         #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
         #         it's the actual font folder that it expects to get.
         def initialize(name:, folder:)
@@ -248,10 +248,10 @@ module DiceGen
         # Create a new spliced font with the specified font, and whose base glyphs are defined by meshes stored in DAE
         # files. Every mesh in the font folder is loaded, and afterwards, composite glyphs are generated as needed.
         # name: The plain-text name of the font.
-        # folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
+        #   folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
         #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
         #         it's the actual font folder that it expects to get.
-        # padding: The amount of horizontal space to leave in between glyphs when splicing them together.
+        #   padding: The amount of horizontal space to leave in between glyphs when splicing them together.
         def initialize(name:, folder:, padding:)
             super(name: name, folder: folder)
             @padding = padding;
@@ -268,7 +268,7 @@ module DiceGen
         def create_glyph(name:, entities:, transform: Util::DUMMY_TRANSFORM)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding); #TODO
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding);
             end
             return super
         end
@@ -290,42 +290,47 @@ module DiceGen
     end
 
 
-    # Abstract base class for all dice.
-    class Die
+    # Abstract base class for all die models.
+    class DieModel
         # Limits this class (and it's subclasses) to only ever having a single instance which is globally available.
-        # We use the singleton pattern here because we only want to create the definition of each die once, and these
-        # classes represent the die definitions, and not their component instances, of which there can be multiple.
+        # We use the singleton pattern here because we only want to create the definition of each model once, and these
+        # classes represent the die model definitions, not their component instances, of which there can be multiple.
         include Singleton
 
         # The ComponentDefinition that defines the die's mesh model.
         attr_reader :definition
-        # An array of transformations used to place glyphs onto the faces of this die. Each entry is a coordinate
+        # An array of transformations used to place glyphs onto the faces of this die model. Each entry is a coordinate
         # transformation that maps the standard world coordinates to a face-local system with it's origin at the
         # geometric center of the face, and it's axes rotated to be coplanar to the face (with +z pointing out).
         # Each face has it's respective transformation, and they're ordered in the same way faces are numbered by.
         attr_reader :face_transforms
 
-        # Super constructor for all dice that stores the die's definition, and computes a set of transformations from
-        # the die's faces that can be used to easily add glyphs to the die later on.
-        # definition: The ComponentDefinition that holds the die's mesh definition.
-        # faces: Array of all the die's faces, in the same order the face's should be numbered by.
+        # Super constructor for all dice models that stores the die's model definition, and computes a set of
+        # transformations from the die's faces that can be used to easily add glyphs to the die later on.
+        #   definition: The ComponentDefinition that holds the die's mesh definition.
+        #   faces: Array of all the die's faces, in the same order the face's should be numbered by.
         def initialize(definition:, faces:)
             @definition = definition
 
             @face_transforms = Array::new(faces.length())
-            # Iterate over each of the faces and compute their transformations via translation and rotation.
+            # Iterate through each face of the die and compute their face-local coordinate transformations.
             faces.each_with_index() do |face, i|
-                @face_transforms [i]= Util::DUMMY_TRANSFORM
+                @face_transforms [i]= Util::DUMMY_TRANSFORM #TODO
             end
         end
+    end
 
-        #TODO FORREAL
-        def self.create_die(font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+
+    # Abstract base class for all die instances
+    class Die
+        # Creates a new instance of a die.
+        # TODO
+        def initialize(model:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create Die', true)
 
             # Create an instance of the die model within the enclosing group.
-            instance = group.entities().add_instance(self.instance.definition, Util::DUMMY_TRANSFORM).make_unique()
+            instance = group.entities().add_instance(model.instance.definition, Util::DUMMY_TRANSFORM).make_unique()
             die_def = instance.definition()
             die_mesh = die_def.entities()
 
@@ -334,8 +339,8 @@ module DiceGen
             glyph_mesh = glyph_group.entities()
 
             # Create glyphs for each face of the die and align them in preperation for embossing.
-            self.instance.face_transforms.each_with_index() do |face_transform, i|
-                font.create_glyph(name: (i+1).to_s(), entities: glyph_mesh, transform: face_transform)
+            model.instance.face_transforms.each_with_index() do |face_transform, i|
+                place_glyph(font: font, index: i, mesh: glyph_mesh, transform: face_transform)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -343,67 +348,94 @@ module DiceGen
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_mesh.to_a()) #TODO
-            #glyph_group.erase!()
+            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_mesh.to_a())
+            glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(Geom::Transformation.scaling(scale) * transform, die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
             Util::MAIN_MODEL.commit_operation()
+        end
 
-            return instance
+        #TODO
+        def place_glyph(font: index: mesh:, transform:)
+            font.create_glyph(name: (index+1).to_s(), entities: mesh, transform: transform)
         end
     end
 
 
-    # Abstract base class for all D4 dice.
+    # Class representing a D4 die.
     class D4Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D4, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
+    # Class representing a D6 die.
     class D6Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D6, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
+    # Class representing a D8 die.
     class D8Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D8, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
+    # Class representing a D10 die.
     class D10Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D10, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
-    class D100Die < Die
+    # Class representing a D% die.
+    class DPDie < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::DP, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
+    # Class representing a D12 die.
     class D12Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D12, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Abstract base class for all D6 dice.
+    # Class representing a D20 die.
     class D20Die < Die
         #TODO
+        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super(model: style::D20, font: font, group: group, scale: scale, transform: transform)
+        end
     end
 
 
-    # Module containing all the sharp-edged standard dice definitions.
+
+    ##### DICE SETS #####
+
+    # Module containing all the model definitions for the sharp-edged standard dice set.
     module SharpEdgedStandard
 
         # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
-        class D4 < D4Die
+        class D4 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -428,7 +460,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
-        class D6 < D6Die
+        class D6 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -459,7 +491,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octohedron).
-        class D8 < D8Die
+        class D8 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -490,7 +522,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
-        class D10 < D10Die
+        class D10 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -509,7 +541,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D12 die (a dodecahedron).
-        class D12 < D12Die
+        class D12 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -528,7 +560,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D20 die (an icosahedron).
-        class D20 < D20Die
+        class D20 < DieModel
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -602,13 +634,10 @@ include Fonts
 
 
 # ===== TODO =====
-# Split up the create_die stuff so that the D4 and D10 can override behavior effectively.
 # Try to figure out why there's still coupling of definition edits?
 # Finish making the numbers appear where they should be.
 # Make a class for SystemFont again!
 
-# We should separate out the shapes, from the dice themselves. So we should have a DieMesh base class, and a Die base class.
-# The mesh will make the actual shapes, and then the Die class will take a font, a mesh, and a group, and I guess optionally a transform, and combine them all together.
 
 
 
