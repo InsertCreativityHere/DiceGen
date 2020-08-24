@@ -325,7 +325,7 @@ module DiceGen
     class Die
         # Creates a new instance of a die.
         # TODO
-        def initialize(model:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(model:, font:, group: Util::MAIN_MODEL.entities().add_group(), scale: 1.0, transform: Util::DUMMY_TRANSFORM)#TODO
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create Die', true)
 
@@ -358,8 +358,13 @@ module DiceGen
             Util::MAIN_MODEL.commit_operation()
         end
 
-        #TODO
-        def place_glyph(font: index: mesh:, transform:)
+        # Creates and places glyphs on each of the die's faces. This method exists so that subclasses can override it to
+        # allow for custom glyph placement, for instance on D4's where more than 1 glyph needs to be placed per face.
+        #   font: The font to create the glyphs in.
+        #   index: The index of the current face that is being 'glyphed'.
+        #   mesh: The collection of entities where glyphs should be generated into.
+        #   transform: The coordinate transformation representing the face-local coordinate system for the current face.
+        def place_glyph(font:, index:, mesh:, transform:)
             font.create_glyph(name: (index+1).to_s(), entities: mesh, transform: transform)
         end
     end
@@ -367,7 +372,16 @@ module DiceGen
 
     # Class representing a D4 die.
     class D4Die < Die
-        #TODO
+        # Creates a new D4 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D4 in the specified style.
+        #   style: The style to make the D4 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D4s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D4, font: font, group: group, scale: scale, transform: transform)
         end
@@ -376,7 +390,16 @@ module DiceGen
 
     # Class representing a D6 die.
     class D6Die < Die
-        #TODO
+        # Creates a new D6 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D6 in the specified style.
+        #   style: The style to make the D6 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D6s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D6, font: font, group: group, scale: scale, transform: transform)
         end
@@ -385,7 +408,16 @@ module DiceGen
 
     # Class representing a D8 die.
     class D8Die < Die
-        #TODO
+        # Creates a new D8 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D8 in the specified style.
+        #   style: The style to make the D8 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D8s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D8, font: font, group: group, scale: scale, transform: transform)
         end
@@ -394,7 +426,16 @@ module DiceGen
 
     # Class representing a D10 die.
     class D10Die < Die
-        #TODO
+        # Creates a new D10 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D10 in the specified style.
+        #   style: The style to make the D10 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D10s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D10, font: font, group: group, scale: scale, transform: transform)
         end
@@ -403,7 +444,17 @@ module DiceGen
 
     # Class representing a D% die.
     class DPDie < Die
-        #TODO
+        # Creates a new percentile die in the specified style and font. This constructor just delegates to the base
+        # constructor apart from automatically finding the model that corresponds to a percentile die in the specified
+        # style.
+        #   style: The style to make the percentile die in. Internally styles are modules, so this field should be the
+        #          module that contains the set of DieModels you want to use for the dice. The constructor automatically
+        #          picks the model that corresponds to percentile dies.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::DP, font: font, group: group, scale: scale, transform: transform)
         end
@@ -412,7 +463,16 @@ module DiceGen
 
     # Class representing a D12 die.
     class D12Die < Die
-        #TODO
+        # Creates a new D12 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D12 in the specified style.
+        #   style: The style to make the D12 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D12s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D12, font: font, group: group, scale: scale, transform: transform)
         end
@@ -421,7 +481,16 @@ module DiceGen
 
     # Class representing a D20 die.
     class D20Die < Die
-        #TODO
+        # Creates a new D20 in the specified style and font. This constructor just delegates to the base constructor
+        # apart from automatically finding the model that corresponds to a D20 in the specified style.
+        #   style: The style to make the D20 in. Internally styles are modules, so this field should be the module that
+        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
+        #          model that corresponds to D20s.
+        #   font: The font to use for generating glyphs on the die.
+        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
+        #          nested in the provided group in reality.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D20, font: font, group: group, scale: scale, transform: transform)
         end
@@ -583,27 +652,27 @@ module DiceGen
 
                 # Create the faces of the die by joining the vertices with edges.
                 faces = Array::new(20)
-                #TODO I should re-arrange these to be in order.
-                faces[5]  = mesh.add_face([pxn, pyp, pxp])
-                faces[8]  = mesh.add_face([nyp, pxp, pxn])
-                faces[11] = mesh.add_face([pyn, nxn, nxp])
-                faces[14] = mesh.add_face([nxp, nyn, nxn])
-                faces[2]  = mesh.add_face([pzn, pxp, pzp])
-                faces[16] = mesh.add_face([pzn, nxp, pzp])
-                faces[3]  = mesh.add_face([nzp, pxn, nzn])
-                faces[17] = mesh.add_face([nzp, nxn, nzn])
-                faces[7]  = mesh.add_face([pyp, pyn, pzp])
-                faces[19] = mesh.add_face([pyp, pyn, nzp])
+                #TODO Some of these need to be fixed (the face is inverted)
                 faces[0]  = mesh.add_face([nyn, nyp, pzn])
-                faces[12] = mesh.add_face([nyn, nyp, nzn])
-                faces[15] = mesh.add_face([pzp, pyp, pxp])
-                faces[18] = mesh.add_face([pzn, nyp, pxp])
-                faces[13] = mesh.add_face([nzp, pyp, pxn])
-                faces[10] = mesh.add_face([nzn, nyp, pxn])
-                faces[9]  = mesh.add_face([pzp, pyn, nxp])
-                faces[8]  = mesh.add_face([pzn, nyn, nxp])
                 faces[1]  = mesh.add_face([nzp, pyn, nxn])
+                faces[2]  = mesh.add_face([pzn, pxp, pzp])
+                faces[3]  = mesh.add_face([nzp, pxn, nzn])
                 faces[4]  = mesh.add_face([nzn, nyn, nxn])
+                faces[5]  = mesh.add_face([pxn, pyp, pxp])
+                faces[6]  = mesh.add_face([pzn, nyn, nxp])
+                faces[7]  = mesh.add_face([pyp, pyn, pzp])
+                faces[8]  = mesh.add_face([nyp, pxp, pxn])
+                faces[9]  = mesh.add_face([pzp, pyn, nxp])
+                faces[10] = mesh.add_face([nzn, nyp, pxn])
+                faces[11] = mesh.add_face([pyn, nxn, nxp])
+                faces[12] = mesh.add_face([nyn, nyp, nzn])
+                faces[13] = mesh.add_face([nzp, pyp, pxn])
+                faces[14] = mesh.add_face([nxp, nyn, nxn])
+                faces[15] = mesh.add_face([pzp, pyp, pxp])
+                faces[16] = mesh.add_face([pzn, nxp, pzp])
+                faces[17] = mesh.add_face([nzp, nxn, nzn])
+                faces[18] = mesh.add_face([pzn, nyp, pxp])
+                faces[19] = mesh.add_face([pyp, pyn, nzp])
 
                 super(definition: definition, faces: faces)
             end
@@ -681,14 +750,6 @@ herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2,
                             [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D12 TODO
                             [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D20 TODO
                            )
-
-
-def scalePoint(point, scale)
-    point.x *= scale
-    point.y *= scale
-    point.z *= scale
-    return point
-end
 
 def findFaceCenter(vertices)
     # Create point for storing the sum of all the vertice's positions.
@@ -832,84 +893,6 @@ end
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class D12
-    def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D12', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        die_scale = $dieScale
-        t000 = scalePoint(Geom::Point3d.new(-1, -1, -1), die_scale)
-        t001 = scalePoint(Geom::Point3d.new(-1, -1,  1), die_scale)
-        t010 = scalePoint(Geom::Point3d.new(-1,  1, -1), die_scale)
-        t100 = scalePoint(Geom::Point3d.new( 1, -1, -1), die_scale)
-        t011 = scalePoint(Geom::Point3d.new(-1,  1,  1), die_scale)
-        t101 = scalePoint(Geom::Point3d.new( 1, -1,  1), die_scale)
-        t110 = scalePoint(Geom::Point3d.new( 1,  1, -1), die_scale)
-        t111 = scalePoint(Geom::Point3d.new( 1,  1,  1), die_scale)
-        1pp = scalePoint(Geom::Point3d.new(    0,  $IPH,  $PHI), die_scale)
-        1pn = scalePoint(Geom::Point3d.new(    0,  $IPH, -$PHI), die_scale)
-        1np = scalePoint(Geom::Point3d.new(    0, -$IPH,  $PHI), die_scale)
-        1nn = scalePoint(Geom::Point3d.new(    0, -$IPH, -$PHI), die_scale)
-        2pp = scalePoint(Geom::Point3d.new( $IPH,  $PHI,     0), die_scale)
-        2pn = scalePoint(Geom::Point3d.new( $IPH, -$PHI,     0), die_scale)
-        2np = scalePoint(Geom::Point3d.new(-$IPH,  $PHI,     0), die_scale)
-        2nn = scalePoint(Geom::Point3d.new(-$IPH, -$PHI,     0), die_scale)
-        3pp = scalePoint(Geom::Point3d.new( $PHI,     0,  $IPH), die_scale)
-        3pn = scalePoint(Geom::Point3d.new(-$PHI,     0,  $IPH), die_scale)
-        3np = scalePoint(Geom::Point3d.new( $PHI,     0, -$IPH), die_scale)
-        3nn = scalePoint(Geom::Point3d.new(-$PHI,     0, -$IPH), die_scale)
-
-        # Create all the faces of the die.
-        TODO
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12].each_with_index do |face, index|
-            createNumberDigits(numbers_group, face, index + 1, 0, 0, 0, 0)
-        end
-
-        ...
-    end
-end
-
-
-
-
-
-
 okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
 Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.
 I'll move the carpets back into the bathroom and blow-dry them to perfection.
@@ -1010,19 +993,7 @@ class D12
     end
 end
 
-
-
-
-
-
-
-
-
-
-
-
 # The first vertex on a face MUST be immediately to the left of the top vector of the text.
-
 def create_d6
     p000 = Geom::Point3d.new((-0.5 * scale), (-0.5 * scale), (-0.5 * scale))
     p001 = Geom::Point3d.new((-0.5 * scale), (-0.5 * scale), ( 0.5 * scale))
