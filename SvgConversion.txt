@@ -1,0 +1,62 @@
+This file contains the instructions for converting an SVG vector image file into a mesh model that can be used in Sketchup.
+There are two main phases to the process, first the vectorized curve must be cleaned and simplified in Inkscape, and then second, it's converted from a curve into a mesh in Blender.
+These instructions both explain the process, and also provide the necessary key-presses/mouse-clicks to automate it.
+
+===== INKSCAPE =====
+I don’t know if there’s an API for Inkscape, or really anything about it at all, despite my constant installing of it and using it for Anina’s classes.
+Inkscape is used before Blender to quality check and clean up the SVG images Madi draws in illustrator before feeding them through the rest of the process. This process doesn’t factor in the cleaning that will be necessary. There isn’t any prescribed time where it’s better to clean. It’s just a sort of clean-as-you-go kind of process.
+1. Change the editing mode from Object to Node mode. This just changes the view on the screen from Object mode, where Inkscape just draw a rectangle showing the bounds of the object, or Node, where it actually highlights the vector path and shows all the nodes on it. Not required, but will help us see any mistakes and weirdness in the paths.
+        “Edit Paths by Node”
+        “N”
+2. Ungroup everything: Remove the groupings so that the vector paths are all just plain and on the same level, not hidden or anything.
+You may have to ungroup multiple times to remove the nested groups. Continue removing until all the paths are at the top level.
+        “Edit -> Select All” && “Object -> Ungroup”
+        “<CMD> + A” && “<Shift> + <CMD> + G”
+3. Combine all the paths into a single shape: This will eliminate any overlaps or strange geometry that Blender and Sketchup wouldn’t be able to handle.
+        “Path -> Union”
+        “<CMD> + +”
+4. Save the cleaned file: self explanatory (hopefully…)
+        “ File -> Save As”
+        “<Shift> + <CMD> + S”
+5. Close the file: also self explanatory, and unnecessary to document, but figure it can’t hurt to put here since pragmatically I’m going to be closing every file after I’ve finished cleaning it. It’s exactly what you’d expect.
+        “ File -> Close”
+        “<CMD> + W”
+
+
+===== BLENDER =====
+Here is the main steps needed to run something through Blender. There is a Python API for Blender, but I think the current manual method is quick enough. Trying to learn the API and write a script version would be longer in total, even if it would have faster execution time. But maybe one day you could look into writing a real script for it.
+Blender is used to convert the vector paths into a 3d mesh, or more specifically to convert from SVG to DAE.
+1. Import the file: pretty self explanatory.
+        “File -> Import -> Scalable Vector Graphics (.svg)”
+        “<fn> + F4 + I + S”
+2. Center the origin within the geometry: This ensures the curves are centered the glyph’s center, so it won’t be at some weird offset when loaded into Sketchup. (The first part is just to select everything)
+        “Select -> All” && “Object -> Set Origin -> Origin To Geometry”
+        “A” && “Object -> S + O”
+3. Snap the Model to the global origin: This ensures that the curve is centered within Blender, so that again, when it’s imported into Sketchup it’ll be exactly in the center and not at some strange offset.
+        “Object -> Snap -> Selection to Cursor (Keep Offset)”
+        “Object -> N + C”
+4. I don’t know why you have to do this, but I guess it doesn’t refresh the available options unless you interact with it first? Just do this though:
+        “Click part of the mesh model” && “Select -> All”
+        “Click part of the mesh model” && “A”
+5. Convert the curves to meshes: This is the part that actually takes the 2D vector curves and converts it into a 3D mesh model (even if the model has 0 height technically). This way the file can be imported and used in Sketchup properly.
+        “Object -> Convert To -> Mesh from Curve/Meta/Surf/Text”
+        “Object -> V + M”
+6. Join the meshes into a single mesh model: This makes it easier and cleaner to import into Sketchup by ‘pre-grouping’ the meshes, to borrow Sketchup terminology. This is no longer needed, since the paths are all already united together in Inkscape, so there should only be a single mesh anyways.
+        “Object -> Join”
+        “<CMD> + J”
+7. Switch to Edit Mode: This lets us edit the mesh structure that was generated from the curve to clean up the geometry before passing it to Sketchup
+        “Edit Mode”
+        “<TAB>”
+8. Export the joined mesh model as a DAE () file: This way Sketchup will actually recognize the file format and can use the mesh obviously.
+        “File -> Export -> Collada (.dae)”
+        “<fn> + F4 + E + C”
+One final note when Blendering, is that it doesn’t remember the last folder you saved in, and navigating to the right folder takes time and introduces possibility of error, so it’s probably worth adding a ‘Favorite when you’re exporting the first DAE mesh, to make life easier for the other 9, just make sure to delete it after finishing.
+
+
+
+So here’s the complete list of keys-strokes needed to run something through Inkscape:
+    “N”   ->   “<CMD>  A”   ->   “<Shift>  <CMD>  G”   ->   “<Shift>  <CMD>  G”   ->   “<CMD>   +”   ->   ”<Shift>  <CMD>  S”   ->   “<CMD>  W”
+
+And here’s the complete list of keys and clicks needed to convert a file in blender:
+    “<fn>  F4  I  S”   ->   “A“   ->   “[Object]  S  O”   ->   “[Object]  N  C”   ->   “{Click}”  ->   “[Object]  V  M”   ->   “<TAB>”   ->   “<fn>  F4  E  C”
+Just be sure to delete the entire collection when you’re done. Just deleting the meshes might not be good enough.
