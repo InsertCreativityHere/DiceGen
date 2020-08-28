@@ -33,7 +33,7 @@ module DiceGen
         # Will get rid of the extra instance.
         #   file: The absolute path of the file to import from.
         #   return: A ComponentDefinition corresponding to the imported definition.
-        def import_definition(file:)
+        def import_definition(file)
             # Check if the file exists and is reachable.
             if !File.exist?(file)
                 raise "Failed to locate the file '#{file}'"
@@ -89,7 +89,7 @@ module DiceGen
                 (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
                     filename = File.basename(file, ".dae")
-                    meshes[filename] = Util.import_definition(file: file)
+                    meshes[filename] = Util.import_definition(file)
                     puts "    Loaded '#{filename}.dae'"
                 end
             else
@@ -97,7 +97,7 @@ module DiceGen
                     # Get the absolute path of the mesh file to import.
                     file = "#{font_folder}/meshes/#{mesh}.dae"
                     if (File.exists?(file))
-                        meshes[mesh] = Util.import_definition(file: file)
+                        meshes[mesh] = Util.import_definition(file)
                         puts "    Loaded '#{mesh}.dae'"
                     else
                         puts "    Failed to load '#{mesh}.dae'"
@@ -127,18 +127,18 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(name)
             entities = definition.entities()
 
-            # Keep a running tally of the current x position, starting at the rightmost point.
-            xPos = total_width / 2
+            # Keep a running tally of the current x position, starting at the leftmost point.
+            xPos = -total_width / 2
 
             # Create instances of the component glyphs in the new definition.
             glyphs.each() do |glyph|
                 # Calculate the x position to place the glyph at so the new spliced glyph is still centered.
                 width = glyph.bounds().width()
-                offset = Geom::Point3d::new(xPos - (width / 2), 0, 0)
+                offset = Geom::Point3d::new(xPos + (width / 2), 0, 0)
                 # Create an instance of the component glyph to splice it into the definition.
                 entities.add_instance(glyph, Geom::Transformation.translation(offset))
-                # Increment the width by the width of the glyph we just placed, plus the padding between glyphs.
-                xPos -= width + padding
+                # Increment the position by the width of the glyph we just placed, plus the padding between glyphs.
+                xPos += width + padding
             end
 
             return definition
@@ -148,7 +148,7 @@ module DiceGen
         # Value must a string that represents an integer, calling this with anything else will raise an error.
         #   value: The integer value to convert to a first place percentile, passed as a string.
         #   return: The converted value.
-        def convertForPercentile0(value:)
+        def convertForPercentile0(value)
             return String(Integer(value) - 1)
         end
 
@@ -157,7 +157,7 @@ module DiceGen
         # else will raise an error.
         #   value: The integer value to convert to a second place percentile, passed as a string.
         #   return: The converted value.
-        def convertForPercentile00(value:)
+        def convertForPercentile00(value)
             return String(Integer(value) - 1) + '0'
         end
     end
@@ -184,14 +184,14 @@ module DiceGen
         # Sets the definition for a collection of glyphs.
         #   glyphs: A hash of glyphs to add into the font, following the same scheme as '@glyphs'. If the font already
         #           contains a glyph with the same name as one of the new glyphs, it is replaced with the new glyph.
-        def set_glyphs(glyphs:)
+        def set_glyphs(glyphs)
             @glyphs.merge(glyphs);
         end
 
         # Scales the glyphs by a hash of scale factors.
         #   scales: A hash of scale factors; Keys must correspond to the name of a glyph in this font, and it's value is
         #           the factor to scale the glyphs definition by. A factor of 1 will have no effect on the glyph.
-        def set_scales(scales:)
+        def set_scales(scales)
             scales.each() do |name, scale|
                 entities = @glyphs[name].entities()
                 entities.transform_entities(Geom::Transformation.scaling(scale), entities.to_a())
@@ -201,7 +201,7 @@ module DiceGen
         # Translate the glyphs by a hash of (x,y) offset pairs.
         #   offsets: A hash of offset pairs; Keys must correspond to the name of a glyph in this font, and it's value is
         #            a pair of offsets specifying how much to translate the glyph in each direction (x and y).
-        def set_offsets(offsets:)
+        def set_offsets(offsets)
             offsets.each() do |name, offset|
                 entities = @glyphs[name].entities()
                 vectorOffset = Geom::Vector3d::new(offset[0], offset[1], 0)
@@ -282,11 +282,48 @@ module DiceGen
 
     #  Module containing dice specific utility code.
     module DiceUtil
+        module_function
+
         # The mathematical constant known as the "golden ratio".
         $PHI = (1.0 + Math::sqrt(5)) / 2.0
 
         # The reciprocal of phi.
         $IHP = 1.0 / $PHI
+
+        def find_edge_center(edge)
+            return Geom::Point3d.linear_combination(0.5, edge.start.position, 0.5, edge.end.position)
+        end
+
+        def find_face_center(face)
+            x = 0; y = 0; z = 0;
+
+            # Iterate through each of the vertices of the face and add them onto the totals.
+            face.vertices().each() do |vertex|
+                pos = vertex.position()
+                x += pos.x; y += pos.y; z += pos.z;
+            end
+
+            # Compute the average position by dividing through by the total number of vertices.
+            count = face.vertices().length()
+            return Geom::Point3d::new(x / count, y / count, z / count)
+        end
+
+        def get_face_transform(face)
+            # Get the normal vector that's pointing out from the face. This is going to become the new '+z' direction.
+            normal = face.normal()
+
+            # Compute the center point of the face and the center it's bottom edge.
+            face_center = find_face_center(face)
+            edge_center = find_edge_center(face.edges()[0])
+
+            # Compute the positive y axes by subtracting the centers and normalizing. By subtracting the face center from the
+            # edge center we ensure that it's pointing up.
+            y_vector = Geom::Vector3d::new((face_center - edge_center).to_a()).normalize()
+            # Compute the positive x axis by crossing the y and z axes vectors, again minding the order so it points right.
+            x_vector = y_vector.cross(normal)
+
+            return Geom::Transformation.axes(face_center, x_vector, y_vector, normal)
+        end
     end
 
 
@@ -315,7 +352,7 @@ module DiceGen
             @face_transforms = Array::new(faces.length())
             # Iterate through each face of the die and compute their face-local coordinate transformations.
             faces.each_with_index() do |face, i|
-                @face_transforms [i]= Util::DUMMY_TRANSFORM #TODO
+                @face_transforms[i] = DiceUtil.get_face_transform(face)
             end
         end
     end
@@ -325,7 +362,12 @@ module DiceGen
     class Die
         # Creates a new instance of a die.
         # TODO
-        def initialize(model:, font:, group: Util::MAIN_MODEL.entities().add_group(), scale: 1.0, transform: Util::DUMMY_TRANSFORM)#TODO
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            # Default the group to a new top-level group if nil
+            if (group.nil?())
+                group = Util::MAIN_MODEL.entities().add_group()
+            end
+
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create Die', true)
 
@@ -352,7 +394,7 @@ module DiceGen
             glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
-            die_mesh.transform_entities(Geom::Transformation.scaling(scale) * transform, die_mesh.to_a())
+            die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
             Util::MAIN_MODEL.commit_operation()
@@ -382,7 +424,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D4, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -400,7 +442,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D6, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -418,7 +460,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D8, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -436,7 +478,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D10, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -455,7 +497,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::DP, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -473,7 +515,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D12, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -491,7 +533,7 @@ module DiceGen
         #          nested in the provided group in reality.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group:, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D20, font: font, group: group, scale: scale, transform: transform)
         end
     end
@@ -606,6 +648,8 @@ module DiceGen
                 #TODO
 
                 super(definition: definition, faces: faces)
+
+                # Rotate each of the face transforms by TODO
             end
         end
 
@@ -652,9 +696,8 @@ module DiceGen
 
                 # Create the faces of the die by joining the vertices with edges.
                 faces = Array::new(20)
-                #TODO Some of these need to be fixed (the face is inverted)
                 faces[0]  = mesh.add_face([nyn, nyp, pzn])
-                faces[1]  = mesh.add_face([nzp, pyn, nxn])
+                faces[1]  = mesh.add_face([pyn, nzp, nxn])
                 faces[2]  = mesh.add_face([pzn, pxp, pzp])
                 faces[3]  = mesh.add_face([nzp, pxn, nzn])
                 faces[4]  = mesh.add_face([nzn, nyn, nxn])
@@ -664,13 +707,13 @@ module DiceGen
                 faces[8]  = mesh.add_face([nyp, pxp, pxn])
                 faces[9]  = mesh.add_face([pzp, pyn, nxp])
                 faces[10] = mesh.add_face([nzn, nyp, pxn])
-                faces[11] = mesh.add_face([pyn, nxn, nxp])
+                faces[11] = mesh.add_face([nxn, pyn, nxp])
                 faces[12] = mesh.add_face([nyn, nyp, nzn])
                 faces[13] = mesh.add_face([nzp, pyp, pxn])
                 faces[14] = mesh.add_face([nxp, nyn, nxn])
                 faces[15] = mesh.add_face([pzp, pyp, pxp])
                 faces[16] = mesh.add_face([pzn, nxp, pzp])
-                faces[17] = mesh.add_face([nzp, nxn, nzn])
+                faces[17] = mesh.add_face([nxn, nzp, nzn])
                 faces[18] = mesh.add_face([pzn, nyp, pxp])
                 faces[19] = mesh.add_face([pyp, pyn, nzp])
 
@@ -685,13 +728,13 @@ module DiceGen
 
     # Module for storing all the font instances we've created in one easy to access central location.
     module Fonts
-        MADIFONT_2 = SplicedFont::new(name: "madifont 2", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 1)
-        MADIFONT_2.set_offsets(offsets: {})
-        MADIFONT_2.set_scales(scales: {})
+        MADIFONT_2 = SplicedFont::new(name: "madifont 2", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 0.1)
+        MADIFONT_2.set_offsets({})
+        MADIFONT_2.set_scales({})
 
-        GRAFFITI   = SplicedFont::new(name: "graffiti", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiGraffitiFont", padding: 1)
-        GRAFFITI.set_offsets(offsets: {})
-        GRAFFITI.set_scales(scales: {})
+        GRAFFITI   = SplicedFont::new(name: "graffiti", folder: "/Users/austin/3DPrinting/DiceStuff/Resources/VectorFonts/MadiGraffitiFont", padding: 0.1)
+        GRAFFITI.set_offsets({})
+        GRAFFITI.set_scales({})
     end
 
 end
@@ -704,7 +747,6 @@ include Fonts
 
 # ===== TODO =====
 # Try to figure out why there's still coupling of definition edits?
-# Finish making the numbers appear where they should be.
 # Make a class for SystemFont again!
 
 
@@ -751,49 +793,8 @@ herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2,
                             [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D20 TODO
                            )
 
-def findFaceCenter(vertices)
-    # Create point for storing the sum of all the vertice's positions.
-    temp = Geom::Point3d.new
-    count = vertices.length()
-
-    # Iterate through each vertex and add it's sum to 'temp'.
-    vertices.each do |vertex|
-        temp += vertex.position.to_a
-    end
-    # Compute the average position by dividing through by the total number of vertices.
-    return Geom::Point3d.new(temp.x / count, temp.y / count, temp.z / count)
-end
-
-def findEdgeCenter(edge)
-    # Compute the sum of the start and end positions.
-    temp = edge.start.position + edge.end.position.to_a
-    # Compute the average of the endpoints by dividing by 2.
-    return Geom::Point3d.new(temp.x / 2, temp.y / 2, temp.z / 2)
-end
-
-def getLetterPlanePlace(face, offsetX, offsetY, angle, edgeIndex)
-    # Get the normal vector that's pointing out from the face, and the edges comprising the face.
-    normal = face.normal().reverse()
-    edges = face.edges()
-    # find the center of the face, and the midpoint of the top-edge.
-    faceCenter = findFaceCenter(face.vertices)
-    edgeCenter = findEdgeCenter(edges[edgeIndex])
-
-    # Compute the x and y unit vectors. The Y axis points from the center of the face to the midpoint of the top-edge.
-    # And the X axis points along the cross product of the Y and Z (normal) axes.
-    upVector = (edgeCenter - faceCenter).normalize()
-    sideVector = normal.cross(upVector)
-
-    # Compute the distance to offset the new center by to ensure that the text is centered correctly.
-    centerOffset = Geom::Vector3d.new((sideVector.x * offsetX) + (upVector.x * offsetY), (sideVector.y * offsetX) + (upVector.y * offsetY), (sideVector.z * offsetX) + (upVector.z * offsetY))
-    letterCenter = faceCenter - centerOffset
-
-    # Create and return the actual transformations for adjusting the axes to be parallel and centered on the face, along with any
-    # rotation within the plane of the face for special dice that need it.
-    axesTransform = Geom::Transformation.axes(letterCenter, sideVector, upVector, normal)
     rotationTransform = Geom::Transformation.rotation(Geom::Point3d.new(offsetX, offsetY, 0), Z_AXIS, angle * Math::PI / 180.0)
     return axesTransform * rotationTransform
-end
 
 def createNumberDigits(numbers_group, face, number, offsetX, offsetY, angle, edgeIndex)
     digits = number.to_s().chars()
@@ -842,56 +843,12 @@ class D4
     end
 end
 
-class D6
-    def initialize()
-        ...
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        [f1, f2, f3, f4, f5, f6].each_with_index do |face, index|
-            createNumberDigits(numbers_group, face, index + 1, 0, 0.1, 0, 0)
-        end
-
-        ...
-    end
-end
-
-class D8
-    def initialize()
-        ...
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        [f1, f2, f3, f4, f5, f6, f7, f8].each_with_index do |face, index|
-            createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
-        end
-
-        ...
-    end
-end
-
-class D20
-    def initialize()
-        ...
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        [f1, f2, f3, f4, f5, f6, f7, f8, f9, f10, f11, f12, f13, f14, f15, f16, f17, f18, f19, f20].each_with_index do |face, index|
-            createNumberDigits(numbers_group, face, index + 1, 0, 0, 180, 0)
-        end
-
-        ...
-    end
-end
-
 def createSet()
     D4.new()
     D6.new()
     D8.new()
     D20.new()
 end
-
-
 
 okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
 Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.

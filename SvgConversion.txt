@@ -2,61 +2,98 @@ This file contains the instructions for converting an SVG vector image file into
 There are two main phases to the process, first the vectorized curve must be cleaned and simplified in Inkscape, and then second, it's converted from a curve into a mesh in Blender.
 These instructions both explain the process, and also provide the necessary key-presses/mouse-clicks to automate it.
 
+
+
 ===== INKSCAPE =====
-I don’t know if there’s an API for Inkscape, or really anything about it at all, despite my constant installing of it and using it for Anina’s classes.
-Inkscape is used before Blender to quality check and clean up the SVG images Madi draws in illustrator before feeding them through the rest of the process. This process doesn’t factor in the cleaning that will be necessary. There isn’t any prescribed time where it’s better to clean. It’s just a sort of clean-as-you-go kind of process.
-1. Change the editing mode from Object to Node mode. This just changes the view on the screen from Object mode, where Inkscape just draw a rectangle showing the bounds of the object, or Node, where it actually highlights the vector path and shows all the nodes on it. Not required, but will help us see any mistakes and weirdness in the paths.
-        “Edit Paths by Node”
-        “N”
-2. Ungroup everything: Remove the groupings so that the vector paths are all just plain and on the same level, not hidden or anything.
-You may have to ungroup multiple times to remove the nested groups. Continue removing until all the paths are at the top level.
+Inkscape is used before Blender to quality check and clean up the SVG image before it can be fed through the rest of the process.
+0. Import all the files as a batch. They can be opened directly from finder, so it's best to select all of them and open them together.
+1. Change the editing mode from 'Object' to 'Node'. This doesn't alter the curves, but just makes it so that Inkscape will highlight the vector curves, and show the nodes that comprise it.
+   Not strictly required, but it will really help you see any issues in the curve throughout the process that might need attention.
+        "Edit Paths by Node"
+        "N"
+2. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
+   This process may need to be repeated multiple times depending on how must nesting there is. Usually it seems like 2 is enough though.
         “Edit -> Select All” && “Object -> Ungroup”
         “<CMD> + A” && “<Shift> + <CMD> + G”
-3. Combine all the paths into a single shape: This will eliminate any overlaps or strange geometry that Blender and Sketchup wouldn’t be able to handle.
+3. Combine the paths together into a single path: This eliminates any overlaps or intersections that Blender couldn't handle by joining everything together.
         “Path -> Union”
         “<CMD> + +”
-4. Save the cleaned file: self explanatory (hopefully…)
+4. Inspect the curve for any leftover irregularities that need to be fixed manually.
+   This can be done with the node-editing toolbar that is at the bottom of the top menu bar. Obviously, there's no set process for this, and it's often unnecessary even.
+5. Save the cleaned file: This should be self explanatory (hopefully...)
         “ File -> Save As”
         “<Shift> + <CMD> + S”
-5. Close the file: also self explanatory, and unnecessary to document, but figure it can’t hurt to put here since pragmatically I’m going to be closing every file after I’ve finished cleaning it. It’s exactly what you’d expect.
+6. Close the file: also should be self explanatory, but including it's keyboard shortcut makes processing the images all the faster.
         “ File -> Close”
         “<CMD> + W”
 
+The complete process for running an SVG image through Inkscape is:
+    “N”   ->   “<CMD>  A”   ->   “<Shift>  <CMD>  G”   ->   “<Shift>  <CMD>  G”   ->   “<CMD>   +”
+    Visually inspect the final curve and it's nodes to make sure there isn't any weird paths or overlapping left. If there is, fix it obviously.
+    ”<Shift>  <CMD>  S”   ->   “<CMD>  W”
+
+
 
 ===== BLENDER =====
-Here is the main steps needed to run something through Blender. There is a Python API for Blender, but I think the current manual method is quick enough. Trying to learn the API and write a script version would be longer in total, even if it would have faster execution time. But maybe one day you could look into writing a real script for it.
-Blender is used to convert the vector paths into a 3d mesh, or more specifically to convert from SVG to DAE.
-1. Import the file: pretty self explanatory.
+Blender is where the brunt of the work happens. It's used to convert the vector curve into a 3d mesh that can actually be imported into Sketchup.
+From a file-extension point of view, it converts an SVG file to a DAE.
+1. Import the file: Unlike with Inkscape, files can't be directly opened from Finder, since they aren't openable by Blender, just importable.
+   So the best way that I'm currently aware of is importing them into an empty Blender scene. Maybe a better way exists, who knows.
         “File -> Import -> Scalable Vector Graphics (.svg)”
         “<fn> + F4 + I + S”
-2. Center the origin within the geometry: This ensures the curves are centered the glyph’s center, so it won’t be at some weird offset when loaded into Sketchup. (The first part is just to select everything)
+2. Move the object's origin to it's geometric center: This calculates the origin position to be the geometric center of the object. This is necessary, since
+   before this, the object doesn't have a origin, which is needed for the next step and for proper exporting.
         “Select -> All” && “Object -> Set Origin -> Origin To Geometry”
         “A” && “Object -> S + O”
-3. Snap the Model to the global origin: This ensures that the curve is centered within Blender, so that again, when it’s imported into Sketchup it’ll be exactly in the center and not at some strange offset.
+3. Snap the model to the global origin: This centers the object within Blender's scene, so that when it's exported, it'll be centered within Sketchup as well.
+   Unfortunately, centering around the geometric center often isn't actually what's wanted depending on the distribution of the object's curves. So while this
+   step will move it close to the actually desired position, it's almost always necessary to manually move the object until it looks good on the world axes.
+   It's often best to wait until after step 4 is finished to do this though, since the object is bigger and easier to see then.
         “Object -> Snap -> Selection to Cursor (Keep Offset)”
         “Object -> N + C”
-4. I don’t know why you have to do this, but I guess it doesn’t refresh the available options unless you interact with it first? Just do this though:
-        “Click part of the mesh model” && “Select -> All”
-        “Click part of the mesh model” && “A”
-5. Convert the curves to meshes: This is the part that actually takes the 2D vector curves and converts it into a 3D mesh model (even if the model has 0 height technically). This way the file can be imported and used in Sketchup properly.
+4. Scale the model to be 8m tall: Now that the model is roughly centered, scale it to be 8m tall, since this is the baseline that the Sketchup script expects.
+   It isn't necessary but does reduce the amount of work needed when manually checking the glyph orientation on the generated dice. The 8m is derived from
+   the standard height of a glyph on a D6, which is 8mm, but it's scaled up by 1000 so that Blender and Sketchup render the tiny details instead of skipping them.
+   This part can't be fully automated with keyboard shortcuts unfortunately...
+        "N" to bring up the 'Transform' menu.
+        Set the Y-dimension to be 8, then copy the value for the Y-scale into the X-scale to ensure it stays proportional.
+        "<CMD> + A -> S" to bring up the 'Apply' menu, and apply the scaling operation.
+   At this point, it's usually a good idea to position the model however looks most visually appealing/centered.
+5. Convert the curve into a mesh model: This part actually performs the conversion from a 2D vector curve into a 3D mesh model (even if the model has 0 height technically)
         “Object -> Convert To -> Mesh from Curve/Meta/Surf/Text”
         “Object -> V + M”
-6. Join the meshes into a single mesh model: This makes it easier and cleaner to import into Sketchup by ‘pre-grouping’ the meshes, to borrow Sketchup terminology. This is no longer needed, since the paths are all already united together in Inkscape, so there should only be a single mesh anyways.
+   If the option to convert is greyed out, you have to deslect everything, and then click somewhere on the model, then use "A" to select all again.
+   I don't know why Blender does that, but that's something that it does.
+6. Join the meshes: This part shouldn't be necessary, since everything should of been unioned together in Inkscape, and so there should only be one mesh.
+   But if there are multiple meshs, they should be combined together at this point.
         “Object -> Join”
         “<CMD> + J”
-7. Switch to Edit Mode: This lets us edit the mesh structure that was generated from the curve to clean up the geometry before passing it to Sketchup
-        “Edit Mode”
-        “<TAB>”
-8. Export the joined mesh model as a DAE () file: This way Sketchup will actually recognize the file format and can use the mesh obviously.
+7. Switch to Edit mode: This switches the display from showing the outline of the mesh model to displaying the actual mesh model itself. This isn't strictly
+   necessary, but again, it helps seeing where anything might of gone wrong and needs fixing.
+        “Edit Mode” && “Select -> All”
+        “<TAB>” && "A"
+8. Beautify the meshes: This recalculates the mesh geometry to make it much cleaner looking, and can combine multiple mesh quads together into a single one.
+   This helps to avoid issues with vertex connectedness and also simplifies the geomtry that Sketchup will have to import later.
+        "Face -> Beautify Faces"
+        "Face -> B"
+9. Convert tris to quads: This beautifies the mesh model further by combining adjacent triads into a quad where applicable.
+        "Face -> Tris to Quads"
+        "<OPT> + J"
+10. Zoom around the model and check to make sure that everything is connected and the geometry looks solid. This is the final product that will get imported
+   into Sketchup, so it's important to make sure it's good enough for importing. Specifically you should check and make sure that places with a heavy
+   concentration of mesh intersections are connected properly. Before step 8 was introduced, it was common for there to be issues at these locations.
+11. Export the file: Now that the model is finished, export it as a DAE file this way Sketchup will actually recognize and be able to import the file.
         “File -> Export -> Collada (.dae)”
         “<fn> + F4 + E + C”
-One final note when Blendering, is that it doesn’t remember the last folder you saved in, and navigating to the right folder takes time and introduces possibility of error, so it’s probably worth adding a ‘Favorite when you’re exporting the first DAE mesh, to make life easier for the other 9, just make sure to delete it after finishing.
+One final note when Blendering: it doesn’t remember the last folder you saved in, and navigating to the right folder takes time and introduces possibility of error,
+so it’s probably worth adding a ‘Favorite' when you’re exporting the first DAE mesh, to make life easier for the other 9, just make sure to delete it after finishing.
+It's also important to delete the number from the scene after words by right clicking it's container in the right-most 'Scene Collection' list and selecting
+"Delete Hierarchy" or pressing "H". That's it!
 
-
-
-So here’s the complete list of keys-strokes needed to run something through Inkscape:
-    “N”   ->   “<CMD>  A”   ->   “<Shift>  <CMD>  G”   ->   “<Shift>  <CMD>  G”   ->   “<CMD>   +”   ->   ”<Shift>  <CMD>  S”   ->   “<CMD>  W”
-
-And here’s the complete list of keys and clicks needed to convert a file in blender:
-    “<fn>  F4  I  S”   ->   “A“   ->   “[Object]  S  O”   ->   “[Object]  N  C”   ->   “{Click}”  ->   “[Object]  V  M”   ->   “<TAB>”   ->   “<fn>  F4  E  C”
-Just be sure to delete the entire collection when you’re done. Just deleting the meshes might not be good enough.
+The complete process for converting an SVG image to a DAE mesh with Blender is:
+    “<fn>  <F4>  I  S”   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”   -> "N"
+    Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
+    "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
+    Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved.
+    "<fn>  <F4>  E  C"
+    Then make sure the delete the current collection by right clicking it in the "Scene Collection" list and hitting "H"
