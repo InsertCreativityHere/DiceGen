@@ -355,14 +355,26 @@ module DiceGen
                 @face_transforms[i] = DiceUtil.get_face_transform(face)
             end
         end
+
+        def self.create(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+
+        end
     end
+
+    # No... I don't like the dice being singletons anymore. I think it's overly complicated from a user standpoint, even
+    # if it's simpler from an implementation point of view.
+    # But so.....
+    # How do I have the code only run once then though?
+    # Or more importantly... why do I care again? I have instances of the object, the only difference is I don't make a new one every time.
+    # But like... I never call any methods after making a new die, so they can just return void... Soooooo, I should keep them as singletons,
+    # Maybe I'll introduce an instance method that makes dice, and then a helper than will handle the calling functionality of it.
 
 
     # Abstract base class for all die instances
     class Die
         # Creates a new instance of a die.
         # TODO
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+        def initialize()
             # Default the group to a new top-level group if nil
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -427,6 +439,11 @@ module DiceGen
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D4, font: font, group: group, scale: scale, transform: transform)
         end
+
+        # Creates a new D4 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
+        end
     end
 
 
@@ -444,6 +461,11 @@ module DiceGen
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D6, font: font, group: group, scale: scale, transform: transform)
+        end
+
+        # Creates a new D6 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
         end
     end
 
@@ -463,6 +485,11 @@ module DiceGen
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D8, font: font, group: group, scale: scale, transform: transform)
         end
+
+        # Creates a new D8 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
+        end
     end
 
 
@@ -480,6 +507,11 @@ module DiceGen
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D10, font: font, group: group, scale: scale, transform: transform)
+        end
+
+        # Creates a new D10 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
         end
     end
 
@@ -500,6 +532,11 @@ module DiceGen
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::DP, font: font, group: group, scale: scale, transform: transform)
         end
+
+        # Creates a new D% with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
+        end
     end
 
 
@@ -518,6 +555,11 @@ module DiceGen
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D12, font: font, group: group, scale: scale, transform: transform)
         end
+
+        # Creates a new D12 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
+        end
     end
 
 
@@ -535,6 +577,11 @@ module DiceGen
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
             super(model: style::D20, font: font, group: group, scale: scale, transform: transform)
+        end
+
+        # Creates a new D20 with the specified attributes. This constructor just forwards to the base constructor.
+        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
+            super
         end
     end
 
@@ -748,3 +795,22 @@ include Fonts
 # ===== TODO =====
 # Try to figure out why there's still coupling of definition edits?
 # Make a class for SystemFont again!
+# The position and size of glyphs can be tweaked by scaling and translating the transforms...
+# We need to make D4's work correctly still...
+# And set the angle offsets for D% and D10 correctly.
+# And also program D10 and D12 models in too...
+
+
+But how do we unify all of this together cohesively, is it even possible?
+I like the idea of having the font and the model separated. But then... Should each model be it's own fully self-described thing?
+
+Right now I have actually 3 separate things... I have the fonts, the models, and the dice. Since Die and DieModel are actually distinct.
+This is all dumb. I have all these stupid projects. But no time left for anything real. I need to finish my projects, to make time for real things agian.
+We keep thinking this, but then we never actually do anything about it. Now we need to.
+I'm missing the entire fucking point of this script. It's a helper script, not an absolute.
+So yes. Every die should also be a model. There's no fucking point of separating the two out. It's worth sharing the logic, but let's just combine them
+together already for gods sake. Then we'll make different methods for different things.
+But wait... What about how the dice are ComponentDefinitions and not ComponentInstances?
+Yeah, I guess that that is still a thing... I'll think about it more, after we put on a shirt.
+
+Alright, so. I'm just going to do things now then.
