@@ -11,7 +11,7 @@ module DiceGen
         MAIN_MODEL = Sketchup::active_model
 
         # Dummy transformation that represents the transformation of doing nothing.
-        DUMMY_TRANSFORM = Geom::Transformation::new()
+        NO_TRANSFORM = Geom::Transformation::new()
 
         # Flag for whether the system Sketchup is running on is Windows or Unix like.
         @@is_windows = (Sketchup::platform == :platform_win rescue RUBY_PLATFORM !~ /darwin/i)
@@ -215,7 +215,7 @@ module DiceGen
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::DUMMY_TRANSFORM)
+        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
             return entities.add_instance(@glyphs[name], transform).make_unique()
         end
     end
@@ -265,10 +265,11 @@ module DiceGen
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::DUMMY_TRANSFORM)
+        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: name.chars().map{ |char| @glyphs[char] }, padding: padding);
+                char_glyphs = name.chars().map{ |char| @glyphs[char] }
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: padding);
             end
             return super
         end
@@ -316,10 +317,10 @@ module DiceGen
             face_center = find_face_center(face)
             edge_center = find_edge_center(face.edges()[0])
 
-            # Compute the positive y axes by subtracting the centers and normalizing. By subtracting the face center from the
-            # edge center we ensure that it's pointing up.
+            # Compute the positive y axes by subtracting the centers and normalizing. By subtracting the face center
+            # from the edge center we ensure that it's pointing up.
             y_vector = Geom::Vector3d::new((face_center - edge_center).to_a()).normalize()
-            # Compute the positive x axis by crossing the y and z axes vectors, again minding the order so it points right.
+            # Compute the positive x axis by crossing the y and z axes vectors, again minding the order.
             x_vector = y_vector.cross(normal)
 
             return Geom::Transformation.axes(face_center, x_vector, y_vector, normal)
@@ -328,7 +329,7 @@ module DiceGen
 
 
     # Abstract base class for all die models.
-    class DieModel
+    class Die
         # Limits this class (and it's subclasses) to only ever having a single instance which is globally available.
         # We use the singleton pattern here because we only want to create the definition of each model once, and these
         # classes represent the die model definitions, not their component instances, of which there can be multiple.
@@ -346,45 +347,43 @@ module DiceGen
         # transformations from the die's faces that can be used to easily add glyphs to the die later on.
         #   definition: The ComponentDefinition that holds the die's mesh definition.
         #   faces: Array of all the die's faces, in the same order the face's should be numbered by.
-        def initialize(definition:, faces:)
+        #   die_scale: The amount to scale the die by to make it 'standard size' (as defined by our Chessex dice).
+        #              This scaling is applied after all the glyphs have already been embossed onto the die.
+        #              Defaults to 1.0, so no scaling is performed.
+        #   font_scale: The amount to scale each glyph by. This is applied directly after the glyph has been placed,
+        #               but not embossed. Defaults to 1.0, so no scaling is performed.
+        def initialize(definition:, faces:, die_scale: 1.0, font_scale: 1.0)
             @definition = definition
+            @die_scale = die_scale
 
             @face_transforms = Array::new(faces.length())
             # Iterate through each face of the die and compute their face-local coordinate transformations.
             faces.each_with_index() do |face, i|
-                @face_transforms[i] = DiceUtil.get_face_transform(face)
+                @face_transforms[i] = DiceUtil.get_face_transform(face) * Geom::Transformation.scaling(font_scale)
             end
         end
 
-        def self.create(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-
-        end
-    end
-
-    # No... I don't like the dice being singletons anymore. I think it's overly complicated from a user standpoint, even
-    # if it's simpler from an implementation point of view.
-    # But so.....
-    # How do I have the code only run once then though?
-    # Or more importantly... why do I care again? I have instances of the object, the only difference is I don't make a new one every time.
-    # But like... I never call any methods after making a new die, so they can just return void... Soooooo, I should keep them as singletons,
-    # Maybe I'll introduce an instance method that makes dice, and then a helper than will handle the calling functionality of it.
-
-
-    # Abstract base class for all die instances
-    class Die
-        # Creates a new instance of a die.
-        # TODO
-        def initialize()
-            # Default the group to a new top-level group if nil
+        # Creates a new instance of this die with the specified type and font, amoungst other arguments.
+        # font: The font to use for generating glyphs on the die.
+        # die_type: The stringified name for the type of die being created. Some models can be used to create multiple
+        #           types of die; for instance the D10 model is used for both "D10" and "D%" type dice.
+        #           Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        # group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
+        #        In practice, the die is always created within it's own die group, and the die group is what's placed
+        #        into the provided group. Defaults to nil.
+        # scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
+        # transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
+        def create_instance(font:, die_type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+            # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
             end
 
             # Start a new operation so that creating the die can be undone/aborted if necessary.
-            Util::MAIN_MODEL.start_operation('Create Die', true)
+            Util::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
 
             # Create an instance of the die model within the enclosing group.
-            instance = group.entities().add_instance(model.instance.definition, Util::DUMMY_TRANSFORM).make_unique()
+            instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM).make_unique()
             die_def = instance.definition()
             die_mesh = die_def.entities()
 
@@ -392,197 +391,41 @@ module DiceGen
             glyph_group = group.entities().add_group()
             glyph_mesh = glyph_group.entities()
 
-            # Create glyphs for each face of the die and align them in preperation for embossing.
-            model.instance.face_transforms.each_with_index() do |face_transform, i|
-                place_glyph(font: font, index: i, mesh: glyph_mesh, transform: face_transform)
-            end
+            # Place the glyphs onto the die in preperation for embossing by calling the provided function.
+            place_glyphs(font: font, mesh: glyph_mesh, type: die_type)
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
             die_def.invalidate_bounds()
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            die_mesh.intersect_with(false, Util::DUMMY_TRANSFORM, die_mesh, Util::DUMMY_TRANSFORM, true, glyph_mesh.to_a())
+            die_mesh.intersect_with(false, Util::NO_TRANSFORM, die_mesh, Util::NO_TRANSFORM, true, glyph_mesh.to_a())
             glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
-            die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
+            die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale * @die_scale), die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
             Util::MAIN_MODEL.commit_operation()
         end
 
-        # Creates and places glyphs on each of the die's faces. This method exists so that subclasses can override it to
-        # allow for custom glyph placement, for instance on D4's where more than 1 glyph needs to be placed per face.
-        #   font: The font to create the glyphs in.
-        #   index: The index of the current face that is being 'glyphed'.
-        #   mesh: The collection of entities where glyphs should be generated into.
-        #   transform: The coordinate transformation representing the face-local coordinate system for the current face.
-        def place_glyph(font:, index:, mesh:, transform:)
-            font.create_glyph(name: (index+1).to_s(), entities: mesh, transform: transform)
+        # Creates and places glyphs onto the faces of the die. This default implementation iterates through each face
+        # and places the corresponding number on it, but subclasses can override this method for custom glyph placement.
+        # font: The font to create the glyphs in.
+        # mesh: The collection of entities where glyphs should be generated into.
+        # type: The type of die that the glyphs are being placed for. This is ignored in the default implementation, but
+        # can be checked for custom behavior. Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        def place_glyphs(font:, mesh:, type:)
+            # Iterate through each face in order and generate the corresponding number on it.
+            @face_transforms.each_with_index() do |face_transform, i|
+                font.create_glyph(name: (i+1).to_s(), entities: mesh, transform: face_transform)
+            end
         end
     end
 
-
-    # Class representing a D4 die.
-    class D4Die < Die
-        # Creates a new D4 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D4 in the specified style.
-        #   style: The style to make the D4 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D4s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D4, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D4 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D6 die.
-    class D6Die < Die
-        # Creates a new D6 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D6 in the specified style.
-        #   style: The style to make the D6 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D6s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D6, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D6 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D8 die.
-    class D8Die < Die
-        # Creates a new D8 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D8 in the specified style.
-        #   style: The style to make the D8 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D8s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D8, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D8 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D10 die.
-    class D10Die < Die
-        # Creates a new D10 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D10 in the specified style.
-        #   style: The style to make the D10 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D10s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D10, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D10 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D% die.
-    class DPDie < Die
-        # Creates a new percentile die in the specified style and font. This constructor just delegates to the base
-        # constructor apart from automatically finding the model that corresponds to a percentile die in the specified
-        # style.
-        #   style: The style to make the percentile die in. Internally styles are modules, so this field should be the
-        #          module that contains the set of DieModels you want to use for the dice. The constructor automatically
-        #          picks the model that corresponds to percentile dies.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::DP, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D% with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D12 die.
-    class D12Die < Die
-        # Creates a new D12 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D12 in the specified style.
-        #   style: The style to make the D12 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D12s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D12, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D12 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
-    end
-
-
-    # Class representing a D20 die.
-    class D20Die < Die
-        # Creates a new D20 in the specified style and font. This constructor just delegates to the base constructor
-        # apart from automatically finding the model that corresponds to a D20 in the specified style.
-        #   style: The style to make the D20 in. Internally styles are modules, so this field should be the module that
-        #          contains the set of DieModels you want to use for the dice. The constructor automatically picks the
-        #          model that corresponds to D20s.
-        #   font: The font to use for generating glyphs on the die.
-        #   group: The group to create the die in. The die is already generated in it's own group, so the die's group is
-        #          nested in the provided group in reality.
-        #   scale: The amount to scale the die by after it's been created. Defaults to 1 (no scaling).
-        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def initialize(style:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super(model: style::D20, font: font, group: group, scale: scale, transform: transform)
-        end
-
-        # Creates a new D20 with the specified attributes. This constructor just forwards to the base constructor.
-        def initialize(model:, font:, group: nil, scale: 1.0, transform: Util::DUMMY_TRANSFORM)
-            super
-        end
+    # Helper method that just forwards to the 'create_instance' method of the specified die model.
+    def create_die(model:, font:, die_type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+        model.instance.create_instance(font: font, die_type: die_type, group: group, scale: scale, transform: transform)
     end
 
 
@@ -593,7 +436,7 @@ module DiceGen
     module SharpEdgedStandard
 
         # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
-        class D4 < DieModel
+        class D4 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -618,7 +461,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
-        class D6 < DieModel
+        class D6 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -649,7 +492,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octohedron).
-        class D8 < DieModel
+        class D8 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -680,7 +523,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
-        class D10 < DieModel
+        class D10 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -701,7 +544,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D12 die (a dodecahedron).
-        class D12 < DieModel
+        class D12 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -720,7 +563,7 @@ module DiceGen
         end
 
         # This class defines the mesh model for a sharp-edged standard D20 die (an icosahedron).
-        class D20 < DieModel
+        class D20 < Die
             # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
             def initialize()
                 # Create a new definition for the die.
@@ -795,22 +638,6 @@ include Fonts
 # ===== TODO =====
 # Try to figure out why there's still coupling of definition edits?
 # Make a class for SystemFont again!
-# The position and size of glyphs can be tweaked by scaling and translating the transforms...
 # We need to make D4's work correctly still...
 # And set the angle offsets for D% and D10 correctly.
 # And also program D10 and D12 models in too...
-
-
-But how do we unify all of this together cohesively, is it even possible?
-I like the idea of having the font and the model separated. But then... Should each model be it's own fully self-described thing?
-
-Right now I have actually 3 separate things... I have the fonts, the models, and the dice. Since Die and DieModel are actually distinct.
-This is all dumb. I have all these stupid projects. But no time left for anything real. I need to finish my projects, to make time for real things agian.
-We keep thinking this, but then we never actually do anything about it. Now we need to.
-I'm missing the entire fucking point of this script. It's a helper script, not an absolute.
-So yes. Every die should also be a model. There's no fucking point of separating the two out. It's worth sharing the logic, but let's just combine them
-together already for gods sake. Then we'll make different methods for different things.
-But wait... What about how the dice are ComponentDefinitions and not ComponentInstances?
-Yeah, I guess that that is still a thing... I'll think about it more, after we put on a shirt.
-
-Alright, so. I'm just going to do things now then.
