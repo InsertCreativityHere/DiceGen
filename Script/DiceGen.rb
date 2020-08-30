@@ -362,7 +362,7 @@ module DiceGen
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
         # font: The font to use for generating glyphs on the die.
-        # die_type: The stringified name for the type of die being created. Some models can be used to create multiple
+        # type: The stringified name for the type of die being created. Some models can be used to create multiple
         #           types of die; for instance the D10 model is used for both "D10" and "D%" type dice.
         #           Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
         # group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
@@ -370,7 +370,7 @@ module DiceGen
         #        into the provided group. Defaults to nil.
         # scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
         # transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, die_type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+        def create_instance(font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -389,7 +389,7 @@ module DiceGen
             glyph_mesh = glyph_group.entities()
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
-            place_glyphs(font: font, mesh: glyph_mesh, type: die_type)
+            place_glyphs(font: font, mesh: glyph_mesh, type: type)
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
             die_def.invalidate_bounds()
@@ -421,8 +421,8 @@ module DiceGen
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, die_type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
-        model.instance.create_instance(font: font, die_type: die_type, group: group, scale: scale, transform: transform)
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+        model.instance.create_instance(font: font, type: type, group: group, scale: scale, transform: transform)
     end
 end
 
