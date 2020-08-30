@@ -48,15 +48,8 @@ module DiceGen
             # Press the <ESC> key to prevent an instance from being placed at the mouse cursor.
             # send_escape() TODO ENABLE THIS WHEN WE MAKE A REAL SCRIPT INSTEAD OF USING THE RUBY CONSOLE.
 
-            # Get the most recently created definition; ie: the one we just imported.
-            definition = Util::MAIN_MODEL.definitions[-1]
-            entities = defition.entities()
-
-            # Scale the model down by a factor of 1000. We keep the model at a factor of 1000 times larger during
-            # conversion and cleaning to make it easier to see mistakes and visualize changes, but need to scale it back
-            # down before using it in Sketchup.
-            entities.transform_entities(Geom::Transformation.scaling(1.0 / 1000.0), entities)
-            return definition
+            # Return the most recently created definition; ie: the one we just imported.
+            return Util::MAIN_MODEL.definitions[-1]
         end
     end
 
