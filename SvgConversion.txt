@@ -38,6 +38,11 @@ The complete process for running an SVG image through Inkscape is:
 Blender is where the brunt of the work happens. It's used to convert the vector curve into a 3d mesh that can actually be imported into Sketchup.
 From a file-extension point of view, it converts an SVG file to a DAE.
 
+When first starting up Blender there are two things you have to do before importing any curves. These changes stay in effect for as long as Blender
+is open and hence only have to be done at the offset:
+  • Open the "Transform" menu. this is done by pressing "N" and is necessary for step 4 where we directly set the y-dimension of the object.
+  • Set the "Transform Pivot Point" to "Bounding Box Center" (or hit "B" when in the menu). The menu is located at the bottom center of the top toolbar.
+
 Before starting on the first file, you should press "N" to bring up the 'Transform' menu. It stays open the entire time Blender is, and is necessary
 for step 4 of the conversion/cleaning process.
 
@@ -45,29 +50,26 @@ for step 4 of the conversion/cleaning process.
    So the best way that I'm currently aware of is importing them into an empty Blender scene. Maybe a better way exists, who knows.
         “File -> Import -> Scalable Vector Graphics (.svg)”
         “<fn> + F4 + I + S”
-   After importing, select all the imported paths in the scene collection pane. Hitting "A" to 'Select All' doesn't always work for step 2.
+   After importing, you must manually select all the curves you're going to be working with from the 'Scene Collection' pane, then making sure that nothing
+   is currently selected in the "View Perspective", hit "A" to select all.
 2. Move the object's origin to it's geometric center: This calculates the origin position to be the geometric center of the object. This is necessary, since
    before this, the object doesn't have a origin, which is needed for the next step and for proper exporting.
         “Object -> Set Origin -> Origin To Geometry”
         “Object -> S + O”
 3. Snap the model to the global origin: This centers the object within Blender's scene, so that when it's exported, it'll be centered within Sketchup as well.
-   Unfortunately, centering around the geometric center often isn't actually what's wanted depending on the distribution of the object's curves. So while this
-   step will move it close to the actually desired position, it's almost always necessary to manually move the object until it looks good on the world axes.
-   It's often best to wait until after step 4 is finished to do this though, since the object is bigger and easier to see then.
+   Since the "Transform Pivot Point" is the center of the bounding box this should perfectly center the curve,
+   minimizing the distance between it's most extreme points and the center of the scene.
         “Object -> Snap -> Selection to Cursor (Keep Offset)”
         “Object -> N + C”
-4. Scale the model to be 8m tall: Now that the model is roughly centered, scale it to be 8m tall, since this is the baseline that the Sketchup script expects.
+4. Scale the model to be 8m tall: Now that the model is centered, scale it to be 8m tall, since this is the baseline that the Sketchup script expects.
    It isn't necessary but does reduce the amount of work needed when manually checking the glyph orientation on the generated dice. The 8m is derived from
    the standard height of a glyph on a D6, which is 8mm, but it's scaled up by 1000 so that Blender and Sketchup render the tiny details instead of skipping them.
    This part can't be fully automated with keyboard shortcuts unfortunately...
         Set the Y-dimension to be 8, then copy the value for the Y-scale into the X-scale to ensure it stays proportional.
         "<CMD> + A -> S" to bring up the 'Apply' menu, and apply the scaling operation.
-   At this point, it's usually a good idea to position the model however looks most visually appealing/centered.
 5. Convert the curve into a mesh model: This part actually performs the conversion from a 2D vector curve into a 3D mesh model (even if the model has 0 height technically)
         “Object -> Convert To -> Mesh from Curve/Meta/Surf/Text”
         “Object -> V + M”
-   If the option to convert is greyed out, you have to deslect everything, and then click somewhere on the model, then use "A" to select all again.
-   I don't know why Blender does that, but that's something that it does.
 6. Join the meshes: This part shouldn't be necessary, since everything should of been unioned together in Inkscape, and so there should only be one mesh.
    But if there are multiple meshs, they should be combined together at this point.
         “Object -> Join”
@@ -97,9 +99,11 @@ It's also important to delete the number from the scene after words by right cli
 "Delete Hierarchy" or pressing "H". That's it!
 
 The complete process for converting an SVG image to a DAE mesh with Blender is:
-    “<fn>  <F4>  I  S”   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
+    “<fn>  <F4>  I  S”   ->   <Manually select the curves in the Scene Collection>   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
     Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
     "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
     Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved.
     "<fn>  <F4>  E  C"
     Then make sure the delete the current collection by right clicking it in the "Scene Collection" list and hitting "H"
+But it's important to make sure that before you start converting any curves that you've opened the "Transform" menu with "N",
+and set the "Transform Pivot Point" to "Bounding Box Center" by hitting "B" within the menu.
