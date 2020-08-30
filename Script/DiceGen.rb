@@ -345,13 +345,14 @@ module DiceGen
         #   definition: The ComponentDefinition that holds the die's mesh definition.
         #   faces: Array of all the die's faces, in the same order the face's should be numbered by.
         #   die_scale: The amount to scale the die by to make it 'standard size' (as defined by our Chessex dice).
-        #              This scaling is applied after all the glyphs have already been embossed onto the die.
+        #              This scaling is applied before any glyphs are placed onto the die.
         #              Defaults to 1.0, so no scaling is performed.
         #   font_scale: The amount to scale each glyph by. This is applied directly after the glyph has been placed,
         #               but not embossed. Defaults to 1.0, so no scaling is performed.
         def initialize(definition:, faces:, die_scale: 1.0, font_scale: 1.0)
             @definition = definition
-            @die_scale = die_scale
+            entities = @definition.entities()
+            entities.transform_entities(Geom::Transformation.scaling(die_scale), entities.to_a())
 
             @face_transforms = Array::new(faces.length())
             # Iterate through each face of the die and compute their face-local coordinate transformations.
@@ -400,7 +401,7 @@ module DiceGen
             glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
-            die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale * @die_scale), die_mesh.to_a())
+            die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
             Util::MAIN_MODEL.commit_operation()
@@ -434,3 +435,19 @@ require_relative "DiceDefinitions/SharpEdgedStandard.rb"
 # modules for the 'DiceGen' and 'Fonts' namespaces.
 include DiceGen
 include Fonts
+
+
+#ffheight means the height between diametric faces
+#vvheight means the height between diametric vertices
+#fvheight means the height between a face and its diametric vertex
+#
+#D20 ffheight = 20mm       vvheight = 24mm       font = 4.5mm
+#D6  ffheight = 15mm       vvheight = 24mm       font = 8mm
+#D8  ffheight = 15mm       vvheight = 24mm       font = 7mm
+#D4  fvheight = 18mm                             font = 6mm
+#D12 ffheight = 18.5mm     vvheight = 22mm       font = 6mm
+#D10 ffheight = 16mm       vvheight = 23mm       font = 7mm      on a D% the smaller digit is 5mm and the large is 7mm
+#
+#(0..20).each() do |i|
+#    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
+#end

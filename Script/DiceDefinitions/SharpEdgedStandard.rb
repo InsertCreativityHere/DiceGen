@@ -57,10 +57,10 @@ module DiceGen
                 # Create the faces of the die by joining the vertices with edges.
                 faces = Array::new(6)
                 faces[0] = die_mesh.add_face([p111, p011, p001, p101])
-                faces[1] = die_mesh.add_face([p101, p001, p000, p100])
-                faces[2] = die_mesh.add_face([p001, p011, p010, p000])
-                faces[3] = die_mesh.add_face([p111, p101, p100, p110])
-                faces[4] = die_mesh.add_face([p011, p111, p110, p010])
+                faces[1] = die_mesh.add_face([p001, p000, p100, p101])
+                faces[2] = die_mesh.add_face([p000, p001, p011, p010])
+                faces[3] = die_mesh.add_face([p110, p111, p101, p100])
+                faces[4] = die_mesh.add_face([p111, p110, p010, p011])
                 faces[5] = die_mesh.add_face([p000, p100, p110, p010])
 
                 # The distance between two diametric faces is 2" in the base model, and standard D6 dice have a
@@ -93,12 +93,12 @@ module DiceGen
                 # Create the faces of the die by joining the vertices with edges.
                 faces = Array::new(8)
                 faces[0] = mesh.add_face([px, py, pz])
-                faces[1] = mesh.add_face([nx, py, nz])
-                faces[2] = mesh.add_face([nx, py, pz])
+                faces[1] = mesh.add_face([px, ny, nz])
+                faces[2] = mesh.add_face([px, ny, pz])
                 faces[3] = mesh.add_face([px, py, nz])
                 faces[4] = mesh.add_face([nx, ny, pz])
-                faces[5] = mesh.add_face([px, ny, nz])
-                faces[6] = mesh.add_face([px, ny, pz])
+                faces[5] = mesh.add_face([nx, py, nz])
+                faces[6] = mesh.add_face([nx, py, pz])
                 faces[7] = mesh.add_face([nx, ny, nz])
 
                 # The distance between two diametric faces is 1.1547" in the base model, and standard D8 dice have a
