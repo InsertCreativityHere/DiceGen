@@ -1,41 +1,7 @@
-        # Create groups that are parallel and centered to each face for placing the glyphs into.
-        @faceGroups = Array.new(6)
-    def createInstance(parent, font, transform)
-        parent.entities().add_instance(@definition, transform)
-    end
-
-
-
-    # Imports and returns a model from a file.
-# The model is created in the specified entityGroup (an entities object), with the provided transform.
-def import_model(file, entityGroup, transform)
-    # Check if the file exists and is reachable.
-    if !File.exist?(file)
-        raise "Failed to locate the file '" + file + "'";
-    end
-
-    # Try to import the file's model and check if it was successful.
-    result = $main_model.import(file);
-    if !result
-        raise "Failed to import model from the file '" + file + "'";
-    end
-
-    # Press the <ESC> key to prevent an instance from being placed at the mouse cursor.
-    # send_escape(); TODO ENABLE THIS WHEN WE MAKE A REAL SCRIPT INSTEAD OF USING THE RUBY CONSOLE.
-
-    # Create and return an instance of the imported model with the specified transform
-    return entityGroup.add_instance($main_model.definitions[-1], transform);
-end
-
-
 
 (0..20).to_a().each() do |i|
     graffiti.createGlyph(i, $main_model.entities.add_group(), Geom::Transformation.translation(Geom::Point3d.new(i,0,0)))
 end
-
-
-
-
 
 
 After Kaley leaves we're going to try cleaning out the evaporator coils.
@@ -52,20 +18,6 @@ Tomorrow:
 6) Switch to the cheap filter, and vacuum the second floor completely, along with the bathroom, and the evaporator.
 7) Finish the 2nd floor bathroom.
 
-okay, so we have a couple options I guess. Kinda sucks that this random girl isn't interested in it herself, but whatever.
-But let's look at everything so far:
-We have Sean who is moving in in August because we already told him, then we have:
-- Ian
-- Girl's boyfriend
-- Rodrigo
-- That other guy on Roommates
-
-
-We want someone who's like at least somewhat clean, or something.
-But I think that I should probably just like look online or something.
-I would still really want a girl though to be honest. Soooo, we should start scanning through websites I think.
-That'll be tomorrow I guess.
-
 =========================================
 
 0.834 for the d4 edge
@@ -78,9 +30,6 @@ Okay, so there's 3 ways I see that we can make the numbers:
 - We use a system font, and emboss the 3d text into the side of the die.
 - Same as the last one, but we actually make numbers individually.
 
-# Array of groups that are centered and aligned to the faces of the die. These groups have their axes oriented
-# to be coplanar with the faces, and to have their origin lie at the geometric center of the face. The ordering
-# of these groups matches the numbering of the die faces, and it's with these faces that numbers are added.
 
 
 
@@ -90,19 +39,6 @@ Okay, so there's 3 ways I see that we can make the numbers:
 
 
 #=======================================================================================================================
-class ImageFontHolder
-    def initialize(fontName, folder, numberScale, offsets, tunedOffsets)
-        self.font_name = fontName;
-        self.folder = folder;
-        self.number_scale = numberScale;
-        self.inter_number_offset = internumberOffset;
-        self.offsets = offsets;
-        self.tuned_offsets = tunedOffsets;
-    end
-end
-
-
-
 herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2, 
                             [[0,0], [0,-0.1], [-0.05,-0.05], [0,-0.11], [+0.03,-0.18]]                                                          //D4
                             [[0,0], [0,-0.1], [0,-0.1], [0,-0.15], [0,-0.12], [0,-0.18], [0,-0.1]]                                              //D6
@@ -162,13 +98,6 @@ class D4
     end
 end
 
-def createSet()
-    D4.new()
-    D6.new()
-    D8.new()
-    D20.new()
-end
-
 okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
 Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.
 I'll move the carpets back into the bathroom and blow-dry them to perfection.
@@ -178,42 +107,6 @@ We'll go at it with a brush to knock shit loose, while vacuuming of course.
 Then one final pass of the blower and vacuum and we'll put it all back together and hopefully see some increased performance.
 THE AIR CONDITIONER SHOULD BE OFF THE ENTIRE TIME!
 If we finish all that in time, then we'll start on refurbishing the 2nd floor bathroom too!
-
-class D10
-    def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D10', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        # Specify all the points making up the vertices of the shape.
-        # TODO
-
-        # Create all the faces of the die.
-        # TODO
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        counter = 0
-        maxCount = 10
-        die_mesh.each_with_index do |face, index|
-            if face.is_a? Sketchup::Face
-                number_group = numbers_group.entities().add_group()
-                number_entities = number_group.entities()
-                number_entities.add_3d_text((index + 1).to_s(), TextAlignCenter, $fontName, $isBold, $isItalic, $letterHeight)
-                number_bounds = number_group.bounds()
-                # TODO CHANGE THE ANGLE OF THE TRANSFORMATION TO WHAT IT ACTUALLY SHOULD BE!!!
-                number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0], (number_bounds.height / 2) + $fontOffsets[index][1], 45), number_entities.to_a())
-                counter += 1
-                if counter == maxCount
-                    break
-                end
-            end
-        end
-
-        ...
-    end
-end
 
 class D12
     def initialize()
