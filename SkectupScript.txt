@@ -1,0 +1,4 @@
+
+TODO I NEED TO WRITE THIS FILE FOR REAL!
+
+require "/Users/austin/DiceStuff/Script/DiceGen.rb"
