@@ -37,14 +37,19 @@ The complete process for running an SVG image through Inkscape is:
 ===== BLENDER =====
 Blender is where the brunt of the work happens. It's used to convert the vector curve into a 3d mesh that can actually be imported into Sketchup.
 From a file-extension point of view, it converts an SVG file to a DAE.
+
+Before starting on the first file, you should press "N" to bring up the 'Transform' menu. It stays open the entire time Blender is, and is necessary
+for step 4 of the conversion/cleaning process.
+
 1. Import the file: Unlike with Inkscape, files can't be directly opened from Finder, since they aren't openable by Blender, just importable.
    So the best way that I'm currently aware of is importing them into an empty Blender scene. Maybe a better way exists, who knows.
         “File -> Import -> Scalable Vector Graphics (.svg)”
         “<fn> + F4 + I + S”
+   After importing, select all the imported paths in the scene collection pane. Hitting "A" to 'Select All' doesn't always work for step 2.
 2. Move the object's origin to it's geometric center: This calculates the origin position to be the geometric center of the object. This is necessary, since
    before this, the object doesn't have a origin, which is needed for the next step and for proper exporting.
-        “Select -> All” && “Object -> Set Origin -> Origin To Geometry”
-        “A” && “Object -> S + O”
+        “Object -> Set Origin -> Origin To Geometry”
+        “Object -> S + O”
 3. Snap the model to the global origin: This centers the object within Blender's scene, so that when it's exported, it'll be centered within Sketchup as well.
    Unfortunately, centering around the geometric center often isn't actually what's wanted depending on the distribution of the object's curves. So while this
    step will move it close to the actually desired position, it's almost always necessary to manually move the object until it looks good on the world axes.
@@ -55,7 +60,6 @@ From a file-extension point of view, it converts an SVG file to a DAE.
    It isn't necessary but does reduce the amount of work needed when manually checking the glyph orientation on the generated dice. The 8m is derived from
    the standard height of a glyph on a D6, which is 8mm, but it's scaled up by 1000 so that Blender and Sketchup render the tiny details instead of skipping them.
    This part can't be fully automated with keyboard shortcuts unfortunately...
-        "N" to bring up the 'Transform' menu.
         Set the Y-dimension to be 8, then copy the value for the Y-scale into the X-scale to ensure it stays proportional.
         "<CMD> + A -> S" to bring up the 'Apply' menu, and apply the scaling operation.
    At this point, it's usually a good idea to position the model however looks most visually appealing/centered.
@@ -68,6 +72,8 @@ From a file-extension point of view, it converts an SVG file to a DAE.
    But if there are multiple meshs, they should be combined together at this point.
         “Object -> Join”
         “<CMD> + J”
+   This step should produce a warning at the bottom of the screen saying there's no meshes to join. If everything went okay in Inkscape then all the curves
+   should of been unioned into a single curve, and so in Blender, there should only be a single mesh, hence the warning. This step is included just in case.
 7. Switch to Edit mode: This switches the display from showing the outline of the mesh model to displaying the actual mesh model itself. This isn't strictly
    necessary, but again, it helps seeing where anything might of gone wrong and needs fixing.
         “Edit Mode” && “Select -> All”
@@ -91,7 +97,7 @@ It's also important to delete the number from the scene after words by right cli
 "Delete Hierarchy" or pressing "H". That's it!
 
 The complete process for converting an SVG image to a DAE mesh with Blender is:
-    “<fn>  <F4>  I  S”   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”   -> "N"
+    “<fn>  <F4>  I  S”   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
     Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
     "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
     Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved.
