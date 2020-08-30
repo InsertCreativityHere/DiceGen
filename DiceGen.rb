@@ -162,7 +162,6 @@ module DiceGen
         end
     end
 
-
     # A bare-bones font that creates glyphs directly from ComponentDefinition objects, and the base class for all fonts.
     class Font
         # The plain-text name of the font.
@@ -220,7 +219,6 @@ module DiceGen
         end
     end
 
-
     # A font where every glyph is defined by it's own unique mesh model, and no combining of glyphs is performed.
     class RawFont < Font
         # The absolute path of the base folder that contains all the data for this font.
@@ -237,7 +235,6 @@ module DiceGen
             super(name: name, definitions: FontUtil.import_meshes(font_folder: @folder))
         end
     end
-
 
     # A font where a base set of glyphs is provided that all other composite glyphs can be generated from. For instance,
     # supplying an glyphs for every single individual digits, allows for generating glyphs for any base 10 number.
