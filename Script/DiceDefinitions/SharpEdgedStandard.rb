@@ -34,6 +34,14 @@ module DiceGen
                 # be scaled by a factor of 6mm/8mm = 0.75
                 super(definition: definition, faces: faces, die_scale: 306.86, font_scale: 0.75)
             end
+
+            # TODO
+            def place_glyphs(font:, mesh:, type:)
+                if (type == "D4")
+                    raise "Incompatible die type: a D4 model cannot be used to generate #{type.to_s()} dice."
+                end
+                #TODO
+            end
         end
 
         # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
@@ -71,6 +79,14 @@ module DiceGen
                 # Glyph models are always 8mm tall when imported, and the glyphs on a D6 are 8mm tall, so no scaling is
                 # necessary.
                 super(definition: definition, faces: faces, die_scale: 295.28)
+            end
+
+            # Delegates to the default implemenation after checking that the die type is a D6.
+            def place_glyphs(font:, mesh:, type:)
+                if (type != "D6")
+                    raise "Incompatible die type: a D6 model cannot be used to generate #{type.to_s()} dice."
+                end
+                super
             end
         end
 
@@ -110,6 +126,14 @@ module DiceGen
                 # be scaled by a factor of 7mm/8mm = 0.875
                 super(definition: definition, faces: faces, die_scale: 511.43, font_scale: 0.875)
             end
+
+            # Delegates to the default implemenation after checking that the die type is a D8.
+            def place_glyphs(font:, mesh:, type:)
+                if (type != "D8")
+                    raise "Incompatible die type: a D8 model cannot be used to generate #{type.to_s()} dice."
+                end
+                super
+            end
         end
 
         # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
@@ -135,6 +159,17 @@ module DiceGen
                 # Rotate each of the face transforms by TODO
                 #TODO MAKE THIS WORK FOR BOTH D10 and D%
             end
+
+            # TODO
+            def place_glyphs(font:, mesh:, type:)
+                if (type == "D%")
+                    #TODO
+                elsif (type == "D10")
+                    super
+                else
+                    raise "Incompatible die type: a D10 model cannot be used to generate #{type.to_s()} dice."
+                end
+            end
         end
 
         # This class defines the mesh model for a sharp-edged standard D12 die (a dodecahedron).
@@ -156,6 +191,14 @@ module DiceGen
                 # Glyph models are always 8mm tall when imported, and the glyphs on a D12 are 6mm tall, so glyphs must
                 # be scaled by a factor of 6mm/8mm = 0.75
                 super(definition: definition, faces: faces, font_scale: 0.75)
+            end
+
+            # Delegates to the default implemenation after checking that the die type is a D12.
+            def place_glyphs(font:, mesh:, type:)
+                if (type != "D12")
+                    raise "Incompatible die type: a D12 model cannot be used to generate #{type.to_s()} dice."
+                end
+                super
             end
         end
 
@@ -212,6 +255,14 @@ module DiceGen
                 # Glyph models are always 8mm tall when imported, and the glyphs on a D20 are 4.5mm tall, so glyphs must
                 # be scaled by a factor of 4.5mm/8mm = 0.5625
                 super(definition: definition, faces: faces, die_scale: 260.47, font_scale: 0.5625)
+            end
+
+            # Delegates to the default implemenation after checking that the die type is a D20.
+            def place_glyphs(font:, mesh:, type:)
+                if (type != "D20")
+                    raise "Incompatible die type: a D20 model cannot be used to generate #{type.to_s()} dice."
+                end
+                super
             end
         end
     end
