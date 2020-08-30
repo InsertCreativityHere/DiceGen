@@ -67,6 +67,7 @@ for step 4 of the conversion/cleaning process.
    This part can't be fully automated with keyboard shortcuts unfortunately...
         Set the Y-dimension to be 8, then copy the value for the Y-scale into the X-scale to ensure it stays proportional.
         "<CMD> + A -> S" to bring up the 'Apply' menu, and apply the scaling operation.
+   After this step, it's often necessary to manually offset the curve to make it look visually appealing and centered.
 5. Convert the curve into a mesh model: This part actually performs the conversion from a 2D vector curve into a 3D mesh model (even if the model has 0 height technically)
         “Object -> Convert To -> Mesh from Curve/Meta/Surf/Text”
         “Object -> V + M”
@@ -100,7 +101,7 @@ It's also important to delete the number from the scene after words by right cli
 
 The complete process for converting an SVG image to a DAE mesh with Blender is:
     “<fn>  <F4>  I  S”   ->   <Manually select the curves in the Scene Collection>   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
-    Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
+    Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field. Then adjust placement to center it correctly.
     "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
     Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved.
     "<fn>  <F4>  E  C"
