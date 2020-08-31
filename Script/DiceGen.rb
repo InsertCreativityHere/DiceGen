@@ -51,6 +51,18 @@ module DiceGen
             # Return the most recently created definition; ie: the one we just imported.
             return Util::MAIN_MODEL.definitions[-1]
         end
+
+        # Scales a vector by the provided scale factor like 'vector * scale' would normally. This function does not
+        # return a new vector, but mutates the vector in place and returns a reference for easy chaining.
+        #   vector: The vector to scale
+        #   scale: The scale factor to scale the vector by.
+        #   return: The vector that was scaled.
+        def scale_vector(vector, scale)
+            vector.x *= scale
+            vector.y *= scale
+            vector.z *= scale
+            return vector
+        end
     end
 
 
@@ -288,17 +300,27 @@ module DiceGen
         # The reciprocal of phi.
         $IHP = 1.0 / $PHI
 
+        # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
+        # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
+        D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]
+
+        # Computes the center-point of an edge by averaging the vertices at it's ends.
+        #   edge: The edge segment to find the middle of.
+        #   return: A Point3d holding the coordinates of the edge's middle.
         def find_edge_center(edge)
-            return Geom::Point3d.linear_combination(0.5, edge.start.position, 0.5, edge.end.position)
+            return Geom::Point3d.linear_combination(0.5, edge.start.position(), 0.5, edge.end.position())
         end
 
+        # Computes the geometric center-point of a face by average all it's vertices.
+        #   face: The face to find the center of.
+        #   return: A Point3d holding the coordinates of the face's geometric center.
         def find_face_center(face)
             x = 0; y = 0; z = 0;
 
             # Iterate through each of the vertices of the face and add them onto the totals.
             face.vertices().each() do |vertex|
                 pos = vertex.position()
-                x += pos.x; y += pos.y; z += pos.z;
+                x += pos.x(); y += pos.y(); z += pos.z();
             end
 
             # Compute the average position by dividing through by the total number of vertices.
@@ -306,6 +328,7 @@ module DiceGen
             return Geom::Point3d::new(x / count, y / count, z / count)
         end
 
+        #TODO
         def get_face_transform(face)
             # Get the normal vector that's pointing out from the face. This is going to become the new '+z' direction.
             normal = face.normal()
