@@ -205,6 +205,5 @@ end
 # ===== TODO =====
 # Try to figure out why there's still coupling of definition edits?
 # Make a class for SystemFont again!
-# We need to make D4's work correctly still...
 # And set the angle offsets for D% and D10 correctly.
 # And also program D10 and D12 models in too...
