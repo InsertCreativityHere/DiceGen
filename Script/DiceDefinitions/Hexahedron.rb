@@ -8,24 +8,25 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             die_mesh = definition.entities()
 
+            C0 = 0.5
             # Define all the points that make up the vertices of the die.
-            p000 = Geom::Point3d::new(-1, -1, -1)
-            p001 = Geom::Point3d::new(-1, -1,  1)
-            p010 = Geom::Point3d::new(-1,  1, -1)
-            p100 = Geom::Point3d::new( 1, -1, -1)
-            p011 = Geom::Point3d::new(-1,  1,  1)
-            p101 = Geom::Point3d::new( 1, -1,  1)
-            p110 = Geom::Point3d::new( 1,  1, -1)
-            p111 = Geom::Point3d::new( 1,  1,  1)
+            V0 = Geom::Point3d::new( C0,  C0,  C0)
+            V1 = Geom::Point3d::new( C0,  C0, -C0)
+            V2 = Geom::Point3d::new( C0, -C0,  C0)
+            V3 = Geom::Point3d::new( C0, -C0, -C0)
+            V4 = Geom::Point3d::new(-C0,  C0,  C0)
+            V5 = Geom::Point3d::new(-C0,  C0, -C0)
+            V6 = Geom::Point3d::new(-C0, -C0,  C0)
+            V7 = Geom::Point3d::new(-C0, -C0, -C0)
 
-            # Create the faces of the die by joining the vertices with edges.
+            # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(6)
-            faces[0] = die_mesh.add_face([p111, p011, p001, p101])
-            faces[1] = die_mesh.add_face([p001, p000, p100, p101])
-            faces[2] = die_mesh.add_face([p000, p001, p011, p010])
-            faces[3] = die_mesh.add_face([p110, p111, p101, p100])
-            faces[4] = die_mesh.add_face([p111, p110, p010, p011])
-            faces[5] = die_mesh.add_face([p000, p100, p110, p010])
+            faces[0] = die_mesh.add_face([V0, V1, V5, V4])
+            faces[1] = die_mesh.add_face([V0, V4, V6, V2])
+            faces[2] = die_mesh.add_face([V0, V2, V3, V1])
+            faces[3] = die_mesh.add_face([V7, V3, V2, V6])
+            faces[4] = die_mesh.add_face([V7, V6, V4, V5])
+            faces[5] = die_mesh.add_face([V7, V5, V1, V3])
 
             # The distance between two diametric faces is 2" in the base model, and standard D6 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of

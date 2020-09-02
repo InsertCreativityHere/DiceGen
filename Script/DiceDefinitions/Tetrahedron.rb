@@ -8,18 +8,19 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
+            C0 = Math.sqrt(2) / 4
             # Define all the points that make up the vertices of the die.
-            p111 = Geom::Point3d::new( 1,  1,  1)
-            p001 = Geom::Point3d::new(-1, -1,  1)
-            p010 = Geom::Point3d::new(-1,  1, -1)
-            p100 = Geom::Point3d::new( 1, -1, -1)
+            V0 = Geom::Point3d::new(-C0, -C0, -C0)
+            V1 = Geom::Point3d::new(-C0,  C0,  C0)
+            V2 = Geom::Point3d::new( C0, -C0,  C0)
+            V3 = Geom::Point3d::new( C0,  C0, -C0)
 
-            # Create the faces of the die by joining the vertices with edges.
+            # Create the faces of the die by joining the vertices with edges. TODO FIX THIS!
             faces = Array::new(4)
-            faces[0] = mesh.add_face([p010, p001, p111])
-            faces[1] = mesh.add_face([p100, p010, p001])
-            faces[2] = mesh.add_face([p111, p100, p010])
-            faces[3] = mesh.add_face([p001, p111, p100])
+            faces[0] = mesh.add_face([V2, V3, V1])
+            faces[1] = mesh.add_face([V3, V2, V0])
+            faces[2] = mesh.add_face([V1, V0, V2])
+            faces[3] = mesh.add_face([V0, V1, V3])
 
             # The distance between a vertex and it's diametric face is 2.3094" in the base model, and standard D4
             # dice have a diametric distance of 18mm, so the model must be scaled by a factor of

@@ -8,24 +8,26 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
+            C0 = 0.0
+            C1 = Math.sqrt(2) / 2
             # Define all the points that make up the vertices of the die.
-            px = Geom::Point3d::new( 1,  0,  0)
-            nx = Geom::Point3d::new(-1,  0,  0)
-            py = Geom::Point3d::new( 0,  1,  0)
-            ny = Geom::Point3d::new( 0, -1,  0)
-            pz = Geom::Point3d::new( 0,  0,  1)
-            nz = Geom::Point3d::new( 0,  0, -1)
+            V0 = Geom::Point3d::new( C1,  C0,  C0)
+            V1 = Geom::Point3d::new(-C1,  C0,  C0)
+            V2 = Geom::Point3d::new( C0,  C1,  C0)
+            V3 = Geom::Point3d::new( C0, -C1,  C0)
+            V4 = Geom::Point3d::new( C0,  C0,  C1)
+            V5 = Geom::Point3d::new( C0,  C0, -C1)
 
-            # Create the faces of the die by joining the vertices with edges.
+            # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(8)
-            faces[0] = mesh.add_face([px, py, pz])
-            faces[1] = mesh.add_face([px, ny, nz])
-            faces[2] = mesh.add_face([px, ny, pz])
-            faces[3] = mesh.add_face([px, py, nz])
-            faces[4] = mesh.add_face([nx, ny, pz])
-            faces[5] = mesh.add_face([nx, py, nz])
-            faces[6] = mesh.add_face([nx, py, pz])
-            faces[7] = mesh.add_face([nx, ny, nz])
+            faces[0] = mesh.add_face([V4, V0, V2])
+            faces[1] = mesh.add_face([V4, V2, V1])
+            faces[2] = mesh.add_face([V4, V1, V3])
+            faces[3] = mesh.add_face([V4, V3, V0])
+            faces[4] = mesh.add_face([V5, V0, V3])
+            faces[5] = mesh.add_face([V5, V3, V1])
+            faces[6] = mesh.add_face([V5, V1, V2])
+            faces[7] = mesh.add_face([V5, V2, V0])
 
             # The distance between two diametric faces is 1.1547" in the base model, and standard D8 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of

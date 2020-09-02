@@ -297,12 +297,6 @@ module DiceGen
     module DiceUtil
         module_function
 
-        # The mathematical constant known as the "golden ratio".
-        $PHI = (1.0 + Math::sqrt(5)) / 2.0
-
-        # The reciprocal of phi.
-        $IHP = 1.0 / $PHI
-
         # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
         # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
         D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]

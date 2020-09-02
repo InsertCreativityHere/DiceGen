@@ -207,3 +207,5 @@ end
 # Make a class for SystemFont again!
 # And set the angle offsets for D% and D10 correctly.
 # And also program D10 and D12 models in too...
+
+I need to redo all the face orders and orientations and the die_scale factors.
