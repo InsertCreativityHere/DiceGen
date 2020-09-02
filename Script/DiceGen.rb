@@ -456,6 +456,7 @@ module DiceGen
     def create_set(set:, font:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
         #TODO
     end
+
 end
 
 # Import all the fonts that we've created so far.
