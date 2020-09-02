@@ -13,21 +13,6 @@ module DiceGen
         # Dummy transformation that represents the transformation of doing nothing.
         NO_TRANSFORM = Geom::Transformation::new()
 
-        # Flag for whether the system Sketchup is running on is Windows or Unix like.
-        @@is_windows = (Sketchup::platform == :platform_win rescue RUBY_PLATFORM !~ /darwin/i)
-        if @@is_windows
-            require "win32ole"
-        end
-
-        # Triggers an <ESC> key-press
-        def send_escape()
-            if @@is_windows
-                WIN32OLE::new('WScript.Shell').SendKeys('{ESC}')
-            else
-                Sketchup.send_action('cancelOperation:')
-            end
-        end
-
         # Imports a file and returns a reference to the imported definition. Note that this function will cause the
         # imported definition to appear at the mouse cursor in the UI, this is a limitation of the API. Hitting <ESC>
         # Will get rid of the extra instance.
@@ -44,9 +29,6 @@ module DiceGen
             if !result
                 raise "Failed to import model from the file '#{file}'"
             end
-
-            # Press the <ESC> key to prevent an instance from being placed at the mouse cursor.
-            # send_escape() TODO ENABLE THIS WHEN WE MAKE A REAL SCRIPT INSTEAD OF USING THE RUBY CONSOLE.
 
             # Return the most recently created definition; ie: the one we just imported.
             return Util::MAIN_MODEL.definitions[-1]
