@@ -176,6 +176,9 @@ module DiceGen
 
     # A bare-bones font that creates glyphs directly from ComponentDefinition objects, and the base class for all fonts.
     class Font
+        # Limits this class (and it's subclasses) to only ever having a single instance which is globally available.
+        include Singleton
+
         # The plain-text name of the font.
         attr_reader :name
         # Hash of all the glyphs making up the font, it's keys are the names for each glyph (the text that the glyph
@@ -439,7 +442,7 @@ module DiceGen
         def place_glyphs(font:, mesh:, type:)
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
-                font.create_glyph(name: (i+1).to_s(), entities: mesh, transform: face_transform)
+                font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: face_transform)
             end
         end
     end
@@ -448,29 +451,22 @@ module DiceGen
     def create_die(model:, font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, transform: transform)
     end
+
+    #TODO
+    def create_set(set:, font:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+        #TODO
+    end
 end
 
-# These lines import the scripts that contain the definitions for all the dice and fonts we've made so far.
+# Import all the fonts that we've created so far.
+puts "===== Loading Fonts ====="
 require_relative "Fonts.rb"
-require_relative "DiceDefinitions/SharpEdgedStandard.rb"
+# Import all the die model that we've created so far.
+puts "===== Loading Dice ====="
+require_relative "Dice.rb"
 
 # These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
-# modules for the 'DiceGen' and 'Fonts' namespaces.
+# modules for the 'DiceGen', 'Fonts', and 'DiceSets' namespaces.
 include DiceGen
 include Fonts
-
-
-#ffheight means the height between diametric faces
-#vvheight means the height between diametric vertices
-#fvheight means the height between a face and its diametric vertex
-#
-#D20 ffheight = 20mm       vvheight = 24mm       font = 4.5mm
-#D6  ffheight = 15mm       vvheight = 24mm       font = 8mm
-#D8  ffheight = 15mm       vvheight = 24mm       font = 7mm
-#D4  fvheight = 18mm                             font = 6mm
-#D12 ffheight = 18.5mm     vvheight = 22mm       font = 6mm
-#D10 ffheight = 16mm       vvheight = 23mm       font = 7mm      on a D% the smaller digit is 5mm and the large is 7mm
-#
-#(0..20).each() do |i|
-#    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
-#end
+include DiceSets
