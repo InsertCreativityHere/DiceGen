@@ -10,8 +10,8 @@ module DiceGen
 
             C0 = 0.0
             C1 = 0.5
-            C2 = (1 + sqrt(5)) / 4
-            C3 = (3 + sqrt(5)) / 4
+            C2 = (1 + Math.sqrt(5)) / 4
+            C3 = (3 + Math.sqrt(5)) / 4
             # Define all the points that make up the vertices of the die.
             V0  = Geom::Point3d::new( C0,  C1,  C3)
             V1  = Geom::Point3d::new( C0,  C1, -C3)
