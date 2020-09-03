@@ -25,7 +25,7 @@ module DiceGen
         end
 
         # TODO
-        def place_glyphs(font:, mesh:, type:)
+        def place_glyphs(font:, mesh:, type: "D10", font_scale: 1.0, font_offset: [0,0])
             if (type == "D%")
                 #TODO
             elsif (type == "D10")

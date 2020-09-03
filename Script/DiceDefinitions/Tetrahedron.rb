@@ -58,7 +58,7 @@ module DiceGen
         end
 
         # TODO
-        def place_glyphs(font:, mesh:, type:)
+        def place_glyphs(font:, mesh:, type: "D4", font_scale: 1.0, font_offset: [0,0])
             if (type != "D4")
                 raise "Incompatible die type: a D4 model cannot be used to generate #{type.to_s()} dice."
             end

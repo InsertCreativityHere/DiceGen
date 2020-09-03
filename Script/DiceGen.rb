@@ -241,7 +241,7 @@ module DiceGen
 
         # Create a new spliced font with the specified font, and whose base glyphs are defined by meshes stored in DAE
         # files. Every mesh in the font folder is loaded, and afterwards, composite glyphs are generated as needed.
-        # name: The plain-text name of the font.
+        #   name: The plain-text name of the font.
         #   folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
         #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
         #         it's the actual font folder that it expects to get.
@@ -310,6 +310,8 @@ module DiceGen
         # Computes and returns a transformation that maps the global coordinate system to a face local one where the
         # origin is at the center of the face, and the x,y plane is coplanar to the face, with the z axis pointing out.
         # All axes are, of course, an orthonormal basis when taken together.
+        #   face: The face to compute the transform for.
+        #   return: The transformation as described above.
         def get_face_transform(face)
             # Get the normal vector that's pointing out from the face. This is going to become the new '+z' direction.
             normal = face.normal()
@@ -366,16 +368,22 @@ module DiceGen
         end
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
-        # font: The font to use for generating glyphs on the die.
-        # type: The stringified name for the type of die being created. Some models can be used to create multiple
-        #           types of die; for instance the D10 model is used for both "D10" and "D%" type dice.
-        #           Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
-        # group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
-        #        In practice, the die is always created within it's own die group, and the die group is what's placed
-        #        into the provided group. Defaults to nil.
-        # scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
-        # transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
+        #   font: The font to use for generating glyphs on the die.
+        #   type: The stringified name for the type of die being created. Some models can be used to create multiple
+        #             types of die; for instance the D10 model is used for both "D10" and "D%" type dice.
+        #             Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        #   group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
+        #          In practice, the die is always created within it's own die group, and the die group is what's placed
+        #          into the provided group. Defaults to nil.
+        #   scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
+        #   die_scale: The amount to scale the die mesh model before embossing occurs. Defaults to 1.0 (no scaling).
+        #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
+        #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
+        #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
+        #                tetrahedral D4 whereglyphs shouldn't be face-centered.
+        #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
+        def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0]
+                            transform: Util::NO_TRANSFORM)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -388,13 +396,15 @@ module DiceGen
             instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM).make_unique()
             die_def = instance.definition()
             die_mesh = die_def.entities()
+            # Scale the die mesh model by the specified amount.
+            die_mesh.transform_entities(Geom::Transformation.scaling(die_scale), die_mesh.to_a())
 
             # Create a separate group for placing glyphs into.
             glyph_group = group.entities().add_group()
             glyph_mesh = glyph_group.entities()
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
-            place_glyphs(font: font, mesh: glyph_mesh, type: type)
+            place_glyphs(font: font, mesh: glyph_mesh, type: type, font_scale: font_scale, font_offset: font_offset)
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
             die_def.invalidate_bounds()
@@ -413,11 +423,15 @@ module DiceGen
 
         # Creates and places glyphs onto the faces of the die. This default implementation iterates through each face
         # and places the corresponding number on it, but subclasses can override this method for custom glyph placement.
-        # font: The font to create the glyphs in.
-        # mesh: The collection of entities where glyphs should be generated into.
-        # type: The type of die that the glyphs are being placed for. This is ignored in the default implementation, but
-        # can be checked for custom behavior. Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
-        def place_glyphs(font:, mesh:, type:)
+        #   font: The font to create the glyphs in.
+        #   mesh: The collection of entities where glyphs should be generated into.
+        #   type: The type of die that the glyphs are being placed for. This is ignored in the default implementation,
+        #   but can be checked for custom behavior. Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
+        #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
+        #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
+        #                tetrahedral D4 where glyphs shouldn't be face-centered.
+        def place_glyphs(font:, mesh:, type:, font_scale:, font_offset:)
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: face_transform)
@@ -426,8 +440,10 @@ module DiceGen
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
-        model.instance.create_instance(font: font, type: type, group: group, scale: scale, transform: transform)
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0]
+                   transform: Util::NO_TRANSFORM)
+        model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
+                                       font_scale: font_scale, font_offset: font_offset, transform: transform)
     end
 
 end
