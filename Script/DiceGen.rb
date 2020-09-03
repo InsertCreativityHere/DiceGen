@@ -307,7 +307,9 @@ module DiceGen
             return Geom::Point3d::new(x / count, y / count, z / count)
         end
 
-        #TODO
+        # Computes and returns a transformation that maps the global coordinate system to a face local one where the
+        # origin is at the center of the face, and the x,y plane is coplanar to the face, with the z axis pointing out.
+        # All axes are, of course, an orthonormal basis when taken together.
         def get_face_transform(face)
             # Get the normal vector that's pointing out from the face. This is going to become the new '+z' direction.
             normal = face.normal()
@@ -426,11 +428,6 @@ module DiceGen
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, transform: transform)
-    end
-
-    #TODO
-    def create_set(set:, font:, group: nil, scale: 1.0, transform: Util::NO_TRANSFORM)
-        #TODO
     end
 
 end
