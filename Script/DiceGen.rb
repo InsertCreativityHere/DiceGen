@@ -1,4 +1,6 @@
 
+require 'singleton'
+
 module DiceGen
 
     ##### UTILITIES #####
@@ -273,8 +275,6 @@ module DiceGen
 
     ##### DICE #####
 
-    require 'singleton'
-
     #  Module containing dice specific utility code.
     module DiceUtil
         module_function
@@ -382,7 +382,7 @@ module DiceGen
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0]
+        def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
                             transform: Util::NO_TRANSFORM)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
@@ -440,7 +440,7 @@ module DiceGen
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0]
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
                    transform: Util::NO_TRANSFORM)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
                                        font_scale: font_scale, font_offset: font_offset, transform: transform)
