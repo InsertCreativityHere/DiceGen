@@ -180,7 +180,6 @@ end
 
 
 # ===== TODO =====
-# Try to figure out why there's still coupling of definition edits?
 # Make a class for SystemFont again!
 # Make a utility function for capturing groups and outputting them as models, so we can edit the geometric base shapes.
 # And set the angle offsets for D% and D10 correctly.
@@ -188,3 +187,4 @@ end
 # Make it so that a DN model can also generate DM models given that M|N (just repeat numbers)
 
 I need to redo all the face orders and orientations and the die_scale factors.
+Also also, we need to add comments to the die model classes saying their size specifications!

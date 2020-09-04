@@ -393,7 +393,15 @@ module DiceGen
             Util::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
 
             # Create an instance of the die model within the enclosing group.
+            # We have to make 2 instances so that 'make_unique' works correctly. If only one instance exists,
+            # make_unique does nothing, since it's already unique, and hence changes to the die affect the definition
+            # when it shouldn't. By making a fake_instance first, when we call make_unique on the second instance, it
+            # will actually create a new underlying definition for it, preventing any changes to the die from leaking
+            # through to the definition.
+            fake_instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM)
             instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM).make_unique()
+            fake_instance.erase!()
+
             die_def = instance.definition()
             die_mesh = die_def.entities()
             # Scale the die mesh model by the specified amount.
@@ -404,7 +412,9 @@ module DiceGen
             glyph_mesh = glyph_group.entities()
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
-            place_glyphs(font: font, mesh: glyph_mesh, type: type, font_scale: font_scale, font_offset: font_offset)
+            unless font.nil?()
+                place_glyphs(font: font, mesh: glyph_mesh, type: type, font_scale: font_scale, font_offset: font_offset)
+            end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
             die_def.invalidate_bounds()
