@@ -456,7 +456,6 @@ puts "===== Loading Dice ====="
 require_relative "Dice.rb"
 
 # These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
-# modules for the 'DiceGen', 'Fonts', and 'DiceSets' namespaces.
+# modules for the 'DiceGen' and 'Fonts' namespaces.
 include DiceGen
 include Fonts
-include DiceSets
