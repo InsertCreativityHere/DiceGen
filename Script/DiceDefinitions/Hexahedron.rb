@@ -8,25 +8,25 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             die_mesh = definition.entities()
 
-            C0 = 0.5
+            c0 = 0.5
             # Define all the points that make up the vertices of the die.
-            V0 = Geom::Point3d::new( C0,  C0,  C0)
-            V1 = Geom::Point3d::new( C0,  C0, -C0)
-            V2 = Geom::Point3d::new( C0, -C0,  C0)
-            V3 = Geom::Point3d::new( C0, -C0, -C0)
-            V4 = Geom::Point3d::new(-C0,  C0,  C0)
-            V5 = Geom::Point3d::new(-C0,  C0, -C0)
-            V6 = Geom::Point3d::new(-C0, -C0,  C0)
-            V7 = Geom::Point3d::new(-C0, -C0, -C0)
+            v0 = Geom::Point3d::new( c0,  c0,  c0)
+            v1 = Geom::Point3d::new( c0,  c0, -c0)
+            v2 = Geom::Point3d::new( c0, -c0,  c0)
+            v3 = Geom::Point3d::new( c0, -c0, -c0)
+            v4 = Geom::Point3d::new(-c0,  c0,  c0)
+            v5 = Geom::Point3d::new(-c0,  c0, -c0)
+            v6 = Geom::Point3d::new(-c0, -c0,  c0)
+            v7 = Geom::Point3d::new(-c0, -c0, -c0)
 
             # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(6)
-            faces[0] = die_mesh.add_face([V0, V1, V5, V4])
-            faces[1] = die_mesh.add_face([V0, V4, V6, V2])
-            faces[2] = die_mesh.add_face([V0, V2, V3, V1])
-            faces[3] = die_mesh.add_face([V7, V3, V2, V6])
-            faces[4] = die_mesh.add_face([V7, V6, V4, V5])
-            faces[5] = die_mesh.add_face([V7, V5, V1, V3])
+            faces[0] = die_mesh.add_face([v0, v1, v5, v4])
+            faces[1] = die_mesh.add_face([v0, v4, v6, v2])
+            faces[2] = die_mesh.add_face([v0, v2, v3, v1])
+            faces[3] = die_mesh.add_face([v7, v3, v2, v6])
+            faces[4] = die_mesh.add_face([v7, v6, v4, v5])
+            faces[5] = die_mesh.add_face([v7, v5, v1, v3])
 
             # The distance between two diametric faces is 2" in the base model, and standard D6 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of

@@ -8,39 +8,39 @@ module DiceGen
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
-            C0 = 0.0
-            C1 = 3 * Math.sqrt(2) / 4
-            C2 = 3 * Math.sqrt(2) / 8
+            c0 = 0.0
+            c1 = 3 * Math.sqrt(2) / 4
+            c2 = 3 * Math.sqrt(2) / 8
             # Define all the points that make up the vertices of the die.
-            V0  = Geom::Point3d::new( C1,  C0,  C0)
-            V1  = Geom::Point3d::new(-C1,  C0,  C0)
-            V2  = Geom::Point3d::new( C0,  C1,  C0)
-            V3  = Geom::Point3d::new( C0, -C1,  C0)
-            V4  = Geom::Point3d::new( C0,  C0,  C1)
-            V5  = Geom::Point3d::new( C0,  C0, -C1)
-            V6  = Geom::Point3d::new( C2,  C2,  C2)
-            V7  = Geom::Point3d::new( C2,  C2, -C2)
-            V8  = Geom::Point3d::new( C2, -C2,  C2)
-            V9  = Geom::Point3d::new( C2, -C2, -C2)
-            V10 = Geom::Point3d::new(-C2,  C2,  C2)
-            V11 = Geom::Point3d::new(-C2,  C2, -C2)
-            V12 = Geom::Point3d::new(-C2, -C2,  C2)
-            V13 = Geom::Point3d::new(-C2, -C2, -C2)
+            v0  = Geom::Point3d::new( c1,  c0,  c0)
+            v1  = Geom::Point3d::new(-c1,  c0,  c0)
+            v2  = Geom::Point3d::new( c0,  c1,  c0)
+            v3  = Geom::Point3d::new( c0, -c1,  c0)
+            v4  = Geom::Point3d::new( c0,  c0,  c1)
+            v5  = Geom::Point3d::new( c0,  c0, -c1)
+            v6  = Geom::Point3d::new( c2,  c2,  c2)
+            v7  = Geom::Point3d::new( c2,  c2, -c2)
+            v8  = Geom::Point3d::new( c2, -c2,  c2)
+            v9  = Geom::Point3d::new( c2, -c2, -c2)
+            v10 = Geom::Point3d::new(-c2,  c2,  c2)
+            v11 = Geom::Point3d::new(-c2,  c2, -c2)
+            v12 = Geom::Point3d::new(-c2, -c2,  c2)
+            v13 = Geom::Point3d::new(-c2, -c2, -c2)
 
             # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(12)
-            faces[0]  = mesh.add_face([ V6,  V4,  V8,  V0])
-            faces[1]  = mesh.add_face([ V6,  V0,  V7,  V2])
-            faces[2]  = mesh.add_face([ V6,  V2, V10,  V4])
-            faces[3]  = mesh.add_face([ V9,  V5,  V7,  V0])
-            faces[4]  = mesh.add_face([ V9,  V0,  V8,  V3])
-            faces[5]  = mesh.add_face([ V9,  V3, V13,  V5])
-            faces[6]  = mesh.add_face([V11,  V5, V13,  V1])
-            faces[7]  = mesh.add_face([V11,  V1, V10,  V2])
-            faces[8]  = mesh.add_face([V11,  V2,  V7,  V5])
-            faces[9]  = mesh.add_face([V12,  V4, V10,  V1])
-            faces[10] = mesh.add_face([V12,  V1, V13,  V3])
-            faces[11] = mesh.add_face([V12,  V3,  V8,  V4])
+            faces[0]  = mesh.add_face([ v6,  v4,  v8,  v0])
+            faces[1]  = mesh.add_face([ v6,  v0,  v7,  v2])
+            faces[2]  = mesh.add_face([ v6,  v2, v10,  v4])
+            faces[3]  = mesh.add_face([ v9,  v5,  v7,  v0])
+            faces[4]  = mesh.add_face([ v9,  v0,  v8,  v3])
+            faces[5]  = mesh.add_face([ v9,  v3, v13,  v5])
+            faces[6]  = mesh.add_face([v11,  v5, v13,  v1])
+            faces[7]  = mesh.add_face([v11,  v1, v10,  v2])
+            faces[8]  = mesh.add_face([v11,  v2,  v7,  v5])
+            faces[9]  = mesh.add_face([v12,  v4, v10,  v1])
+            faces[10] = mesh.add_face([v12,  v1, v13,  v3])
+            faces[11] = mesh.add_face([v12,  v3,  v8,  v4])
 
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
