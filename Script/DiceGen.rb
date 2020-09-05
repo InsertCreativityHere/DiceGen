@@ -420,7 +420,7 @@ module DiceGen
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
             die_mesh.intersect_with(false, Util::NO_TRANSFORM, die_mesh, Util::NO_TRANSFORM, true, glyph_mesh.to_a())
-            glyph_group.erase!()
+            #glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
@@ -446,11 +446,11 @@ module DiceGen
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale the glyph by font_scale, before performing the face-local coordinate transformation.
                 full_transform = face_transform * Geom::Transformation.scaling(font_scale)
-                # Scale the face-local transform by die_scale to make sure the glyph intersects the face.
-                full_transform = Geom::Transformation.scaling(die_scale) * full_transform
-                # Finally, translate the glyph by the specified offset (in face-local coordinates).
+                # Then, translate the glyph by the specified offset (in face-local coordinates), plus a z-offset
+                # that ensures the glyph and face are coplanar, even if the die has been scaled up.
                 offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
-                                Util.scale_vector(face_transform.yaxis, font_offset[1])
+                                Util.scale_vector(face_transform.yaxis, font_offset[1]) + \
+                                Util.scale_vector(face_transform.origin - Geom::Point3d::new(), die_scale)
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                 font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)
