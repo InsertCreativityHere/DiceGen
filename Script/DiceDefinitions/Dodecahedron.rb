@@ -5,7 +5,7 @@ module DiceGen::Dice
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
             # Create a new definition for the die.
-            definition = DiceUtil::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
             c0 = 0.0
