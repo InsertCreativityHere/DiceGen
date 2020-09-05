@@ -176,6 +176,22 @@ end
 
 
 
+#ffheight means the height between diametric faces
+#vvheight means the height between diametric vertices
+#fvheight means the height between a face and its diametric vertex
+#
+#D20 ffheight = 20mm       vvheight = 24mm       font = 4.5mm
+#D6  ffheight = 15mm       vvheight = 24mm       font = 8mm
+#D8  ffheight = 15mm       vvheight = 24mm       font = 7mm
+#D4  fvheight = 18mm                             font = 6mm
+#D12 ffheight = 18.5mm     vvheight = 22mm       font = 6mm
+#D10 ffheight = 16mm       vvheight = 23mm       font = 7mm      on a D% the smaller digit is 5mm and the large is 7mm
+#
+#(0..20).each() do |i|
+#    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
+#end
+
+
 
 
 

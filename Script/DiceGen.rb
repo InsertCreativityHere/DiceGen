@@ -36,16 +36,13 @@ module DiceGen
             return Util::MAIN_MODEL.definitions[-1]
         end
 
-        # Scales a vector by the provided scale factor like 'vector * scale' would normally. This function does not
-        # return a new vector, but mutates the vector in place and returns a reference for easy chaining.
-        #   vector: The vector to scale
+        # Scales a vector by the provided scale factor like 'vector * scale' would normally.
+        #   vector: The vector to scale. Note that this vector isn't altered by the function, instead it's components
+        #           components are copied into a new vector and that is scaled and returned.
         #   scale: The scale factor to scale the vector by.
-        #   return: The vector that was scaled.
+        #   return: A new vector with the same components as the provided vector, but scaled by 'scale_factor'.
         def scale_vector(vector, scale)
-            vector.x *= scale
-            vector.y *= scale
-            vector.z *= scale
-            return vector
+            return Geom::Vector3d::new(vector.x * scale, vector.y * scale, vector.z * scale)
         end
     end
 
@@ -452,11 +449,10 @@ module DiceGen
                 # Scale the face-local transform by die_scale to make sure the glyph intersects the face.
                 full_transform = Geom::Transformation.scaling(die_scale) * full_transform
                 # Finally, translate the glyph by the specified offset (in face-local coordinates).
-                offset_vector = scale_vector(face_transform.xaxis, font_offset[0])
-                              + scale_vector(face_transform.yaxis, font_offset[1])
-                full_transform = Geom::Transformation.translate(offset_vector) * full_transform
+                offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
+                                Util.scale_vector(face_transform.yaxis, font_offset[1])
+                full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
-                scaled_transform = Geom::Transformation.scaling(die_scale) *
                 font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)
             end
         end

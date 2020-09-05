@@ -42,7 +42,7 @@ module DiceGen
             # 120 degrees clockwise in radians. The angle between any two vertices of a face.
             angle = -120 * Math::PI / 180
 
-            # Iterate through each of the alreay calculated face transforms and compute 3 vector transforms from it.
+            # Iterate through each of the already calculated face transforms and compute 3 vector transforms from it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # Calculate the translation component by offseting the glyph 6.25mm (246") in the local y-direction.
                 translation = Geom::Transformation.translation(Util.scale_vector(face_transform.yaxis, 246))
@@ -67,7 +67,7 @@ module DiceGen
             @face_transforms.each_with_index() do |face_transform, i|
                 face_transform.each_with_index() do |transform, j|
                     # Place the correct glyph at the jth vertex of the ith face.
-                    font.create_glyph(name: DiceUtil::D4_NUMBERING[i][j], entities: mesh, transform: transform)
+                    font.instance.create_glyph(name: DiceUtil::D4_NUMBERING[i][j], entities: mesh, transform: transform)
                 end
             end
         end
