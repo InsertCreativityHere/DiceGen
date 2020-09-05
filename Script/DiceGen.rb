@@ -117,7 +117,7 @@ module Fonts
             end
 
             # Create a new definition to splice the glyphs into.
-            definition = MAIN_MODEL.definitions.add(name)
+            definition = Util::MAIN_MODEL.definitions.add(name)
             entities = definition.entities()
 
             # Keep a running tally of the current x position, starting at the leftmost point.
