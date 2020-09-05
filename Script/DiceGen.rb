@@ -13,25 +13,38 @@ module Util
     # Dummy transformation that represents the transformation of doing nothing.
     NO_TRANSFORM = Geom::Transformation::new()
 
+    # Hash that stores the definitions for everything we import to prevent reloading the same defintion twice.
+    # Values are the stringified name of the ComponentDefinition, and keys are the filenames that the definitions were
+    # imported from.
+    @@import_cache = Hash::new()
+
     # Imports a file and returns a reference to the imported definition. Note that this function will cause the
     # imported definition to appear at the mouse cursor in the UI, this is a limitation of the API. Hitting <ESC>
     # Will get rid of the extra instance.
     #   file: The absolute path of the file to import from.
     #   return: A ComponentDefinition corresponding to the imported definition.
     def import_definition(file)
+        # Check if we've already imported the file, and if so, return the cached definition.
+        if @@import_cache.key?(file)
+            return MAIN_MODEL.definitions[@@import_cache[file]]
+        end
+
         # Check if the file exists and is reachable.
-        if !File.exist?(file)
+        unless File.exist?(file)
             raise "Failed to locate the file '#{file}'"
         end
 
         # Try to import the file's model and check if it was successful.
         result = MAIN_MODEL.import(file)
-        if !result
+        unless result
             raise "Failed to import model from the file '#{file}'"
         end
+        puts "    Loaded '#{File.basename(file, ".dae")}.dae'"
 
-        # Return the most recently created definition; ie: the one we just imported.
-        return MAIN_MODEL.definitions[-1]
+        # Cache and return the most recently created definition; ie: the one we just imported.
+        definition = MAIN_MODEL.definitions[-1]
+        @@import_cache[file] = definition.guid()
+        return definition
     end
 
     # Scales a vector by the provided scale factor like 'vector * scale' would normally.
@@ -82,19 +95,12 @@ module Fonts
                 (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
                     filename = File.basename(file, ".dae")
+
                     meshes[filename] = Util.import_definition(file)
-                    puts "    Loaded '#{filename}.dae'"
                 end
             else
                 mesh_names.each() do |mesh|
-                    # Get the absolute path of the mesh file to import.
-                    file = "#{font_folder}/meshes/#{mesh}.dae"
-                    if (File.exists?(file))
-                        meshes[mesh] = Util.import_definition(file)
-                        puts "    Loaded '#{mesh}.dae'"
-                    else
-                        puts "    Failed to load '#{mesh}.dae'"
-                    end
+                    meshes[mesh] = Util.import_definition("#{font_folder}/meshes/#{mesh}.dae")
                 end
             end
 
