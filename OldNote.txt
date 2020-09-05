@@ -1,9 +1,3 @@
-
-(0..20).to_a().each() do |i|
-    graffiti.createGlyph(i, $main_model.entities.add_group(), Geom::Transformation.translation(Geom::Point3d.new(i,0,0)))
-end
-
-
 After Kaley leaves we're going to try cleaning out the evaporator coils.
 And I need to clean the mop and bucket out.
 
@@ -20,22 +14,11 @@ Tomorrow:
 
 =========================================
 
-0.834 for the d4 edge
-0.591 for the d6 edge
-
-=========================================
 
 Okay, so there's 3 ways I see that we can make the numbers:
 - We paste an image in and emboss the image into the side of the die.
 - We use a system font, and emboss the 3d text into the side of the die.
 - Same as the last one, but we actually make numbers individually.
-
-
-
-
-
-
-
 
 
 #=======================================================================================================================
@@ -80,24 +63,6 @@ def createNumberDigits(numbers_group, face, number, offsetX, offsetY, angle, edg
 end
 
 
-
-class D4
-    def initialize()
-        ...
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        corner_numbers = [[1, 3, 2], [2, 3, 4], [4, 3, 1], [4, 1, 2]]
-        [f1, f2, f3, f4].each_with_index do |face, index|
-            3.times do |number_index|
-                createNumberDigits(numbers_group, face, corner_numbers[index][number_index], 0, -0.5, 180, number_index)
-            end
-        end
-
-        ...
-    end
-end
-
 okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
 Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.
 I'll move the carpets back into the bathroom and blow-dry them to perfection.
@@ -107,37 +72,6 @@ We'll go at it with a brush to knock shit loose, while vacuuming of course.
 Then one final pass of the blower and vacuum and we'll put it all back together and hopefully see some increased performance.
 THE AIR CONDITIONER SHOULD BE OFF THE ENTIRE TIME!
 If we finish all that in time, then we'll start on refurbishing the 2nd floor bathroom too!
-
-class D12
-    def initialize()
-        model = Sketchup.active_model()
-        model.start_operation('Create D20', true)
-        die_group = model.active_entities.add_group()
-        die_mesh = die_group.entities()
-
-        ...
-
-        # Create the numbers to emboss on each face.
-        numbers_group = model.active_entities.add_group()
-        counter = 0
-        maxCount = 20
-        die_mesh.each_with_index do |face, index|
-            if face.is_a? Sketchup::Face
-                number_group = numbers_group.entities().add_group()
-                number_entities = number_group.entities()
-                number_entities.add_3d_text((index + 1).to_s(), TextAlignCenter, $fontName, $isBold, $isItalic, $letterHeight)
-                number_bounds = number_group.bounds()
-                number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0], (number_bounds.height / 2) + $fontOffsets[index][1], 0), number_entities.to_a())
-                counter += 1
-                if counter == maxCount
-                    break
-                end
-            end
-        end
-
-        ...
-    end
-end
 
 # The first vertex on a face MUST be immediately to the left of the top vector of the text.
 def create_d6
@@ -180,16 +114,16 @@ end
 #vvheight means the height between diametric vertices
 #fvheight means the height between a face and its diametric vertex
 #
-#D20 ffheight = 20mm       vvheight = 24mm       font = 4.5mm
-#D6  ffheight = 15mm       vvheight = 24mm       font = 8mm
-#D8  ffheight = 15mm       vvheight = 24mm       font = 7mm
-#D4  fvheight = 18mm                             font = 6mm
-#D12 ffheight = 18.5mm     vvheight = 22mm       font = 6mm
 #D10 ffheight = 16mm       vvheight = 23mm       font = 7mm      on a D% the smaller digit is 5mm and the large is 7mm
 #
 #(0..20).each() do |i|
 #    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
 #end
+
+(0..20).to_a().each() do |i|
+    graffiti.createGlyph(i, $main_model.entities.add_group(), Geom::Transformation.translation(Geom::Point3d.new(i,0,0)))
+end
+
 
 
 
