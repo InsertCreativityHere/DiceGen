@@ -3,55 +3,55 @@ require 'singleton'
 
 module DiceGen
 
-    ##### UTILITIES #####
+# Module containing general use utility code.
+module Util
+    module_function
 
-    # Module containing general use utility code.
-    module Util
-        module_function
+    # Stores the currently active Sketchup model.
+    MAIN_MODEL = Sketchup::active_model
 
-        # Stores the currently active Sketchup model.
-        MAIN_MODEL = Sketchup::active_model
+    # Dummy transformation that represents the transformation of doing nothing.
+    NO_TRANSFORM = Geom::Transformation::new()
 
-        # Dummy transformation that represents the transformation of doing nothing.
-        NO_TRANSFORM = Geom::Transformation::new()
-
-        # Imports a file and returns a reference to the imported definition. Note that this function will cause the
-        # imported definition to appear at the mouse cursor in the UI, this is a limitation of the API. Hitting <ESC>
-        # Will get rid of the extra instance.
-        #   file: The absolute path of the file to import from.
-        #   return: A ComponentDefinition corresponding to the imported definition.
-        def import_definition(file)
-            # Check if the file exists and is reachable.
-            if !File.exist?(file)
-                raise "Failed to locate the file '#{file}'"
-            end
-
-            # Try to import the file's model and check if it was successful.
-            result = Util::MAIN_MODEL.import(file)
-            if !result
-                raise "Failed to import model from the file '#{file}'"
-            end
-
-            # Return the most recently created definition; ie: the one we just imported.
-            return Util::MAIN_MODEL.definitions[-1]
+    # Imports a file and returns a reference to the imported definition. Note that this function will cause the
+    # imported definition to appear at the mouse cursor in the UI, this is a limitation of the API. Hitting <ESC>
+    # Will get rid of the extra instance.
+    #   file: The absolute path of the file to import from.
+    #   return: A ComponentDefinition corresponding to the imported definition.
+    def import_definition(file)
+        # Check if the file exists and is reachable.
+        if !File.exist?(file)
+            raise "Failed to locate the file '#{file}'"
         end
 
-        # Scales a vector by the provided scale factor like 'vector * scale' would normally.
-        #   vector: The vector to scale. Note that this vector isn't altered by the function, instead it's components
-        #           components are copied into a new vector and that is scaled and returned.
-        #   scale: The scale factor to scale the vector by.
-        #   return: A new vector with the same components as the provided vector, but scaled by 'scale_factor'.
-        def scale_vector(vector, scale)
-            return Geom::Vector3d::new(vector.x * scale, vector.y * scale, vector.z * scale)
+        # Try to import the file's model and check if it was successful.
+        result = MAIN_MODEL.import(file)
+        if !result
+            raise "Failed to import model from the file '#{file}'"
         end
+
+        # Return the most recently created definition; ie: the one we just imported.
+        return MAIN_MODEL.definitions[-1]
     end
 
+    # Scales a vector by the provided scale factor like 'vector * scale' would normally.
+    #   vector: The vector to scale. Note that this vector isn't altered by the function, instead it's components
+    #           components are copied into a new vector and that is scaled and returned.
+    #   scale: The scale factor to scale the vector by.
+    #   return: A new vector with the same components as the provided vector, but scaled by 'scale_factor'.
+    def scale_vector(vector, scale)
+        return Geom::Vector3d::new(vector.x * scale, vector.y * scale, vector.z * scale)
+    end
+end
 
 
-    ##### FONTS #####
+
+##### FONTS #####
+module Fonts
 
     # Module containing font specific utility code.
     module FontUtil
+        include DiceGen::Util
         module_function
 
         # Imports all the mesh definitions that make up a font.
@@ -82,7 +82,7 @@ module DiceGen
                 (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
                     filename = File.basename(file, ".dae")
-                    meshes[filename] = Util.import_definition(file)
+                    meshes[filename] = import_definition(file)
                     puts "    Loaded '#{filename}.dae'"
                 end
             else
@@ -90,7 +90,7 @@ module DiceGen
                     # Get the absolute path of the mesh file to import.
                     file = "#{font_folder}/meshes/#{mesh}.dae"
                     if (File.exists?(file))
-                        meshes[mesh] = Util.import_definition(file)
+                        meshes[mesh] = import_definition(file)
                         puts "    Loaded '#{mesh}.dae'"
                     else
                         puts "    Failed to load '#{mesh}.dae'"
@@ -117,7 +117,7 @@ module DiceGen
             end
 
             # Create a new definition to splice the glyphs into.
-            definition = Util::MAIN_MODEL.definitions.add(name)
+            definition = MAIN_MODEL.definitions.add(name)
             entities = definition.entities()
 
             # Keep a running tally of the current x position, starting at the leftmost point.
@@ -210,7 +210,7 @@ module DiceGen
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+        def create_glyph(name:, entities:, transform: FontUtil::NO_TRANSFORM)
             return entities.add_instance(@glyphs[name], transform).make_unique()
         end
     end
@@ -258,7 +258,7 @@ module DiceGen
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+        def create_glyph(name:, entities:, transform: FontUtil::NO_TRANSFORM)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
@@ -267,13 +267,15 @@ module DiceGen
             return super
         end
     end
+end
 
 
-
-    ##### DICE #####
+##### DICE #####
+module Dice
 
     #  Module containing dice specific utility code.
     module DiceUtil
+        include DiceGen::Util
         module_function
 
         # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
@@ -380,14 +382,14 @@ module DiceGen
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                            transform: Util::NO_TRANSFORM)
+                            transform: DiceUtil::NO_TRANSFORM)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
-                group = Util::MAIN_MODEL.entities().add_group()
+                group = DiceUtil::MAIN_MODEL.entities().add_group()
             end
 
             # Start a new operation so that creating the die can be undone/aborted if necessary.
-            Util::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
+            DiceUtil::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
 
             # Create an instance of the die model within the enclosing group.
             # We have to make 2 instances so that 'make_unique' works correctly. If only one instance exists,
@@ -395,8 +397,8 @@ module DiceGen
             # when it shouldn't. By making a fake_instance first, when we call make_unique on the second instance, it
             # will actually create a new underlying definition for it, preventing any changes to the die from leaking
             # through to the definition.
-            fake_instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM)
-            instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM).make_unique()
+            fake_instance = group.entities().add_instance(@definition, DiceUtil::NO_TRANSFORM)
+            instance = group.entities().add_instance(@definition, DiceUtil::NO_TRANSFORM).make_unique()
             fake_instance.erase!()
 
             die_def = instance.definition()
@@ -419,14 +421,15 @@ module DiceGen
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            die_mesh.intersect_with(false, Util::NO_TRANSFORM, die_mesh, Util::NO_TRANSFORM, true, glyph_mesh.to_a())
-            #glyph_group.erase!()
+            die_mesh.intersect_with(false, DiceUtil::NO_TRANSFORM, die_mesh, DiceUtil::NO_TRANSFORM, true,
+                                    glyph_mesh.to_a())
+            glyph_group.erase!()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
-            Util::MAIN_MODEL.commit_operation()
+            DiceUtil::MAIN_MODEL.commit_operation()
         end
 
         # Creates and places glyphs onto the faces of the die. This default implementation iterates through each face
@@ -448,9 +451,9 @@ module DiceGen
                 full_transform = face_transform * Geom::Transformation.scaling(font_scale)
                 # Then, translate the glyph by the specified offset (in face-local coordinates), plus a z-offset
                 # that ensures the glyph and face are coplanar, even if the die has been scaled up.
-                offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
-                                Util.scale_vector(face_transform.yaxis, font_offset[1]) + \
-                                Util.scale_vector(face_transform.origin - Geom::Point3d::new(), (die_scale - 1.0))
+                offset_vector = DiceUtil.scale_vector(face_transform.xaxis, font_offset[0]) + \
+                                DiceUtil.scale_vector(face_transform.yaxis, font_offset[1]) + \
+                                DiceUtil.scale_vector(face_transform.origin - Geom::Point3d::new(), (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                 font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)
@@ -460,11 +463,12 @@ module DiceGen
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                   transform: Util::NO_TRANSFORM)
+                   transform: DiceUtil::NO_TRANSFORM)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
                                        font_scale: font_scale, font_offset: font_offset, transform: transform)
     end
 
+end
 end
 
 # Import all the fonts that we've created so far.

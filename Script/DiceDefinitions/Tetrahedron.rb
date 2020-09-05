@@ -5,7 +5,7 @@ module DiceGen::Dice
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = DiceUtil::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
             c0 = Math.sqrt(2) / 4
@@ -45,7 +45,7 @@ module DiceGen::Dice
             # Iterate through each of the already calculated face transforms and compute 3 vector transforms from it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # Calculate the translation component by offseting the glyph 6.25mm (246") in the local y-direction.
-                translation = Geom::Transformation.translation(Util.scale_vector(face_transform.yaxis, 246))
+                translation = Geom::Transformation.translation(DiceUtil.scale_vector(face_transform.yaxis, 246))
                 vertex_transforms[i] = Array::new(3)
                 # Iterate through each of the 3 vertices to calculate the rotation component.
                 (0..2).each() do |j|
