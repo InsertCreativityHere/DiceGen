@@ -5,7 +5,6 @@ module DiceGen::Fonts
 
         def initialize()
             super(name: "madifont 2", folder: "/Users/austin/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 0.1)
-            @glyphs["20"] = VECTOR_IMAGES.glyphs["flowa3"]
         end
 
     end
