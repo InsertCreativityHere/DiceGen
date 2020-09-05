@@ -13,6 +13,9 @@ module Util
     # Dummy transformation that represents the transformation of doing nothing.
     NO_TRANSFORM = Geom::Transformation::new()
 
+    # Path the base directory of the script.
+    DICE_STUFF_DIR = "/Users/austin/DiceStuff"
+
     # Hash that stores the definitions for everything we import to prevent reloading the same defintion twice.
     # Values are the stringified name of the ComponentDefinition, and keys are the filenames that the definitions were
     # imported from.

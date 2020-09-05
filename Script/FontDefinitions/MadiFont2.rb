@@ -4,7 +4,7 @@ module DiceGen::Fonts
     class MadiFont2 < SplicedFont
 
         def initialize()
-            super(name: "madifont 2", folder: "/Users/austin/DiceStuff/Resources/VectorFonts/MadiFont2", padding: 0.1)
+            super(name: "madifont 2", folder: "#{Util::DICE_STUFF_DIR}/Resources/VectorFonts/MadiFont2", padding: 0.1)
         end
 
     end
