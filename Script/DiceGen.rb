@@ -471,10 +471,8 @@ end
 end
 
 # Import all the fonts that we've created so far.
-puts "===== Loading Fonts ====="
 require_relative "Fonts.rb"
 # Import all the die model that we've created so far.
-puts "===== Loading Dice ====="
 require_relative "Dice.rb"
 
 # These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
