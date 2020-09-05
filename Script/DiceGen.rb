@@ -413,7 +413,8 @@ module DiceGen
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
-                place_glyphs(font: font, mesh: glyph_mesh, type: type, font_scale: font_scale, font_offset: font_offset)
+                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_scale: die_scale, font_scale: font_scale,
+                             font_offset: font_offset)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -437,14 +438,26 @@ module DiceGen
         #   mesh: The collection of entities where glyphs should be generated into.
         #   type: The type of die that the glyphs are being placed for. This is ignored in the default implementation,
         #   but can be checked for custom behavior. Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        #   die_scale: The amount that the die was scaled by before embossing. This doesn't include the pre-scaling
+        #              that was done on the definition, but only the local scaling done while creating an instance.
         #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
         #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 where glyphs shouldn't be face-centered.
-        def place_glyphs(font:, mesh:, type:, font_scale:, font_offset:)
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
-                font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: face_transform)
+                # First scale the glyph by font_scale, before performing the face-local coordinate transformation.
+                full_transform = face_transform * Geom::Transformation.scaling(font_scale)
+                # Scale the face-local transform by die_scale to make sure the glyph intersects the face.
+                full_transform = Geom::Transformation.scaling(die_scale) * full_transform
+                # Finally, translate the glyph by the specified offset (in face-local coordinates).
+                offset_vector = scale_vector(face_transform.xaxis, font_offset[0])
+                              + scale_vector(face_transform.yaxis, font_offset[1])
+                full_transform = Geom::Transformation.translate(offset_vector) * full_transform
+
+                scaled_transform = Geom::Transformation.scaling(die_scale) *
+                font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)
             end
         end
     end

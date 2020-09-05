@@ -59,7 +59,7 @@ module DiceGen
         end
 
         # Delegates to the default implemenation after checking that the die type is a D20.
-        def place_glyphs(font:, mesh:, type: "D20", font_scale: 1.0, font_offset: [0,0])
+        def place_glyphs(font:, mesh:, type: "D20", die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
             if (type != "D20")
                 raise "Incompatible die type: a D20 model cannot be used to generate #{type.to_s()} dice."
             end
