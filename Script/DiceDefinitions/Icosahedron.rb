@@ -48,14 +48,14 @@ module DiceGen
             faces[18] = mesh.add_face([v0,  v1, v10])
             faces[19] = mesh.add_face([v0, v10,  v6])
 
-            # The distance between two diametric faces is 3.0230" in the base model, and standard D20 dice have a
+            # The distance between two diametric faces is 1.511523" in the base model, and standard D20 dice have a
             # diametric distance of 20mm, so the model must be scaled by a factor of
-            # 20mm / (3.0230")(25.4mm/") = 0.26047
-            # Which is further scaled by 1000, since we treat mm as m in the model, to get 260.47
+            # 20mm / (1.511523")(25.4mm/") = 0.520933
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 520.933
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D20 are 4.5mm tall, so glyphs must
             # be scaled by a factor of 4.5mm/8mm = 0.5625
-            super(definition: definition, faces: faces, die_scale: 260.47, font_scale: 0.5625)
+            super(definition: definition, faces: faces, die_scale: 520.933, font_scale: 0.5625)
         end
 
         # Delegates to the default implemenation after checking that the die type is a D20.

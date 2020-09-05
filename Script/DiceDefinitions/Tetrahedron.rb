@@ -22,14 +22,14 @@ module DiceGen
             faces[2] = mesh.add_face([v1, v0, v2])
             faces[3] = mesh.add_face([v0, v1, v3])
 
-            # The distance between a vertex and it's diametric face is 2.3094" in the base model, and standard D4
+            # The distance between a vertex and it's diametric face is 0.816497" in the base model, and standard D4
             # dice have a diametric distance of 18mm, so the model must be scaled by a factor of
-            # 18mm / (2.3094")(25.4mm/") = 0.30686
-            # Which is further scaled by 1000, since we treat mm as m in the model, to get 306.86
+            # 18mm / (0.816497")(25.4mm/") = 0.867929
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 867.929
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D4 are 6mm tall, so glyphs must
             # be scaled by a factor of 6mm/8mm = 0.75
-            super(definition: definition, faces: faces, die_scale: 306.86, font_scale: 0.75)
+            super(definition: definition, faces: faces, die_scale: 867.929, font_scale: 0.75)
 
             # D4s are numbered at their vertices instead of at the center of their faces, so we need to compute
             # a special set of face transforms for it, split in a 2D array. The first index is the face index, and

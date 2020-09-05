@@ -49,10 +49,14 @@ module DiceGen
             faces[10] = mesh.add_face([v13,  v8, v12,  v4,  v5])
             faces[11] = mesh.add_face([v13,  v5, v15,  v3,  v1])
 
-            #TODO MAKE THE DIE SCALE!
+            # The distance between two diametric faces is 2.227033" in the base model, and standard D12 dice have a
+            # diametric distance of 18.5mm, so the model must be scaled by a factor of
+            # 18.5mm / (2.227033")(25.4mm/") = 0.327048
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 327.048
+            #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D12 are 6mm tall, so glyphs must
             # be scaled by a factor of 6mm/8mm = 0.75
-            super(definition: definition, faces: faces, font_scale: 0.75)
+            super(definition: definition, faces: faces, die_scale: 327.048, font_scale: 0.75)
         end
 
         # Delegates to the default implemenation after checking that the die type is a D12.

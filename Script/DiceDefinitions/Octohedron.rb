@@ -29,14 +29,14 @@ module DiceGen
             faces[6] = mesh.add_face([v5, v1, v2])
             faces[7] = mesh.add_face([v5, v2, v0])
 
-            # The distance between two diametric faces is 1.1547" in the base model, and standard D8 dice have a
+            # The distance between two diametric faces is 0.816497" in the base model, and standard D8 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of
-            # 15mm / (1.1547")(25.4mm/") = 0.51143
-            # Which is further scaled by 1000, since we treat mm as m in the model, to get 511.43
+            # 15mm / (0.816497")(25.4mm/") = 0.723274
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 723.274
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D8 are 7mm tall, so glyphs must
             # be scaled by a factor of 7mm/8mm = 0.875
-            super(definition: definition, faces: faces, die_scale: 511.43, font_scale: 0.875)
+            super(definition: definition, faces: faces, die_scale: 723.274, font_scale: 0.875)
         end
 
         # Delegates to the default implemenation after checking that the die type is a D8.

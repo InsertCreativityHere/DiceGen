@@ -28,14 +28,14 @@ module DiceGen
             faces[4] = die_mesh.add_face([v7, v6, v4, v5])
             faces[5] = die_mesh.add_face([v7, v5, v1, v3])
 
-            # The distance between two diametric faces is 2" in the base model, and standard D6 dice have a
+            # The distance between two diametric faces is 1" in the base model, and standard D6 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of
-            # 15mm / (2")(25.4mm/") = 0.29528
-            # Which is further scaled by 1000, since we treat mm as m in the model, to get 295.28
+            # 15mm / (1")(25.4mm/") = 0.590551
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 590.551
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D6 are 8mm tall, so no scaling is
             # necessary.
-            super(definition: definition, faces: faces, die_scale: 295.28)
+            super(definition: definition, faces: faces, die_scale: 590.551)
         end
 
         # Delegates to the default implemenation after checking that the die type is a D6.
