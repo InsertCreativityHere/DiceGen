@@ -1,5 +1,5 @@
 
-module DiceGen
+module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
     class Tetrahedron < Die
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.

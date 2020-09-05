@@ -1,5 +1,5 @@
 
-module DiceGen
+module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
     class Hexahedron < Die
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.

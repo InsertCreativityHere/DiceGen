@@ -1,5 +1,5 @@
 
-module DiceGen
+module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
     class PentagonalTrapezohedron < Die
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
