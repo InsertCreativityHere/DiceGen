@@ -450,7 +450,7 @@ module DiceGen
                 # that ensures the glyph and face are coplanar, even if the die has been scaled up.
                 offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
                                 Util.scale_vector(face_transform.yaxis, font_offset[1]) + \
-                                Util.scale_vector(face_transform.origin - Geom::Point3d::new(), die_scale)
+                                Util.scale_vector(face_transform.origin - Geom::Point3d::new(), (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                 font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)

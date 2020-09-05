@@ -79,8 +79,14 @@ module DiceGen
             faces[28] = mesh.add_face([ v3, v15,  v5, v27])
             faces[29] = mesh.add_face([ v3, v27,  v9, v21])
 
-            #TODO MAKE THE SCALES!
-            super(definition: definition, faces: faces)
+            # The distance between two diametric faces is 2.927051" in the base model, and this looks best with a
+            # diametric distance of 24mm, so the model must be scaled by a factor of
+            # 24mm / (2.927051")(25.4mm/") = 0.322810
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 322.810
+            #
+            # Glyph models are always 8mm tall when imported, and the glyphs on this look best at 4.5mm tall, so glyphs
+            # must be scaled by a factor of 4.5mm/8mm = 0.5625
+            super(definition: definition, faces: faces, die_scale: 322.810, font_scale: 0.5625)
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
