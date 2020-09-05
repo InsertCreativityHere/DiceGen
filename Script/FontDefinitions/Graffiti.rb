@@ -4,8 +4,7 @@ module DiceGen::Fonts
     class Graffiti < SplicedFont
 
         def initialize()
-            super(name: "graffiti", folder: "#{Util::DICE_STUFF_DIR}/Resources/VectorFonts/MadiGraffitiFont",
-                  padding: 0.1)
+            super(name: "graffiti", folder: "#{Util::RESOURCE_DIR}/VectorFonts/MadiGraffitiFont", padding: 0.1)
         end
 
     end

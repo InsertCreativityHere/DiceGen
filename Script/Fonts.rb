@@ -6,7 +6,7 @@ module DiceGen::Fonts
     # We do this before loading any of the other fonts, since any of them might reference these glyphs.
     class VectorImages < RawFont
         def initialize()
-            super(name: "", folder: "/Users/austin/DiceStuff/Resources/VectorImages")
+            super(name: "", folder: "#{Util::RESOURCE_DIR}/VectorImages")
         end
     end
     VECTOR_IMAGES = VectorImages.instance()
