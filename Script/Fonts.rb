@@ -1,12 +1,16 @@
 
 module DiceGen::Fonts
 
+    puts DiceGen::Util
+
     puts "===== Loading Images ====="
     # Class for storing all the vector images as a font so that other fonts can access them.
     # We do this before loading any of the other fonts, since any of them might reference these glyphs.
     class VectorImages < RawFont
         def initialize()
-            super(name: "", folder: "#{Util::RESOURCE_DIR}/VectorImages")
+            # We need to explicitely reference the module here, since we haven't 'include'd the DiceGen module yet at
+            # the bottom of 'DiceGen.rb'.
+            super(name: "", folder: "#{DiceGen::Util::RESOURCE_DIR}/VectorImages")
         end
     end
     VECTOR_IMAGES = VectorImages.instance()
