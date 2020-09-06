@@ -415,9 +415,13 @@ module Dice
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
         #   font: The font to use for generating glyphs on the die.
-        #   type: The stringified name for the type of die being created. Some models can be used to create multiple
-        #             types of die; for instance the D10 model is used for both "D10" and "D%" type dice.
-        #             Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        #   type: Either the stringified name for the type of die being created, or the maximum number to count up to.
+        #         When specified as a number, it must divide the number of glyph faces on the die. If the type number
+        #         is the same as the number of faces, the die will be numbered 'standardly', otherwise the glyphs are
+        #         simply repeated. For example, creating a D20 with a type of 5, will cause each number to be repeated
+        #         4 times. There are also special types of die that can only be used for some models, for example 'D4'
+        #         will only work with a Tetrahedron, and places glyphs in the corners instead of the face. The following
+        #         list contains every special type of die: "D4", "D%".
         #   group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
         #          In practice, the die is always created within it's own die group, and the die group is what's placed
         #          into the provided group. Defaults to nil.
@@ -482,8 +486,10 @@ module Dice
         # and places the corresponding number on it, but subclasses can override this method for custom glyph placement.
         #   font: The font to create the glyphs in.
         #   mesh: The collection of entities where glyphs should be generated into.
-        #   type: The type of die that the glyphs are being placed for. This is ignored in the default implementation,
-        #   but can be checked for custom behavior. Standard values are "D4", "D6", "D8", "D10", "D%", "D12", and "D20".
+        #   type: The type of die that the glyphs are being placed for. This can either be a special type like "D4" or
+        #         "D%" which are handled by overriden versions of this function, or a number indicating the maximum
+        #         number to count up to on the die. If there are more faces than the type number, numbers are repeated.
+        #         However, the die type must divide the number of faces evenly.
         #   die_scale: The amount that the die was scaled by before embossing. This doesn't include the pre-scaling
         #              that was done on the definition, but only the local scaling done while creating an instance.
         #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
@@ -491,6 +497,12 @@ module Dice
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 where glyphs shouldn't be face-centered.
         def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
+            # First ensure that the die model is compatible with the provided type.
+            unless (@face_transforms.length() % type == 0)
+                face_count = @face_transforms.length()
+                raise "Incompatible die type: a D#{face_count} model cannot be used to generate D#{type} dice."
+            end
+
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale the glyph by font_scale, before performing the face-local coordinate transformation.
@@ -502,7 +514,7 @@ module Dice
                                 Util.scale_vector(face_transform.origin - Geom::Point3d::new(), (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
-                font.instance.create_glyph(name: (i+1).to_s(), entities: mesh, transform: full_transform)
+                font.instance.create_glyph(name: ((i % type)+1).to_s(), entities: mesh, transform: full_transform)
             end
         end
     end

@@ -38,13 +38,5 @@ module DiceGen::Dice
             # be scaled by a factor of 7mm/8mm = 0.875
             super(definition: definition, faces: faces, die_scale: 723.274, font_scale: 0.875)
         end
-
-        # Delegates to the default implemenation after checking that the die type is a D8.
-        def place_glyphs(font:, mesh:, type: "D8", die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
-            if (type != "D8")
-                raise "Incompatible die type: a D8 model cannot be used to generate #{type.to_s()} dice."
-            end
-            super
-        end
     end
 end

@@ -25,13 +25,11 @@ module DiceGen::Dice
         end
 
         # TODO
-        def place_glyphs(font:, mesh:, type: "D10", die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
             if (type == "D%")
                 #TODO
-            elsif (type == "D10")
-                super
             else
-                raise "Incompatible die type: a D10 model cannot be used to generate #{type.to_s()} dice."
+                super
             end
         end
     end

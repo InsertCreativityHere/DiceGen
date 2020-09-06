@@ -47,13 +47,5 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
-
-        # Delegates to the default implemenation after checking that the die type is a D12.
-        def place_glyphs(font:, mesh:, type: "D12", die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
-            if (type != "D12")
-                raise "Incompatible die type: a D12 model cannot be used to generate #{type.to_s()} dice."
-            end
-            super
-        end
     end
 end

@@ -2,7 +2,10 @@
 TODO I NEED TO WRITE THIS FILE FOR REAL!
 
 require "/Users/austin/DiceStuff/Script/DiceGen.rb"
-create_die(font: MADIFONT_2, type: "D4", model: SharpEdgedStandard::D4)
+create_die(font: MADIFONT_2, type: 6, model: SharpEdgedStandard::D4)
+
+require "/Users/austin/DiceStuff/Script/DiceGen.rb"
+create_die(font: MadiFont2, type: 30, model: RhombicTriacontahedron)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!! MAKE SURE TO SCALE MODELS DOWN BY EXACTLY (!EXACTLY!) 1000 BEFORE EXPORTING THEM AS STL FILES !!!!
