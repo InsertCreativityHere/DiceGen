@@ -93,8 +93,8 @@ module Util
         # All the files that have been imported into the current ruby session are stored in a variable named $"
         # We manually remove any files relating to dice or font defitions from this list to 'un-require' them, so that
         # we when 'require' them in the next step, Ruby will load a fresh copy of the file.
-        $".delete_if{|file| file.starts_with("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
-        $".delete_if{|file| file.starts_with("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
+        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
+        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
 
         puts "=-=-="
         puts "[#{DiceGen.constants}]"
