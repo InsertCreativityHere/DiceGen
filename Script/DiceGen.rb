@@ -63,12 +63,6 @@ module Util
     # TODO this is a dangerous method. It needs to be documented, and also tested for safety... Since I think this is
     # super hacky in all the bad ways.
     def reload_script_definitions()
-        puts "=-=-="
-        puts "[#{DiceGen.constants}]"
-        puts "[#{DiceGen::Fonts.constants}]"
-        puts "[#{DiceGen::Dice.constants}]"
-        puts "=-=-="
-
         # First we manually delete any of the classes or modules that we've loaded from the definition scripts.
         # We assume that these files are all directly in the 'Fonts' and 'Dice' namespace, and then delete anything
         # except for a list of protected classes and modules that we know are defined in this file.
@@ -81,12 +75,13 @@ module Util
         removable_dice_objects = DiceGen::Fonts.constants().select{|obj| !protected_objects.include?(obj)}
 
         # Cross your fingers and undefine everything listed in the removable object lists.
+        puts "Unloading and deleting imported definitions..."
         removable_fonts_objects.each() do |obj|
-            puts "Dice=====> #{obj}"
+            puts "    Unloading Dice::#{obj}"
             Dice.send(:remove_const, obj)
         end
         removable_dice_objects.each() do |obj|
-            puts "Fonts=====> #{obj}"
+            puts "    Unloading Fonts::#{obj}"
             Fonts.send(:remove_const, obj)
         end
 
@@ -96,21 +91,10 @@ module Util
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
 
-        puts "=-=-="
-        puts "[#{DiceGen.constants}]"
-        puts "[#{DiceGen::Fonts.constants}]"
-        puts "[#{DiceGen::Dice.constants}]"
-        puts "=-=-="
-
         # Re-require the font and dice definition files.
+        puts "Reloading definitions..."
         require_relative "Fonts.rb"
         require_relative "Dice.rb"
-
-        puts "=-=-="
-        puts "[#{DiceGen.constants}]"
-        puts "[#{DiceGen::Fonts.constants}]"
-        puts "[#{DiceGen::Dice.constants}]"
-        puts "=-=-="
     end
 end
 
