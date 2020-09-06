@@ -59,6 +59,59 @@ module Util
     def scale_vector(vector, scale)
         return Geom::Vector3d::new(vector.x * scale, vector.y * scale, vector.z * scale)
     end
+
+    # TODO this is a dangerous method. It needs to be documented, and also tested for safety... Since I think this is
+    # super hacky in all the bad ways.
+    def reload_script_definitions()
+        puts "=-=-="
+        puts "[#{DiceGen.constants}]"
+        puts "[#{DiceGen::Fonts.constants}]"
+        puts "[#{DiceGen::Dice.constants}]"
+        puts "=-=-="
+
+        # First we manually delete any of the classes or modules that we've loaded from the definition scripts.
+        # We assume that these files are all directly in the 'Fonts' and 'Dice' namespace, and then delete anything
+        # except for a list of protected classes and modules that we know are defined in this file.
+
+        # List of all the core objects that are defined in this main script file that shouldn't be undefined.
+        protected_objects = [:DiceGen, :Util, :Fonts, :FontUtil, :Font, :RawFont, :SplicedFont, :Dice, :DiceUtil, :Die]
+        # Create a list of all the objects defined in the 'Fonts' and 'Dice' namespaces, then filter it to only keep the
+        # non-protected (removable) objects.
+        removable_fonts_objects = DiceGen::Dice.constants().select{|obj| !protected_objects.include?(obj)}
+        removable_dice_objects = DiceGen::Fonts.constants().select{|obj| !protected_objects.include?(obj)}
+
+        # Cross your fingers and undefine everything listed in the removable object lists.
+        removable_fonts_objects.each() do |obj|
+            puts "Dice=====> #{obj}"
+            Dice.send(:remove_const, obj)
+        end
+        removable_dice_objects.each() do |obj|
+            puts "Fonts=====> #{obj}"
+            Fonts.send(:remove_const, obj)
+        end
+
+        # All the files that have been imported into the current ruby session are stored in a variable named $"
+        # We manually remove any files relating to dice or font defitions from this list to 'un-require' them, so that
+        # we when 'require' them in the next step, Ruby will load a fresh copy of the file.
+        $".delete_if{|file| file.starts_with("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
+        $".delete_if{|file| file.starts_with("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
+
+        puts "=-=-="
+        puts "[#{DiceGen.constants}]"
+        puts "[#{DiceGen::Fonts.constants}]"
+        puts "[#{DiceGen::Dice.constants}]"
+        puts "=-=-="
+
+        # Re-require the font and dice definition files.
+        require_relative "Fonts.rb"
+        require_relative "Dice.rb"
+
+        puts "=-=-="
+        puts "[#{DiceGen.constants}]"
+        puts "[#{DiceGen::Fonts.constants}]"
+        puts "[#{DiceGen::Dice.constants}]"
+        puts "=-=-="
+    end
 end
 
 
@@ -486,7 +539,7 @@ require_relative "Fonts.rb"
 require_relative "Dice.rb"
 
 # These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
-# modules for the 'DiceGen', 'Dice', and 'Fonts' namespaces.
+# modules for the 'DiceGen', 'Fonts', and 'Dice' namespaces.
 include DiceGen
-include Dice
 include Fonts
+include Dice
