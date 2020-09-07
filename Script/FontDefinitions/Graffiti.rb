@@ -1,6 +1,6 @@
 
 module DiceGen::Fonts
-    # This class defines the glyphs that comprise the Graffiti font.
+    # This class defines the glyphs that comprise the Graffiti custom font.
     class Graffiti < SplicedFont
 
         def initialize()
