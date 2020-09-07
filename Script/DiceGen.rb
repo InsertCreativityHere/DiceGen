@@ -284,7 +284,14 @@ module Fonts
             @is_bold = bold
         end
 
-        #TODO
+        # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
+        # enclosing group, and this group is added to the provided entities (instead of placing the glyph directly).
+        # This method delegates to the base implementation, but just makes sure to generate the requested glyph via
+        # the 3D-Text-Tool if it hasn't been created ted. After possibly generating, the base method is called.
+        #   name: The name of the glyph to create, usually this is the text the glyph represents.
+        #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
+        #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
+        #   return: The group that immediately components the glyph's mesh.
         def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
             # Lazily create the requested glyph via the 3D text tool if we haven't already created and cached it before.
             unless @glyphs.key?(name)
@@ -305,7 +312,6 @@ module Fonts
             return super
         end
     end
-
 
     # A font where every glyph is defined by it's own unique mesh model, and no combining of glyphs is performed.
     class RawFont < Font
