@@ -484,7 +484,7 @@ module Dice
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                            transform: Util::NO_TRANSFORM)
+                            font_angle:, transform: Util::NO_TRANSFORM)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -515,7 +515,7 @@ module Dice
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
                 place_glyphs(font: font, mesh: glyph_mesh, type: type, die_scale: die_scale, font_scale: font_scale,
-                             font_offset: font_offset)
+                             font_offset: font_offset, font_angle: font_angle)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -547,7 +547,8 @@ module Dice
         #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 where glyphs shouldn't be face-centered.
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0])
+        #   font_angle: The amount to rotate the glyphs by before embossing them. Defaults to 0.0 (no rotation).
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0)
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
                 face_count = @face_transforms.length()
@@ -556,8 +557,9 @@ module Dice
 
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
-                # First scale the glyph by font_scale, before performing the face-local coordinate transformation.
-                full_transform = face_transform * Geom::Transformation.scaling(font_scale)
+                # First scale and rotate the glyph, then perform the face-local coordinate transformation.
+                full_transform = Geom::Transformation.rotation(font_angle) * Geom::Transformation.scaling(font_scale)
+                full_transform = face_transform * full_transform
                 # Then, translate the glyph by the specified offset (in face-local coordinates), plus a z-offset
                 # that ensures the glyph and face are coplanar, even if the die has been scaled up.
                 offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
@@ -572,9 +574,10 @@ module Dice
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                   transform: Util::NO_TRANSFORM)
+                   font_angle: 0.0, transform: Util::NO_TRANSFORM)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
-                                       font_scale: font_scale, font_offset: font_offset, transform: transform)
+                                       font_scale: font_scale, font_offset: font_offset, font_angle: font_angle,
+                                       transform: transform)
     end
 
 end
