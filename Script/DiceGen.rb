@@ -10,9 +10,6 @@ module Util
     # Stores the currently active Sketchup model.
     MAIN_MODEL = Sketchup::active_model
 
-    # Dummy transformation that represents the transformation of doing nothing.
-    NO_TRANSFORM = Geom::Transformation::new()
-
     # Path the base directory of the script.
     RESOURCE_DIR = "/Users/austin/DiceStuff/Resources"
     SCRIPT_DIR = "/Users/austin/DiceStuff/Script"
@@ -258,7 +255,7 @@ module Fonts
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+        def create_glyph(name:, entities:, transform: IDENTITY)
             return entities.add_instance(@glyphs[name], transform).make_unique()
         end
     end
@@ -292,7 +289,7 @@ module Fonts
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+        def create_glyph(name:, entities:, transform: IDENTITY)
             # Lazily create the requested glyph via the 3D text tool if we haven't already created and cached it before.
             unless @glyphs.key?(name)
                 # Create a new definition to draw the text into.
@@ -303,7 +300,7 @@ module Fonts
                 def_entitites.add_3d_text(name, TextAlignCenter, system_font, is_bold, is_italic, 314.961)
 
                 # Center the glyph's bounding box to the origin.
-                offset = Geom::Point3d::new() - definition.bounds().center()
+                offset = ORIGIN - definition.bounds().center()
                 def_entitites.transform_entities(Geom::Transformation.translation(offset), def_entitites.to_a())
 
                 # Cache the definition to avoid having to create it again.
@@ -356,7 +353,7 @@ module Fonts
         #   entities: The entities collection to place the glyph's group into, and hence the glyph itself.
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
-        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+        def create_glyph(name:, entities:, transform: IDENTITY)
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
@@ -484,7 +481,7 @@ module Dice
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                            font_angle:, transform: Util::NO_TRANSFORM)
+                            font_angle:, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -499,8 +496,8 @@ module Dice
             # when it shouldn't. By making a fake_instance first, when we call make_unique on the second instance, it
             # will actually create a new underlying definition for it, preventing any changes to the die from leaking
             # through to the definition.
-            fake_instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM)
-            instance = group.entities().add_instance(@definition, Util::NO_TRANSFORM).make_unique()
+            fake_instance = group.entities().add_instance(@definition, IDENTITY)
+            instance = group.entities().add_instance(@definition, IDENTITY).make_unique()
             fake_instance.erase!()
 
             die_def = instance.definition()
@@ -523,8 +520,12 @@ module Dice
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            die_mesh.intersect_with(false, Util::NO_TRANSFORM, die_mesh, Util::NO_TRANSFORM, true, glyph_mesh.to_a())
+            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, glyph_mesh.to_a())
             glyph_group.erase!()
+
+            # Intersect the die mesh with itself to make sure the glyphs get embossed correctly. There's an issue where
+            # without this, the inner edges of glyphs don't connect to form a subface on the face of the die.
+            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, die_mesh.to_a())
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
@@ -558,13 +559,13 @@ module Dice
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                full_transform = Geom::Transformation.rotation(font_angle) * Geom::Transformation.scaling(font_scale)
-                full_transform = face_transform * full_transform
+                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, font_angle)
+                full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
                 # Then, translate the glyph by the specified offset (in face-local coordinates), plus a z-offset
                 # that ensures the glyph and face are coplanar, even if the die has been scaled up.
                 offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
                                 Util.scale_vector(face_transform.yaxis, font_offset[1]) + \
-                                Util.scale_vector(face_transform.origin - Geom::Point3d::new(), (die_scale - 1.0))
+                                Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                 font.instance.create_glyph(name: ((i % type)+1).to_s(), entities: mesh, transform: full_transform)
@@ -574,7 +575,7 @@ module Dice
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                   font_angle: 0.0, transform: Util::NO_TRANSFORM)
+                   font_angle: 0.0, transform: IDENTITY)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
                                        font_scale: font_scale, font_offset: font_offset, font_angle: font_angle,
                                        transform: transform)
