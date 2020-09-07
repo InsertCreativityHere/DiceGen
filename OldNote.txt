@@ -1,8 +1,7 @@
 put parameters and return-values into their own namespaces.
 Also fix metadata forwarding.
 
-
-
+========================================================================================================================
 
 After Kaley leaves we're going to try cleaning out the evaporator coils.
 And I need to clean the mop and bucket out.
@@ -20,55 +19,6 @@ Tomorrow:
 
 =========================================
 
-
-Okay, so there's 3 ways I see that we can make the numbers:
-- We paste an image in and emboss the image into the side of the die.
-- We use a system font, and emboss the 3d text into the side of the die.
-- Same as the last one, but we actually make numbers individually.
-
-
-#=======================================================================================================================
-herculanum = FontHolder.new("Herculanum", false, false, 0.75, 0.2, 
-                            [[0,0], [0,-0.1], [-0.05,-0.05], [0,-0.11], [+0.03,-0.18]]                                                          //D4
-                            [[0,0], [0,-0.1], [0,-0.1], [0,-0.15], [0,-0.12], [0,-0.18], [0,-0.1]]                                              //D6
-                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075]]                   //D8
-                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D10
-                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D12
-                            [[0,0], [0,-0.1], [-0.03,-0.05], [0,-0.1], [0,-0.12], [0,-0.12], [0.02,-0.05], [0,0], [0,-0.075], [0,0]]            //D20
-                           )
-
-    rotationTransform = Geom::Transformation.rotation(Geom::Point3d.new(offsetX, offsetY, 0), Z_AXIS, angle * Math::PI / 180.0)
-    return axesTransform * rotationTransform
-
-def createNumberDigits(numbers_group, face, number, offsetX, offsetY, angle, edgeIndex)
-    digits = number.to_s().chars()
-    if(digits.length() == 1)
-        number_group = numbers_group.entities().add_group()
-        number_entities = number_group.entities()
-        index = digits[0].to_i()
-        number_entities.add_3d_text(digits[0], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
-        number_bounds = number_group.bounds()
-        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
-    elsif(digits.length() == 2)
-        number_group = numbers_group.entities().add_group()
-        number_entities = number_group.entities()
-        index = digits[0].to_i()
-        number_entities.add_3d_text(digits[0], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
-        number_bounds = number_group.bounds()
-        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX + $currentFont.doubleDigitOffset, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
-
-        number_group = numbers_group.entities().add_group()
-        number_entities = number_group.entities()
-        index = digits[1].to_i()
-        number_entities.add_3d_text(digits[1], TextAlignCenter, $currentFont.fontName, $currentFont.isBold, $currentFont.isItalic, $currentFont.letterHeight)
-        number_bounds = number_group.bounds()
-        number_entities.transform_entities(getLetterPlanePlace(face, (number_bounds.width / 2) + $fontOffsets[index][0] + offsetX - $currentFont.doubleDigitOffset, (number_bounds.height / 2) + $fontOffsets[index][1] + offsetY, angle, edgeIndex), number_entities.to_a())
-    else
-        raise "Number has less than 1 or more than 2 characters are we can't handle that."
-    end       
-end
-
-
 okay, so when I get home, first I'll check on the carpets, and start drying them if needed.
 Then, I'll clean out the shop-vac in the garage, and once finished, I'll clean up the 3rd floor bathroom again, and the stairs.
 I'll move the carpets back into the bathroom and blow-dry them to perfection.
@@ -78,6 +28,8 @@ We'll go at it with a brush to knock shit loose, while vacuuming of course.
 Then one final pass of the blower and vacuum and we'll put it all back together and hopefully see some increased performance.
 THE AIR CONDITIONER SHOULD BE OFF THE ENTIRE TIME!
 If we finish all that in time, then we'll start on refurbishing the 2nd floor bathroom too!
+
+========================================================================================================================
 
 # The first vertex on a face MUST be immediately to the left of the top vector of the text.
 def create_d6
@@ -113,27 +65,13 @@ def create_d6
 
 end
 
+========================================================================================================================
 
-
-
-#ffheight means the height between diametric faces
-#vvheight means the height between diametric vertices
-#fvheight means the height between a face and its diametric vertex
-#
-#D10 ffheight = 16mm       vvheight = 23mm       font = 7mm      on a D% the smaller digit is 5mm and the large is 7mm
-#
 #(0..20).each() do |i|
 #    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
 #end
 
-(0..20).to_a().each() do |i|
-    graffiti.createGlyph(i, $main_model.entities.add_group(), Geom::Transformation.translation(Geom::Point3d.new(i,0,0)))
-end
-
-
-
-
-
+========================================================================================================================
 
 #ffheight means the height between diametric faces
 #vvheight means the height between diametric vertices
@@ -150,14 +88,9 @@ end
 #    create_glyph(name: i.to_s(), Util::MAIN_MODEL.entities(), Geom::Transformation.translation(Geom::Point3d::new(10*i, 0, 0)))
 #end
 
-
-
-
-
-
+========================================================================================================================
 
 # ===== TODO =====
-# Make a class for SystemFont again!
 # Make a utility function for capturing groups and outputting them as models, so we can edit the geometric base shapes.
 # And set the angle offsets for D% and D10 correctly.
 # And also program all the other models in too.

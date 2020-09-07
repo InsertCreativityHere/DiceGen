@@ -68,7 +68,8 @@ module Util
         # except for a list of protected classes and modules that we know are defined in this file.
 
         # List of all the core objects that are defined in this main script file that shouldn't be undefined.
-        protected_objects = [:DiceGen, :Util, :Fonts, :FontUtil, :Font, :RawFont, :SplicedFont, :Dice, :DiceUtil, :Die]
+        protected_objects = [:DiceGen, :Util, :Fonts, :FontUtil, :Font, :SystemFont, :RawFont, :SplicedFont, :Dice,
+                             :DiceUtil, :Die]
         # Create a list of all the objects defined in the 'Fonts' and 'Dice' namespaces, then filter it to only keep the
         # non-protected (removable) objects.
         removable_fonts_objects = DiceGen::Dice.constants().select{|obj| !protected_objects.include?(obj)}
@@ -261,6 +262,50 @@ module Fonts
             return entities.add_instance(@glyphs[name], transform).make_unique()
         end
     end
+
+    # A font where glyphs are defined by system fonts and are created with Sketchup's 3D text tool
+    class SystemFont < Font
+        # The name of the system font that this is using.
+        attr_reader :system_font
+        # Whether the font should be created in italics. Note, not all fonts support being italicized.
+        attr_reader :is_italic
+        # Whether the font should be created in bold. Note, not all fonts support being bolded.
+        attr_reader :is_bold
+
+        # Creates a new font using the specified system font, and modifiers.
+        #   name: The plain-text name of the font.
+        #   system_font: the name of the system font to use. This must exactly match the name of the installed font.
+        #   italic: Whether the glyphs created by this font should be italicized.
+        #   bold: Whether the glyphs created by this font should be bolded.
+        def initialize(name:, system_font:, italic: false, bold: false)
+            super(name: name, definitions: Hash::new())
+            @system_font = system_font
+            @is_italic = italic
+            @is_bold = bold
+        end
+
+        #TODO
+        def create_glyph(name:, entities:, transform: Util::NO_TRANSFORM)
+            # Lazily create the requested glyph via the 3D text tool if we haven't already created and cached it before.
+            unless @glyphs.key?(name)
+                # Create a new definition to draw the text into.
+                definition = Util::MAIN_MODEL.definitions.add(@name + '_' + name)
+                def_entitites = definition.entities()
+
+                # Draw the 3D text centered with the correct attributes and a letter-height of 8mm.
+                def_entitites.add_3d_text(name, TextAlignCenter, system_font, is_bold, is_italic, 314.961)
+
+                # Center the glyph's bounding box to the origin.
+                offset = Geom::Point3d::new() - definition.bounds().center()
+                def_entitites.transform_entities(Geom::Transformation.translation(offset), def_entitites.to_a())
+
+                # Cache the definition to avoid having to create it again.
+                @glyphs[name] = definition
+            end
+            return super
+        end
+    end
+
 
     # A font where every glyph is defined by it's own unique mesh model, and no combining of glyphs is performed.
     class RawFont < Font
