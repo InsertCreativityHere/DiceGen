@@ -523,10 +523,6 @@ module Dice
             die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, glyph_mesh.to_a())
             glyph_group.erase!()
 
-            # Intersect the die mesh with itself to make sure the glyphs get embossed correctly. There's an issue where
-            # without this, the inner edges of glyphs don't connect to form a subface on the face of the die.
-            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, die_mesh.to_a())
-
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
 
