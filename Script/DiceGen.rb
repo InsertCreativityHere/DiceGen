@@ -57,8 +57,9 @@ module Util
         return Geom::Vector3d::new(vector.x * scale, vector.y * scale, vector.z * scale)
     end
 
-    # TODO this is a dangerous method. It needs to be documented, and also tested for safety... Since I think this is
-    # super hacky in all the bad ways.
+    # Manually reloads all the dice and font definitions by manually deleting their definitions from the current Ruby
+    # session, and then re-requiring them. This might be dangerous, but it seems to work so far *shrugs*.
+    # This really helps when editing dice definitions on the fly in Sketchup, since IRB never needs to be restarted.
     def reload_script_definitions()
         # First we manually delete any of the classes or modules that we've loaded from the definition scripts.
         # We assume that these files are all directly in the 'Fonts' and 'Dice' namespace, and then delete anything
@@ -439,6 +440,11 @@ module Dice
         # geometric center of the face, and it's axes rotated to be coplanar to the face (with +z pointing out).
         # Each face has it's respective transformation, and they're ordered in the same way faces are numbered by.
         attr_reader :face_transforms
+        # A hash of glyph mappings keyed by their names. Each glyph mapping is an array of glyph names that can be used
+        # to specify what glyph to place on a particular face. By default, each face gets embossed with a glyph
+        # corresponding to it's face index, but if a glyph mapping is provided, it will use the glyph specified at
+        # the corresponding index in the glyph mapping.
+        attr_accessor :glyph_mappings
 
         # Super constructor for all dice models that stores the die's model definition, and computes a set of
         # transformations from the die's faces that can be used to easily add glyphs to the die later on.
@@ -459,6 +465,9 @@ module Dice
             faces.each_with_index() do |face, i|
                 @face_transforms[i] = DiceUtil.get_face_transform(face) * Geom::Transformation.scaling(font_scale)
             end
+
+            # Default initialize the glyph_mappings to an empty hash.
+            @glyph_mappings = Hash::new()
         end
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
@@ -479,9 +488,16 @@ module Dice
         #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
+        #   font_angle: The amount to rotate the glyphs by before embossing them. Defaults to 0.0 (no rotation).
+        #   glyph_mapping: Either an array of glyph names, or a string corresponding to one of the glyph name arrays
+        #                  stored in '@glyph_mappings'. This is used to optionally map the glyphs on the faces of dice
+        #                  to custom glyphs instead of the glyph corresponding to the face's index. If left as nil,
+        #                  then this performs no custom mapping and the face indexes are used as the glypu names.
+        #                  Defaults to nil. When used with a type less than the number of faces on the die model, then
+        #                  the glyphs corresponding to the repeated indexes are used, instead of the actual face index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                            font_angle:, transform: IDENTITY)
+                            font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             if (group.nil?())
                 group = Util::MAIN_MODEL.entities().add_group()
@@ -512,7 +528,7 @@ module Dice
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
                 place_glyphs(font: font, mesh: glyph_mesh, type: type, die_scale: die_scale, font_scale: font_scale,
-                             font_offset: font_offset, font_angle: font_angle)
+                             font_offset: font_offset, font_angle: font_angle, glyph_mapping: glyph_mapping)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -520,8 +536,14 @@ module Dice
             glyph_group.definition().invalidate_bounds()
 
             # Emboss the glyphs onto the faces of the die, then delete the glyphs.
+            # TODO figure out why things aren't embossed correctly still.
             die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, glyph_mesh.to_a())
             glyph_group.erase!()
+
+            # Intersect the die mesh with itself to make sure the glyphs get embossed correctly. There's an issue where
+            # without this, the inner edges of glyphs don't connect to form a subface on the face of the die.
+            # This line doesn't completely fix the issue, it still happens, but it helps reduce it's prevalence.
+            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, die_mesh.to_a())
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
@@ -545,11 +567,30 @@ module Dice
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 where glyphs shouldn't be face-centered.
         #   font_angle: The amount to rotate the glyphs by before embossing them. Defaults to 0.0 (no rotation).
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0)
+        #   glyph_mapping: Either an array of glyph names, or a string corresponding to one of the glyph name arrays
+        #                  stored in '@glyph_mappings'. This is used to optionally map the glyphs on the faces of dice
+        #                  to custom glyphs instead of the glyph corresponding to the face's index. If left as nil,
+        #                  then this performs no custom mapping and the face indexes are used as the glypu names.
+        #                  Defaults to nil.
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
+                         glyph_mapping: nil)
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
                 face_count = @face_transforms.length()
                 raise "Incompatible die type: a D#{face_count} model cannot be used to generate D#{type} dice."
+            end
+
+            # If the provided glyph_mapping is nil, default initialize it to use the face indexes.
+            if glyph_mapping.nil?()
+                glyph_mapping = (0..type).to_a()
+            # If glyph_mapping is a string, then try to look up the glyph mapping by name.
+            elsif glyph_mapping.class == String
+                if @glyph_mappings.key?(glyph_mapping)
+                    glyph_mapping = @glyph_mappings[glyph_mapping]
+                else
+                    model_name = self.class().name().split("::").last()
+                    raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
+                end
             end
 
             # Iterate through each face in order and generate the corresponding number on it.
@@ -564,17 +605,18 @@ module Dice
                                 Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
-                font.instance.create_glyph(name: ((i % type)+1).to_s(), entities: mesh, transform: full_transform)
+                glyph_name = glyph_mapping[(i % type)+1].to_s()
+                font.instance.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
             end
         end
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
-                   font_angle: 0.0, transform: IDENTITY)
+                   font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
         model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
                                        font_scale: font_scale, font_offset: font_offset, font_angle: font_angle,
-                                       transform: transform)
+                                       glyph_mapping: glyph_mapping, transform: transform)
     end
 
 end

@@ -1,4 +1,8 @@
 
+# TODO ADD THIS TO THE DICE LIST!
+
+
+
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D10 die (a pentagonal trapezohedron).
     class PentagonalTrapezohedron < Die
@@ -25,7 +29,8 @@ module DiceGen::Dice
         end
 
         # TODO
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0)
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
+                         glyph_mapping: nil)
             if (type == "D%")
                 #TODO
             else

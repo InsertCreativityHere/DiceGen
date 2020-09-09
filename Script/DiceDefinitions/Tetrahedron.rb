@@ -59,7 +59,8 @@ module DiceGen::Dice
 
         # TODO
         # ALSO TODO WE NEED TO SUPPORT THE FONT_SCALE, OFFSET AND ANGLE FIELDS!
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0)
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
+                         glyph_mapping: nil)
             # TODO
             if (type == "D4")
                 # Iterate through each face and generate glyphs at the vertices of the face.
