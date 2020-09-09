@@ -91,7 +91,14 @@ for step 4 of the conversion/cleaning process.
 10. Zoom around the model and check to make sure that everything is connected and the geometry looks solid. This is the final product that will get imported
    into Sketchup, so it's important to make sure it's good enough for importing. Specifically you should check and make sure that places with a heavy
    concentration of mesh intersections are connected properly. Before step 8 was introduced, it was common for there to be issues at these locations.
-11. Export the file: Now that the model is finished, export it as a DAE file this way Sketchup will actually recognize and be able to import the file.
+11. Lower the poly-count: This step is totally optional, but will greatly help with performance in Sketchup. Often the way the curves are converted into meshes
+    by Blender causes some parts to have an incredibly high density of vertices to an unnecessary extent. This step can help reduce the number
+    of unnecessary vertices (and edges and faces) by a large amount, usually without hurting the overall shape very much at all.
+    There aren't as strict rules as with the other steps, and it's necessary to somewhat just 'eyeball' how much the glyph is changed by having lower
+    poly-count meshes, and balance that with how few vertices is 'few enough'. The directions also can't be boiled down to key-strokes.
+        "Modifier Properties -> Add Modifier -> Decimate" (Modifier Properties is one of the tabs in the bottom-right property pane)
+    Leaving it on "Collapse" mode seems to be good enough, so it's just a matter of messing with the ratio until you're satisfied.
+12. Export the file: Now that the model is finished, export it as a DAE file this way Sketchup will actually recognize and be able to import the file.
         “File -> Export -> Collada (.dae)”
         “<fn> + F4 + E + C”
 One final note when Blendering: it doesn’t remember the last folder you saved in, and navigating to the right folder takes time and introduces possibility of error,
@@ -103,7 +110,7 @@ The complete process for converting an SVG image to a DAE mesh with Blender is:
     “<fn>  <F4>  I  S”   ->   <Manually select the curves in the Scene Collection>   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
     Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field. Then adjust placement to center it correctly.
     "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
-    Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved.
+    Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved, then optionally decimate the mesh and lower it's polycount.
     "<fn>  <F4>  E  C"
     Then make sure the delete the current collection by right clicking it in the "Scene Collection" list and hitting "H"
 But it's important to make sure that before you start converting any curves that you've opened the "Transform" menu with "N",
