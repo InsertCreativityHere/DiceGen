@@ -8,3 +8,10 @@ require "/Users/austin/DiceStuff/Script/DiceGen.rb"
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Everything we work with is scaled up by 1000 so that 1mm = 1m
+
+
+
+
+You have to manually fix any internal edges, these just refuse to work right, and I don't know why.
+But it's not that hard, just make sure they're not faces, just edges, and then select their enclosing face and all the
+edges that were rouge, and then intersect those. They should merge onto the face and make a sub-face as it correctly should.
