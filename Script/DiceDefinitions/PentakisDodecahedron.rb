@@ -14,7 +14,7 @@ module DiceGen::Dice
             mesh = definition.entities()
 
             ca = Math.sqrt(5.0)
-            cb = (19.0/15.0) * ((ca + 5.0 + (VERTEX_SCALE * (5.0 - ca))) / (ca + 9.0))
+            cb = ((20 + 2 * ca) + VERTEX_SCALE * (25 - 7 * ca)) / 30
             c0 = 0.0
             c1 = 1.5
             c2 =  (3.0  * ca +  3.0) /  4.0
