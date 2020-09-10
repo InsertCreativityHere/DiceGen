@@ -226,7 +226,7 @@ module Fonts
         #   glyphs: A hash of glyphs to add into the font, following the same scheme as '@glyphs'. If the font already
         #           contains a glyph with the same name as one of the new glyphs, it is replaced with the new glyph.
         def set_glyphs(glyphs)
-            @glyphs.merge(glyphs);
+            @glyphs.merge(glyphs)
         end
 
         # Scales the glyphs by a hash of scale factors.
@@ -332,7 +332,7 @@ module Fonts
     # supplying an glyphs for every single individual digits, allows for generating glyphs for any base 10 number.
     class SplicedFont < RawFont
         # The amount of horizontal space to leave in between glyphs when splicing them together
-        attr_reader :padding;
+        attr_reader :padding
 
         # Create a new spliced font with the specified font, and whose base glyphs are defined by meshes stored in DAE
         # files. Every mesh in the font folder is loaded, and afterwards, composite glyphs are generated as needed.
@@ -343,7 +343,7 @@ module Fonts
         #   padding: The amount of horizontal space to leave in between glyphs when splicing them together.
         def initialize(name:, folder:, padding:)
             super(name: name, folder: folder)
-            @padding = padding;
+            @padding = padding
         end
 
         # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
@@ -358,7 +358,7 @@ module Fonts
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: padding);
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: padding)
             end
             return super
         end
