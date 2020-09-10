@@ -5,7 +5,7 @@ module DiceGen::Dice
         # This constant controls how much the triakis points protude from the tetrahedral faces. A value of 0 means they
         # don't protrude at all (it reduces this shape to a tetrahedron), and a value of 1 makes this shape into a
         # hexahedron. Setting it to 0.4 produces a standard triakis tetrahedron.
-        VERTEX_SCALE = 0.4
+        KLEEPOINT_SCALE = 0.4
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -13,7 +13,7 @@ module DiceGen::Dice
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
-            c0 = ((9.0 * Math.sqrt(2)) / 20.0) * ((10.0 * VERTEX_SCALE + 5.0) / 9.0)
+            c0 = ((9.0 * Math.sqrt(2)) / 20.0) * ((10.0 * KLEEPOINT_SCALE + 5.0) / 9.0)
             c1 = ((3.0 * Math.sqrt(2)) /  4.0)
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new(-c0,  c0,  c0)

@@ -5,7 +5,7 @@ module DiceGen::Dice
         # This constant controls how much the triakis points protude from the octahedral faces. A value of 0 means they
         # don't protrude at all (it reduces this shape to an octahedron), and a value of 1 makes this shape into a
         # Rhombic Dodecahedron. Setting it to '2.0 - Math.sqrt(2.0)' produces a standard triakis octahedron.
-        VERTEX_SCALE = 2.0 - Math.sqrt(2.0)
+        KLEEPOINT_SCALE = 2.0 - Math.sqrt(2.0)
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -15,7 +15,7 @@ module DiceGen::Dice
 
             c0 = 0.0
             c1 = 1.0 + Math.sqrt(2.0)
-            c2 = 1.0 * (c1 / (3.0 - VERTEX_SCALE))
+            c2 = 1.0 * (c1 / (3.0 - KLEEPOINT_SCALE))
             # Define all the points that make up the vertices of the die.
             v0  = Geom::Point3d::new( c1,  c0,  c0)
             v1  = Geom::Point3d::new(-c1,  c0,  c0)

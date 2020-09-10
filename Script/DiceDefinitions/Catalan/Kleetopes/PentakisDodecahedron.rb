@@ -5,7 +5,7 @@ module DiceGen::Dice
         # This constant controls how much the pentakis points protude from the dodecahedral faces. A value of 0 means
         # they don't protrude at all (it reduces this shape to a dodecahedron), and a value of 1 makes this shape into a
         # rhombic triacontahedron. Setting it to '(9.0 + sqrt(5.0)) / 19.0' produces a standard triakis tetrahedron.
-        VERTEX_SCALE = (9.0 + Math.sqrt(5.0)) / 19.0
+        KLEEPOINT_SCALE = (9.0 + Math.sqrt(5.0)) / 19.0
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -14,7 +14,7 @@ module DiceGen::Dice
             mesh = definition.entities()
 
             ca = Math.sqrt(5.0)
-            cb = ((20 + 2 * ca) + VERTEX_SCALE * (25 - 7 * ca)) / 30
+            cb = ((20 + 2 * ca) + KLEEPOINT_SCALE * (25 - 7 * ca)) / 30
             c0 = 0.0
             c1 = 1.5
             c2 =  (3.0  * ca +  3.0) /  4.0
