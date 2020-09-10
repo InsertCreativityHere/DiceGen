@@ -10,7 +10,7 @@ module DiceGen::Dice
 
             c0 = 0.0
             c1 = 0.5
-            c2 = (1 + Math.sqrt(5)) / 4
+            c2 = (1.0 + Math.sqrt(5.0)) / 4.0
             # Define all the points that make up the vertices of the die.
             v0  = Geom::Point3d::new( c0,  c2,  c1)
             v1  = Geom::Point3d::new( c0,  c2, -c1)

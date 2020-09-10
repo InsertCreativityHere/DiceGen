@@ -8,12 +8,12 @@ module DiceGen::Dice
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
-            ca = Math.sqrt(33)
+            ca = Math.sqrt(33.0)
             c0 = 0.0
-            c1 = Math.sqrt(6 * (Math.cbrt(6 * (   9 +      ca)) + Math.cbrt(6 * (   9 -      ca)) -  6)) / 12
-            c2 = Math.sqrt(6 * (Math.cbrt(6 * (   9 +      ca)) + Math.cbrt(6 * (   9 -      ca)) +  6)) / 12
-            c3 = Math.sqrt(6 * (Math.cbrt(6 * (   9 +      ca)) + Math.cbrt(6 * (   9 -      ca)) + 18)) / 12
-            c4 = Math.sqrt(6 * (Math.cbrt(2 * (1777 + 33 * ca)) + Math.cbrt(2 * (1777 - 33 * ca)) + 14)) / 12
+            c1 = Math.sqrt(6.0 * (Math.cbrt(6.0 * (   9 +      ca)) + Math.cbrt(6.0 * (   9 -      ca)) -  6.0)) / 12.0
+            c2 = Math.sqrt(6.0 * (Math.cbrt(6.0 * (   9 +      ca)) + Math.cbrt(6.0 * (   9 -      ca)) +  6.0)) / 12.0
+            c3 = Math.sqrt(6.0 * (Math.cbrt(6.0 * (   9 +      ca)) + Math.cbrt(6.0 * (   9 -      ca)) + 18.0)) / 12.0
+            c4 = Math.sqrt(6.0 * (Math.cbrt(2.0 * (1777 + 33 * ca)) + Math.cbrt(2.0 * (1777 - 33 * ca)) + 14.0)) / 12.0
             # Define all the points that make up the vertices of the die.
             v0  = Geom::Point3d::new( c4,  c0,  c0)
             v1  = Geom::Point3d::new(-c4,  c0,  c0)

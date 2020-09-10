@@ -8,7 +8,7 @@ module DiceGen::Dice
             definition = Util::MAIN_MODEL.definitions.add(self.class.name)
             mesh = definition.entities()
 
-            c0 = Math.sqrt(2) / 4
+            c0 = Math.sqrt(2.0) / 4.0
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new(-c0, -c0, -c0)
             v1 = Geom::Point3d::new(-c0,  c0,  c0)

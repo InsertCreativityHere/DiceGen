@@ -9,8 +9,8 @@ module DiceGen::Dice
             mesh = definition.entities()
 
             c0 = 0.0
-            c1 = 3 * Math.sqrt(2) / 4
-            c2 = 3 * Math.sqrt(2) / 8
+            c1 = 3.0 * Math.sqrt(2.0) / 4.0
+            c2 = 3.0 * Math.sqrt(2.0) / 8.0
             # Define all the points that make up the vertices of the die.
             v0  = Geom::Point3d::new( c1,  c0,  c0)
             v1  = Geom::Point3d::new(-c1,  c0,  c0)

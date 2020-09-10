@@ -1,7 +1,7 @@
 
 module DiceGen::Dice
-    # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octohedron).
-    class Octohedron < Die
+    # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octahedron).
+    class Octahedron < Die
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
             # Create a new definition for the die.
@@ -9,7 +9,7 @@ module DiceGen::Dice
             mesh = definition.entities()
 
             c0 = 0.0
-            c1 = Math.sqrt(2) / 2
+            c1 = Math.sqrt(2.0) / 2.0
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new( c1,  c0,  c0)
             v1 = Geom::Point3d::new(-c1,  c0,  c0)
