@@ -5,7 +5,7 @@ module DiceGen::Dice
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
         # don't protrude at all (it reduces this shape to a pentagon), and a value of 1 makes the height of the pyramids
         # equal to their side lengths. Setting it to '(0.5 + 0.3 * Math.sqrt(5.0))' produces a standard pentagonal
-        # dipyramid . A value of 'Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0)' makes all the faces into equalateral
+        # dipyramid. A value of 'Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0)' makes all the faces into equalateral
         # triangles.
         VERTEX_SCALE = (0.5 + 0.3 * Math.sqrt(5.0))
 

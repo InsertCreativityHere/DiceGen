@@ -1,8 +1,6 @@
 
 module DiceGen::Fonts
 
-    puts DiceGen::Util
-
     puts "===== Loading Images ====="
     # Class for storing all the vector images as a font so that other fonts can access them.
     # We do this before loading any of the other fonts, since any of them might reference these glyphs.
