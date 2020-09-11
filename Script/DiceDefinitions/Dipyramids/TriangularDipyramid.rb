@@ -3,9 +3,10 @@ module DiceGen::Dice
     # This class defines the mesh model for a triangular dipyramid (non-standard D6).
     class TriangularDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a triangle), and a value of 1 makes the faces equalateral
-        # triangles. Setting it to '1.0 / Math.sqrt(6.0)' produces a standard triangular dipyramid.
-        VERTEX_SCALE = 1.0 / Math.sqrt(6.0)
+        # don't protrude at all (it reduces this shape to a triangle), and a value of 1 makes the height of the pyramids
+        # equal to their side lengths. Setting it to '1.0 / 3.0' produces a standard triangular dipyramid.
+        # A value of 'Math.sqrt(6.0) / 3.0' makes all the faces into equalateral triangles.
+        VERTEX_SCALE = 1.0 / 3.0
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -16,7 +17,7 @@ module DiceGen::Dice
             c0 = 0.0
             c1 = 1.0
             c2 =        Math.sqrt(3.0) / 3.0
-            c3 = (2.0 * Math.sqrt(6.0) / 3.0) * VERTEX_SCALE
+            c3 =  2.0 * VERTEX_SCALE
             c4 =  2.0 * Math.sqrt(3.0) / 3.0
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new( c0,  c0,  c3)

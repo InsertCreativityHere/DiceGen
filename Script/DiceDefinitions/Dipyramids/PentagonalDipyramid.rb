@@ -3,10 +3,11 @@ module DiceGen::Dice
     # This class defines the mesh model for a pentagonal dipyramid (non-standard D10).
     class PentagonalDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a pentagon), and a value of 1 makes the faces equalateral
-        # triangles. Setting it to 'Math.sqrt(2.0 / (25.0 - 11.0 * Math.sqrt(5.0)))' produces a standard pentagonal
-        # dipyramid.
-        VERTEX_SCALE = Math.sqrt(2.0 / (25.0 - 11.0 * Math.sqrt(5.0)))
+        # don't protrude at all (it reduces this shape to a pentagon), and a value of 1 makes the height of the pyramids
+        # equal to their side lengths. Setting it to '(0.5 + 0.3 * Math.sqrt(5.0))' produces a standard pentagonal
+        # dipyramid . A value of 'Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0)' makes all the faces into equalateral
+        # triangles.
+        VERTEX_SCALE = (0.5 + 0.3 * Math.sqrt(5.0))
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -16,7 +17,7 @@ module DiceGen::Dice
 
             c0 = 0.0
             c1 = 1.0
-            c2 = (1.0 + (Math.sqrt(5.0) / 5.0)) * Math.sqrt((25.0 - 11.0 * Math.sqrt(5.0)) / 2.0) * VERTEX_SCALE
+            c2 = (Math.sqrt(5.0) - 1.0) * VERTEX_SCALE
             c3 = Math.sqrt((5.0 - 2.0 * Math.sqrt(5.0)) /  5.0)
             c4 = Math.sqrt((5.0 +       Math.sqrt(5.0)) / 10.0)
             c5 = Math.sqrt((5.0 -       Math.sqrt(5.0)) /  2.5)

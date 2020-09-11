@@ -3,10 +3,11 @@ module DiceGen::Dice
     # This class defines the mesh model for a hexagonal dipyramid (non-standard D12).
     class HexagonalDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a hexagon), and a value of 1 produces a standard hexagonal
-        # dipyramid. The triangulation of a hexagon is already equalateral, so for this dipyramid and all after it,
-        # our usual convention of setting it to 1 meaning equalateral triangles is abandonded.
-        VERTEX_SCALE = 1.0
+        # don't protrude at all (it reduces this shape to a hexagon), and a value of 1 makes the height of the pyramids
+        # equal to their side lengths. Setting it to 'Math.sqrt(3.0)' produces a standard hexagonal dipyramid.
+        # Setting the value to 0 makes all the faces into equalateral triangles, since a hexagon is composed of 6
+        # equalateral triangles.
+        VERTEX_SCALE = Math.sqrt(3.0)
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         def initialize()
@@ -16,7 +17,7 @@ module DiceGen::Dice
 
             c0 = 0.0
             c1 = 1.0
-            c2 = 2.0 * VERTEX_SCALE
+            c2 = (2.0 / Math.sqrt(3.0)) * VERTEX_SCALE
             c3 =     Math.sqrt(3.0) / 3.0
             c4 = 2 * Math.sqrt(3.0) / 3.0
             # Define all the points that make up the vertices of the die.
