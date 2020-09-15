@@ -4,9 +4,9 @@ module DiceGen::Dice
     class PentagonalDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
         # don't protrude at all (it reduces this shape to a pentagon), and a value of 1 makes the height of the pyramids
-        # equal to their side lengths. Setting it to '(0.5 + 0.3 * Math.sqrt(5.0))' produces a standard pentagonal
-        # dipyramid. A value of 'Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0)' makes all the faces into equalateral
-        # triangles.
+        # equal to their side lengths. Setting it to '(0.5 + 0.3 * Math.sqrt(5.0))' produces a canonical pentagonal
+        # dipyramid. A value of 'Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0)' makes a regular pentagonal dipyramid composed
+        # of all equalateral faces.
         VERTEX_SCALE = (0.5 + 0.3 * Math.sqrt(5.0))
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.

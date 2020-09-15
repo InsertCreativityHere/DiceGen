@@ -4,8 +4,8 @@ module DiceGen::Dice
     class TriangularDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
         # don't protrude at all (it reduces this shape to a triangle), and a value of 1 makes the height of the pyramids
-        # equal to their side lengths. Setting it to '1.0 / 3.0' produces a standard triangular dipyramid.
-        # A value of 'Math.sqrt(6.0) / 3.0' makes all the faces into equalateral triangles.
+        # equal to their side lengths. Setting it to '1.0 / 3.0' produces a canonical triangular dipyramid. A value of
+        # 'Math.sqrt(6.0) / 3.0' makes a regular triangular dipyramid composed of all equalateral faces.
         VERTEX_SCALE = 1.0 / 3.0
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.

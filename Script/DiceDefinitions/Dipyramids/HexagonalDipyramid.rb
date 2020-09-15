@@ -6,7 +6,7 @@ module DiceGen::Dice
         # don't protrude at all (it reduces this shape to a hexagon), and a value of 1 makes the height of the pyramids
         # equal to their side lengths. Setting it to 'Math.sqrt(3.0)' produces a standard hexagonal dipyramid.
         # Setting the value to 0 makes all the faces into equalateral triangles, since a hexagon is composed of 6
-        # equalateral triangles.
+        # equalateral triangles, making it impossible to have a regular hexagonal dipyramid.
         VERTEX_SCALE = Math.sqrt(3.0)
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.

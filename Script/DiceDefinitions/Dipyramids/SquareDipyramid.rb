@@ -6,7 +6,7 @@ module DiceGen::Dice
     class SquareDipyramid < Die
         # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
         # don't protrude at all (it reduces this shape to a square), and a value of 1 makes the height of the pyramids
-        # equal to their side lengths. Setting it to '1.0 / Math.sqrt(2.0)' produces a standard square dipyramid,
+        # equal to their side lengths. Setting it to '1.0 / Math.sqrt(2.0)' produces a regular square dipyramid,
         # with all it's faces being equalateral triangles, consequently making the solid into an octohedron.
         VERTEX_SCALE = 1.0 / Math.sqrt(2.0)
 
