@@ -131,7 +131,7 @@ module Fonts
 
             # If no meshes were explicitely listed, try to import every mesh file for the font.
             # Otherwise, only attempt to import the specified mesh files.
-            if (mesh_names.nil?)
+            if (mesh_names.nil?())
                 (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
                     filename = File.basename(file, ".dae")
@@ -435,6 +435,11 @@ module Dice
 
         # The ComponentDefinition that defines the die's mesh model.
         attr_reader :definition
+        # The size of the die in mm, calculated by measuring the distance between two diametric faces, or a face and the
+        # vertex diametrically opposed to it if necessary (such as for a tetrahedron (D4)).
+        attr_accessor :die_size
+        # The height of the glyphs on the die in mm.
+        attr_accessor :font_size
         # An array of transformations used to place glyphs onto the faces of this die model. Each entry is a coordinate
         # transformation that maps the standard world coordinates to a face-local system with it's origin at the
         # geometric center of the face, and it's axes rotated to be coplanar to the face (with +z pointing out).
@@ -450,13 +455,17 @@ module Dice
         # transformations from the die's faces that can be used to easily add glyphs to the die later on.
         #   definition: The ComponentDefinition that holds the die's mesh definition.
         #   faces: Array of all the die's faces, in the same order the face's should be numbered by.
-        #   die_scale: The amount to scale the die by to make it 'standard size' (as defined by our Chessex dice).
-        #              This scaling is applied before any glyphs are placed onto the die.
-        #              Defaults to 1.0, so no scaling is performed.
-        #   font_scale: The amount to scale each glyph by. This is applied directly after the glyph has been placed,
-        #               but not embossed. Defaults to 1.0, so no scaling is performed.
-        def initialize(definition:, faces:, die_scale: 1.0, font_scale: 1.0)
+        #   die_size: The distance between two diametrically opposed faces of the die (in mm), or between a face
+        #             and the vertex diametric to it if no diametric face exists (such as a tetrahedron (D4)).
+        #   die_scale: The amount to scale the die model by to make it 'die_size' mm large. This scaling is applied
+        #              before any glyphs are placed onto the die.
+        #   font_size: The height to scale the glyphs to before embossing them onto the die (in mm).
+        #   font_scale: The factor to scale the glyphs by to make them 'font_size' mm tall. This is applied directly
+        #               after the glyph has been placed, but not embossed.
+        def initialize(definition:, faces:, die_size:, die_scale:, font_size:, font_scale:)
             @definition = definition
+            @die_size = die_size
+            @font_size = font_size
             entities = @definition.entities()
             entities.transform_entities(Geom::Transformation.scaling(die_scale), entities.to_a())
 
@@ -483,8 +492,11 @@ module Dice
         #          In practice, the die is always created within it's own die group, and the die group is what's placed
         #          into the provided group. Defaults to nil.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
-        #   die_scale: The amount to scale the die mesh model before embossing occurs. Defaults to 1.0 (no scaling).
-        #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
+        #   die_size: The size to make the die in mm. Specifically this sets the distance between two diametric faces,
+        #             or a face and the vertex diametrically opposite to it if necessary (like for tetrahedrons (D4)).
+        #             If left as nil, it uses the default size for the die. Defaults to nil.
+        #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
+        #              die. Defaults to nil.
         #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 whereglyphs shouldn't be face-centered.
@@ -496,12 +508,10 @@ module Dice
         #                  Defaults to nil. When used with a type less than the number of faces on the die model, then
         #                  the glyphs corresponding to the repeated indexes are used, instead of the actual face index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
+        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, font_offset: [0,0],
                             font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
-            if (group.nil?())
-                group = Util::MAIN_MODEL.entities().add_group()
-            end
+            group ||= Util::MAIN_MODEL.entities().add_group()
 
             # Start a new operation so that creating the die can be undone/aborted if necessary.
             Util::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
@@ -518,8 +528,10 @@ module Dice
 
             die_def = instance.definition()
             die_mesh = die_def.entities()
-            # Scale the die mesh model by the specified amount.
-            die_mesh.transform_entities(Geom::Transformation.scaling(die_scale), die_mesh.to_a())
+            # Scale the die mesh model to the specified size.
+            unless die_size.nil()
+                die_mesh.transform_entities(Geom::Transformation.scaling(die_size.to_f() / @die_size), die_mesh.to_a())
+            end
 
             # Create a separate group for placing glyphs into.
             glyph_group = group.entities().add_group()
@@ -527,7 +539,7 @@ module Dice
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
-                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_scale: die_scale, font_scale: font_scale,
+                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_size: die_size, font_size: font_size,
                              font_offset: font_offset, font_angle: font_angle, glyph_mapping: glyph_mapping)
             end
 
@@ -560,9 +572,11 @@ module Dice
         #         "D%" which are handled by overriden versions of this function, or a number indicating the maximum
         #         number to count up to on the die. If there are more faces than the type number, numbers are repeated.
         #         However, the die type must divide the number of faces evenly.
-        #   die_scale: The amount that the die was scaled by before embossing. This doesn't include the pre-scaling
-        #              that was done on the definition, but only the local scaling done while creating an instance.
-        #   font_scale: The amount to scale the glyphs by before embossing them. Defaults to 1.0 (no scaling).
+        #   die_size: The size of the die in mm. Specifically, this must be the distance between two diametric faces, or
+        #             a face and a vertex diametrically opposite to it if necessary (like for the tetrahedron (D4)).
+        #             If left as nil, it uses the default size for the die. Defaults to nil.
+        #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
+        #              die. Defaults to nil.
         #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
         #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
         #                tetrahedral D4 where glyphs shouldn't be face-centered.
@@ -572,7 +586,7 @@ module Dice
         #                  to custom glyphs instead of the glyph corresponding to the face's index. If left as nil,
         #                  then this performs no custom mapping and the face indexes are used as the glypu names.
         #                  Defaults to nil.
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
+        def place_glyphs(font:, mesh:, type:, die_size: nil, font_size: nil, font_offset: [0,0], font_angle: 0.0,
                          glyph_mapping: nil)
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
@@ -593,6 +607,10 @@ module Dice
                 end
             end
 
+            # Calcaulte the scale factors for the die and the font.
+            die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
+            font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
+
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
@@ -612,10 +630,10 @@ module Dice
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0],
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: 1.0, font_size: 1.0, font_offset: [0,0],
                    font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
-        model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_scale: die_scale,
-                                       font_scale: font_scale, font_offset: font_offset, font_angle: font_angle,
+        model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size,
+                                       font_size: font_size, font_offset: font_offset, font_angle: font_angle,
                                        glyph_mapping: glyph_mapping, transform: transform)
     end
 
