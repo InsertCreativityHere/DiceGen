@@ -90,6 +90,9 @@ module Util
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
 
+        # Clear the import cache, so that any old definitions will get re-imported from scratch.
+        @@import_cache = Hash::new()
+
         # Re-require the font and dice definition files.
         puts "Reloading definitions..."
         require_relative "Fonts.rb"
