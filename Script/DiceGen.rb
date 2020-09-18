@@ -206,9 +206,6 @@ module Fonts
 
     # A bare-bones font that creates glyphs directly from ComponentDefinition objects, and the base class for all fonts.
     class Font
-        # Limits this class (and it's subclasses) to only ever having a single instance which is globally available.
-        include Singleton
-
         # The plain-text name of the font.
         attr_reader :name
         # Hash of all the glyphs making up the font, it's keys are the names for each glyph (the text that the glyph
@@ -627,7 +624,7 @@ module Dice
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                 glyph_name = glyph_mapping[(i % type)+1].to_s()
-                font.instance.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
+                font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
             end
         end
     end
