@@ -12,10 +12,12 @@ module DiceGen::Fonts
     # Define a constant that stores the path to the root font directory, again for convenience's sake.
     FONT_DIR = "#{DiceGen::Util::RESOURCE_DIR}/VectorFonts"
 
-    # Import all the ruby files in the 'FontDefinitions' directory; Each of these defines a font family. d
+    # Import all the ruby files in the 'FontDefinitions' directory; Each of these defines a font family.
+    load_message = ""
     (Dir["#{__dir__}/FontDefinitions/**/*.rb"]).each() do |file|
         require file
-        puts "    Loaded #{File.basename(file, ".rb")}"
+        load_message += "    Loaded #{File.basename(file, ".rb")}\n"
     end
+    puts load_message
 
 end
