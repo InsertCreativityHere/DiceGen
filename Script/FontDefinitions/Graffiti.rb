@@ -1,11 +1,9 @@
 
 module DiceGen::Fonts
-    # This class defines the glyphs that comprise the Graffiti custom font.
-    class Graffiti < SplicedFont
 
-        def initialize()
-            super(name: "graffiti", folder: "#{Util::RESOURCE_DIR}/VectorFonts/MadiGraffitiFont", padding: 0.1)
-        end
+    Graffiti = SplicedFont::new(name: "graffiti", folder: "#{FONT_DIR}/MadiGraffitiFont", padding: 0.1)
 
-    end
+    Graffiti_Lotus = SplicedFont::new(name: "graffiti", folder: "#{FONT_DIR}/MadiGraffitiFont", padding: 0.1)
+    Graffiti_Lotus.set_glyphs({"20" => "flowa3"})
+
 end

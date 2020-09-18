@@ -14,7 +14,10 @@ module DiceGen::Fonts
     VECTOR_IMAGES = VectorImages.instance()
 
     puts "===== Loading Fonts ====="
-    # Import all the ruby files in the 'FontDefinitions' directory; Each of these defines a single font.
+    # Define a constant that stores the path to the root font directory, for conviencies sake.
+    FONT_DIR = "#{Util::RESOURCE_DIR}/VectorFonts"
+
+    # Import all the ruby files in the 'FontDefinitions' directory; Each of these defines a font family. d
     (Dir["#{__dir__}/FontDefinitions/**/*.rb"]).each() do |file|
         require file
         puts "    Loaded #{File.basename(file, ".rb")}"

@@ -1,11 +1,9 @@
 
 module DiceGen::Fonts
-    # This class defines the glyphs that comprise the Madifont_2 custom font.
-    class MadiFont2 < SplicedFont
 
-        def initialize()
-            super(name: "madifont 2", folder: "#{Util::RESOURCE_DIR}/VectorFonts/MadiFont2", padding: 0.1)
-        end
+    MadiFont2 = SplicedFont::new(name: "madifont 2", folder: "#{FONT_DIR}/MadiFont2", padding: 0.1)
 
-    end
+    MadiFont2_Lotus = SplicedFont::new(name: "madifont 2", folder: "#{FONT_DIR}/MadiFont2", padding: 0.1)
+    MadiFont2_Lotus.set_glyphs({"20" => "flowa3"})
+
 end

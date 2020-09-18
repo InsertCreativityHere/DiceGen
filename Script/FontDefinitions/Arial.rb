@@ -1,11 +1,9 @@
 
 module DiceGen::Fonts
-    # This class defines the glyphs that comprise the Arial system font.
-    class Arial < SystemFont
 
-        def initialize()
-            super(name: "Arial", system_font: "Arial")
-        end
+    Arial = SystemFont::new(name: "Arial", system_font: "Arial")
 
-    end
+    Arial_Lotus = SystemFont::new(name: "Arial", system_font: "Arial")
+    Arial_Lotus.set_glyphs({"20" => "flowa3"})
+
 end
