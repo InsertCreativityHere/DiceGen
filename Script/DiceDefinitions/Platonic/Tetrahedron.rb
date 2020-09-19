@@ -2,6 +2,10 @@
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
     class Tetrahedron < DieModel
+        # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
+        # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
+        D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]
+
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
         #             is computed by appending this value to the name of the die model (separated by an underscore).
@@ -61,15 +65,14 @@ module DiceGen::Dice
 
         # TODO
         # ALSO TODO WE NEED TO SUPPORT THE FONT_SCALE, OFFSET AND ANGLE FIELDS!
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
-                         glyph_mapping: nil)
+        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, glyph_mapping: nil)
             # TODO
             if (type == "D4")
                 # Iterate through each face and generate glyphs at the vertices of the face.
                 @face_transforms.each_with_index() do |face_transform, i|
                     face_transform.each_with_index() do |transform, j|
                         # Place the correct glyph at the jth vertex of the ith face.
-                        font.instance.create_glyph(name: DiceUtil::D4_NUMBERING[i][j], entities: mesh, transform: transform)
+                        font.instance.create_glyph(name: D4_NUMBERING[i][j], entities: mesh, transform: transform)
                     end
                 end
             else

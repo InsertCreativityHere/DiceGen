@@ -185,23 +185,6 @@ module Fonts
 
             return definition
         end
-
-        # Transforms the provided value to a first place percentile (percentile for the digits place) by subtracting 1.
-        # Value must a string that represents an integer, calling this with anything else will raise an error.
-        #   value: The integer value to convert to a first place percentile, passed as a string.
-        #   return: The converted value.
-        def convertForPercentile0(value)
-            return String(Integer(value) - 1)
-        end
-
-        # Transforms the provided value to a second place percentile (percentile for the tens place) by subtracting 1
-        # and concatenating a '0' on the end. Value must a string that represents an integer, calling this with anything
-        # else will raise an error.
-        #   value: The integer value to convert to a second place percentile, passed as a string.
-        #   return: The converted value.
-        def convertForPercentile00(value)
-            return String(Integer(value) - 1) + '0'
-        end
     end
 
     # A bare-bones font that creates glyphs directly from ComponentDefinition objects, and the base class for all fonts.
@@ -375,10 +358,6 @@ module Dice
     module DiceUtil
         module_function
 
-        # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
-        # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
-        D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]
-
         # Computes the center-point of an edge by averaging the vertices at it's ends.
         #   edge: The edge segment to find the middle of.
         #   return: A Point3d holding the coordinates of the edge's middle.
@@ -440,10 +419,10 @@ module Dice
         # geometric center of the face, and it's axes rotated to be coplanar to the face (with +z pointing out).
         # Each face has it's respective transformation, and they're ordered in the same way faces are numbered by.
         attr_reader :face_transforms
-        # A hash of glyph mappings keyed by their names. Each glyph mapping is an array of glyph names that can be used
-        # to specify what glyph to place on a particular face. By default, each face gets embossed with a glyph
-        # corresponding to it's face index, but if a glyph mapping is provided, it will use the glyph specified at
-        # the corresponding index in the glyph mapping.
+        # A hash of glyph mappings keyed by their names. Each glyph mapping is made up of 2 arrays. The first specifies
+        # what glyph should be placed on a face, and the second array specifies the angle that the glyph should be
+        # rotated by prior to embossing. The arrays follow the same order as the faces, so the 'i'th entry in each
+        # array will be used for the 'i'th face of the die.
         attr_accessor :glyph_mappings
 
         # Super constructor for all dice models that stores the die's model definition, and computes a set of
@@ -464,14 +443,29 @@ module Dice
             entities = @definition.entities()
             entities.transform_entities(Geom::Transformation.scaling(die_scale), entities.to_a())
 
-            @face_transforms = Array::new(faces.length())
+            face_count = faces.length()
+            @face_transforms = Array::new(face_count)
             # Iterate through each face of the die and compute their face-local coordinate transformations.
             faces.each_with_index() do |face, i|
                 @face_transforms[i] = DiceUtil.get_face_transform(face) * Geom::Transformation.scaling(font_scale)
             end
 
-            # Default initialize the glyph_mappings to an empty hash.
-            @glyph_mappings = Hash::new()
+            # Create a hash for holding the glyph mappings and add the default mapping into it.
+            @glyph_mappings = {(1..face_count).to_a(), ([0.0] * face_count)}
+        end
+
+        # Sets how much each glyph should be offset in the x and y direction relative to the face it's being placed on.
+        # Calling this function a second time will not remove the previous glyph offsets, and instead will combine the
+        # two offsets togther. It is advised that this method should only be called once.
+        #   x_offset: The distance to offset the glyph in the horizontal direction (in mm).
+        #   y_offset: The distance to offset the glyph in the vertical direction (in mm).
+        def set_glyph_offsets(x_offset, y_offset)
+            @face_transforms.each() do |face_transform|
+                # Add an extra translation transformsion that offsets the glyphs in face-local coordinates.
+                offset_vector = Util.scale_vector(face_transform.xaxis, x_offset) +
+                                Util.scale_vector(face_transform.yaxis, y_offset)
+                @face_transform = Geom::Transformation.translation(offset_vector) * @face_transform
+            end
         end
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
@@ -492,19 +486,12 @@ module Dice
         #             If left as nil, it uses the default size for the die. Defaults to nil.
         #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
         #              die. Defaults to nil.
-        #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
-        #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
-        #                tetrahedral D4 whereglyphs shouldn't be face-centered.
-        #   font_angle: The amount to rotate the glyphs by before embossing them. Defaults to 0.0 (no rotation).
-        #   glyph_mapping: Either an array of glyph names, or a string corresponding to one of the glyph name arrays
-        #                  stored in '@glyph_mappings'. This is used to optionally map the glyphs on the faces of dice
-        #                  to custom glyphs instead of the glyph corresponding to the face's index. If left as nil,
-        #                  then this performs no custom mapping and the face indexes are used as the glypu names.
-        #                  Defaults to nil. When used with a type less than the number of faces on the die model, then
-        #                  the glyphs corresponding to the repeated indexes are used, instead of the actual face index.
+        #   glyph_mapping: String representing which glyph mapping to use. If left as nil, the default mapping is used
+        #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
+        #                  numerical index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, font_offset: [0,0],
-                            font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
+        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil,
+                            transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             group ||= Util::MAIN_MODEL.entities().add_group()
 
@@ -535,7 +522,7 @@ module Dice
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
                 place_glyphs(font: font, mesh: glyph_mesh, type: type, die_size: die_size, font_size: font_size,
-                             font_offset: font_offset, font_angle: font_angle, glyph_mapping: glyph_mapping)
+                             glyph_mapping: glyph_mapping)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -572,34 +559,26 @@ module Dice
         #             If left as nil, it uses the default size for the die. Defaults to nil.
         #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
         #              die. Defaults to nil.
-        #   font_offset: A pair of x,y coordinates specifying how much to offset the glyph in each direction
-        #                respectively. Defaults to [0,0] (no offsetting). This is mostly used for dice like the
-        #                tetrahedral D4 where glyphs shouldn't be face-centered.
-        #   font_angle: The amount to rotate the glyphs by before embossing them. Defaults to 0.0 (no rotation).
-        #   glyph_mapping: Either an array of glyph names, or a string corresponding to one of the glyph name arrays
-        #                  stored in '@glyph_mappings'. This is used to optionally map the glyphs on the faces of dice
-        #                  to custom glyphs instead of the glyph corresponding to the face's index. If left as nil,
-        #                  then this performs no custom mapping and the face indexes are used as the glypu names.
-        #                  Defaults to nil.
-        def place_glyphs(font:, mesh:, type:, die_size: nil, font_size: nil, font_offset: [0,0], font_angle: 0.0,
-                         glyph_mapping: nil)
+        #   glyph_mapping: String representing which glyph mapping to use. If left as nil, the default mapping is used
+        #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
+        #                  numerical index.
+        def place_glyphs(font:, mesh:, type:, die_size: nil, font_size: nil, glyph_mapping: nil)
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
                 face_count = @face_transforms.length()
                 raise "Incompatible die type: a D#{face_count} model cannot be used to generate D#{type} dice."
             end
 
-            # If the provided glyph_mapping is nil, default initialize it to use the face indexes.
-            if glyph_mapping.nil?()
-                glyph_mapping = (0..type).to_a()
-            # If glyph_mapping is a string, then try to look up the glyph mapping by name.
-            elsif glyph_mapping.class == String
-                if @glyph_mappings.key?(glyph_mapping)
-                    glyph_mapping = @glyph_mappings[glyph_mapping]
-                else
-                    model_name = self.class().name().split("::").last()
-                    raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
-                end
+            # If no glyph_mapping was provided, use the default mapping.
+            glyph_mapping ||= "default"
+            glyph_angles = []
+            glyph_names = []
+            # Look up the glyph mapping by name.
+            if @glyph_mappings.key?(glyph_mapping)
+                glyphs, offsets = @glyph_mappings[glyph_mapping]
+            else
+                model_name = self.class().name().split("::").last()
+                raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
             end
 
             # Calcaulte the scale factors for the die and the font.
@@ -609,32 +588,30 @@ module Dice
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, font_angle)
+                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, glyph_angles[i])
                 full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
-                # Then, translate the glyph by the specified offset (in face-local coordinates), plus a z-offset
-                # that ensures the glyph and face are coplanar, even if the die has been scaled up.
-                offset_vector = Util.scale_vector(face_transform.xaxis, font_offset[0]) + \
-                                Util.scale_vector(face_transform.yaxis, font_offset[1]) + \
-                                Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
+                # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
+                # has been scaled up.
+                offset_vector = Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
-                glyph_name = glyph_mapping[(i % type)+1].to_s()
+                glyph_name = glyph_names[(i % type) + 1].to_s()
                 font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
             end
         end
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: 1.0, font_size: 1.0, font_offset: [0,0],
-                   font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil,
+                   transform: IDENTITY)
         # If no specific model instance was passed, use the standard instance for the specified model.
         if model.is_a?(Class)
             model = model.STANDARD
         end
 
         model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size,
-                              font_size: font_size, font_offset: font_offset, font_angle: font_angle,
-                              glyph_mapping: glyph_mapping, transform: transform)
+                              font_size: font_size, glyph_mapping: glyph_mapping,
+                              transform: transform)
     end
 
 end
