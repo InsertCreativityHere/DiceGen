@@ -46,16 +46,16 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A hexagonal dipyramid with standard dimensions.
+        STANDARD = HexagonalDipyramid::new(def_name: "Standard", vertex_scale: Math.sqrt(3.0))
+        # A hexagonal dipyramid that has been flattened into a hexagon.
+        FLAT = HexagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+        # A hexagonal dipyramid where each pyramid's height is equal to their side length.
+        BALANCED = HexagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+        # A hexagonal dipyramid composed entirely of equalateral faces. This model is equivalent to the 'Flat' model, since
+        # hexagons are composed of 6 equalateral triangles internally.
+        EQUALATERAL = HexagonalDipyramid::new(def_name: "Equalateral", vertex_scale: 0.0)
+
     end
-
-    # A hexagonal dipyramid with standard dimensions.
-    STANDARD = HexagonalDipyramid::new(def_name: "Standard", vertex_scale: Math.sqrt(3.0))
-    # A hexagonal dipyramid that has been flattened into a hexagon.
-    FLAT = HexagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
-    # A hexagonal dipyramid where each pyramid's height is equal to their side length.
-    BALANCED = HexagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
-    # A hexagonal dipyramid composed entirely of equalateral faces. This model is equivalent to the 'Flat' model, since
-    # hexagons are composed of 6 equalateral triangles internally.
-    EQUALATERAL = HexagonalDipyramid::new(def_name: "Equalateral", vertex_scale: 0.0)
-
 end

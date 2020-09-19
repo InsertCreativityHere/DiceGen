@@ -62,13 +62,13 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A tetrakis hexahedron with standard dimensions.
+        STANDARD = TetrakisHexahedron::new(def_name: "Standard", kleepoint_scale: 0.5))
+        # A tetrakis hexahedron that has been reduced into a hexahedron.
+        REDUCED = TetrakisHexahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+        # A tetrakis hexahedron that has been expanded into a rhombic dodecahedron.
+        EXPANDED = TetrakisHexahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
     end
-
-    # A tetrakis hexahedron with standard dimensions.
-    STANDARD = TetrakisHexahedron::new(def_name: "Standard", kleepoint_scale: 0.5))
-    # A tetrakis hexahedron that has been reduced into a hexahedron.
-    REDUCED = TetrakisHexahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
-    # A tetrakis hexahedron that has been expanded into a rhombic dodecahedron.
-    EXPANDED = TetrakisHexahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
-
 end

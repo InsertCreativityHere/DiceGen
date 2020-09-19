@@ -37,15 +37,15 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A triangular dipyramid with standard dimensions.
+        STANDARD = TriangularDipyramid::new(def_name: "Standard", vertex_scale: (1.0 / 3.0))
+        # A triangular dipyramid that has been flattened into a triangle.
+        FLAT = TriangularDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+        # A triangular dipyramid where each pyramid's height is equal to their side length.
+        BALANCED = TriangularDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+        # A triangular dipyramid composed entirely of equalateral faces.
+        EQUALATERAL = TriangularDipyramid::new(def_name: "Equalateral", vertex_scale: (Math.sqrt(6.0) / 3.0))
+
     end
-
-    # A triangular dipyramid with standard dimensions.
-    STANDARD = TriangularDipyramid::new(def_name: "Standard", vertex_scale: (1.0 / 3.0))
-    # A triangular dipyramid that has been flattened into a triangle.
-    FLAT = TriangularDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
-    # A triangular dipyramid where each pyramid's height is equal to their side length.
-    BALANCED = TriangularDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
-    # A triangular dipyramid composed entirely of equalateral faces.
-    EQUALATERAL = TriangularDipyramid::new(def_name: "Equalateral", vertex_scale: (Math.sqrt(6.0) / 3.0))
-
 end

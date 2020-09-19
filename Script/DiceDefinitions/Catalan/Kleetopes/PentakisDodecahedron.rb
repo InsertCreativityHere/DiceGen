@@ -122,13 +122,13 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A pentakis dodecahedron with standard dimensions.
+        STANDARD = PentakisDodecahedron::new(def_name: "Standard", kleepoint_scale: ((9.0 + Math.sqrt(5.0)) / 19.0)))
+        # A pentakis dodecahedron that has been reduced into a dodecahedron.
+        REDUCED = PentakisDodecahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+        # A pentakis dodecahedron that has been expanded into a rhombic triacontahedron.
+        EXPANDED = PentakisDodecahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
     end
-
-    # A pentakis dodecahedron with standard dimensions.
-    STANDARD = PentakisDodecahedron::new(def_name: "Standard", kleepoint_scale: ((9.0 + Math.sqrt(5.0)) / 19.0)))
-    # A pentakis dodecahedron that has been reduced into a dodecahedron.
-    REDUCED = PentakisDodecahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
-    # A pentakis dodecahedron that has been expanded into a rhombic triacontahedron.
-    EXPANDED = PentakisDodecahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
-
 end

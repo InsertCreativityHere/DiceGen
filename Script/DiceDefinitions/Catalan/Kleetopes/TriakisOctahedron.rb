@@ -62,13 +62,13 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A triakis octahedron with standard dimensions.
+        STANDARD = TriakisOctahedron::new(def_name: "Standard", kleepoint_scale: (2.0 - Math.sqrt(2.0)))
+        # A triakis octahedron that has been reduced into an octahedron.
+        REDUCED = TriakisOctahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+        # A triakis octahedron that has been expanded into a rhombic dodecahedron.
+        EXPANDED = TriakisOctahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
     end
-
-    # A triakis octahedron with standard dimensions.
-    STANDARD = TriakisOctahedron::new(def_name: "Standard", kleepoint_scale: (2.0 - Math.sqrt(2.0)))
-    # A triakis octahedron that has been reduced into an octahedron.
-    REDUCED = TriakisOctahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
-    # A triakis octahedron that has been expanded into a rhombic dodecahedron.
-    EXPANDED = TriakisOctahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
-
 end

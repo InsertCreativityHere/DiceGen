@@ -366,6 +366,7 @@ module Fonts
 end
 
 
+
 ##### DICE #####
 module Dice
     include DiceGen
@@ -638,6 +639,8 @@ module Dice
 
 end
 end
+
+
 
 # Import all the fonts that we've created so far.
 require_relative "Fonts.rb"

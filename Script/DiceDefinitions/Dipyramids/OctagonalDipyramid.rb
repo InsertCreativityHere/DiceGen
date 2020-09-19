@@ -51,14 +51,14 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A octagonal dipyramid with standard dimensions.
+        STANDARD = OctagonalDipyramid::new(def_name: "Standard", vertex_scale: Math.sqrt(5 + 3.5 * Math.sqrt(2)))
+        # A octagonal dipyramid that has been flattened into an octahedron.
+        FLAT = OctagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+        # A octagonal dipyramid where each pyramid's height is equal to their side length.
+        BALANCED = OctagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+        # It is impossible for the faces of an octagonal dipyramid to be equalateral triangles.
+
     end
-
-    # A octagonal dipyramid with standard dimensions.
-    STANDARD = OctagonalDipyramid::new(def_name: "Standard", vertex_scale: Math.sqrt(5 + 3.5 * Math.sqrt(2)))
-    # A octagonal dipyramid that has been flattened into an octahedron.
-    FLAT = OctagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
-    # A octagonal dipyramid where each pyramid's height is equal to their side length.
-    BALANCED = OctagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
-    # It is impossible for the faces of an octagonal dipyramid to be equalateral triangles.
-
 end

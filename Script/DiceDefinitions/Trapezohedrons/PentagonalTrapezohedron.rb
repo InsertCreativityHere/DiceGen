@@ -57,11 +57,11 @@ module DiceGen::Dice
             # Rotate each of the face transforms by TODO
             #TODO MAKE THIS WORK FOR BOTH D10 and D%
         end
+
+        # A pentagonal trapezohedron with standard dimensions.
+        STANDARD = PentagonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
+        # A pentagonal trapezohedron that has been flattened into a decagon.
+        FLAT = PentagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
+
     end
-
-    # A pentagonal trapezohedron with standard dimensions.
-    STANDARD = PentagonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
-    # A pentagonal trapezohedron that has been flattened into a decagon.
-    FLAT = PentagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
-
 end

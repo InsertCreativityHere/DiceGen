@@ -53,11 +53,11 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A hexagonal trapezohedron with standard dimensions.
+        STANDARD = HexagonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
+        # A hexagonal trapezohedron that has been flattened into a dodecagon.
+        FLAT = HexagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
+
     end
-
-    # A hexagonal trapezohedron with standard dimensions.
-    STANDARD = HexagonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
-    # A hexagonal trapezohedron that has been flattened into a dodecagon.
-    FLAT = HexagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
-
 end

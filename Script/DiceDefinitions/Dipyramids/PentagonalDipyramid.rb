@@ -45,7 +45,6 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
-    end
 
     # A pentagonal dipyramid with standard dimensions.
     STANDARD = PentagonalDipyramid::new(def_name: "Standard", vertex_scale: (0.5 + 0.3 * Math.sqrt(5.0)))
@@ -57,4 +56,5 @@ module DiceGen::Dice
     EQUALATERAL = PentagonalDipyramid::new(def_name: "Equalateral",
                                            vertex_scale: Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0))
 
+    end
 end

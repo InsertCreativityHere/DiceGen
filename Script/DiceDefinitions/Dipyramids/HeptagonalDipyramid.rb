@@ -58,15 +58,14 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A heptagonal dipyramid with standard dimensions.
+        STANDARD = HeptagonalDipyramid::new(def_name: "Standard", vertex_scale: (CCOS / (2.0 * CSIN ** 2)))
+        # A heptagonal dipyramid that has been flattened into a triangle.
+        FLAT = HeptagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+        # A heptagonal dipyramid where each pyramid's height is equal to their side length.
+        BALANCED = HeptagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+        # It is impossible for the faces of an heptagonal dipyramid to be equalateral triangles.
+
     end
-
-    # A heptagonal dipyramid with standard dimensions.
-    STANDARD = HeptagonalDipyramid::new(def_name: "Standard", vertex_scale: (HeptagonalDipyramid::CCOS /
-                                                                            (2.0 * HeptagonalDipyramid::CSIN ** 2)))
-    # A heptagonal dipyramid that has been flattened into a triangle.
-    FLAT = HeptagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
-    # A heptagonal dipyramid where each pyramid's height is equal to their side length.
-    BALANCED = HeptagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
-    # It is impossible for the faces of an heptagonal dipyramid to be equalateral triangles.
-
 end

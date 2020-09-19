@@ -43,13 +43,13 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A triakis tetrahedron with standard dimensions.
+        STANDARD = TriakisTetrahedron::new(def_name: "Standard", kleepoint_scale: 0.4)
+        # A triakis tetrahedron that has been reduced into a tetrahedron.
+        REDUCED = TriakisTetrahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+        # A triakis tetrahedron that has been expanded into a hexahedron.
+        EXPANDED = TriakisTetrahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
     end
-
-    # A triakis tetrahedron with standard dimensions.
-    STANDARD = TriakisTetrahedron::new(def_name: "Standard", kleepoint_scale: 0.4)
-    # A triakis tetrahedron that has been reduced into a tetrahedron.
-    REDUCED = TriakisTetrahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
-    # A triakis tetrahedron that has been expanded into a hexahedron.
-    EXPANDED = TriakisTetrahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
-
 end

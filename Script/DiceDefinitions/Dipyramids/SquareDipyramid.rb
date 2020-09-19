@@ -40,17 +40,17 @@ module DiceGen::Dice
             #TODO MAKE THE SCALES!
             super(definition: definition, faces: faces)
         end
+
+        # A square dipyramid with standard dimensions. This model is entirely composed of equalateral sides, and is
+        # equivalent to an octahedron.
+        STANDARD = SquareDipyramid::new(def_name: "Standard", vertex_scale: 1.0 / Math.sqrt(2.0))
+        # A square dipyramid that has been flattened into a square.
+        FLAT = SquareDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+        # A square dipyramid where each pyramid's height is equal to their side length.
+        BALANCED = SquareDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+        # A square dipyramid composed entirely of equalateral faces.
+        # Note: The standard model already has equalateral faces, so this model is also equivalent to the standard model.
+        EQUALATERAL = SquareDipyramid::new(def_name: "Equalateral", vertex_scale: 1.0 / Math.sqrt(2.0))
+
     end
-
-    # A square dipyramid with standard dimensions. This model is entirely composed of equalateral sides, and is
-    # equivalent to an octahedron.
-    STANDARD = SquareDipyramid::new(def_name: "Standard", vertex_scale: 1.0 / Math.sqrt(2.0))
-    # A square dipyramid that has been flattened into a square.
-    FLAT = SquareDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
-    # A square dipyramid where each pyramid's height is equal to their side length.
-    BALANCED = SquareDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
-    # A square dipyramid composed entirely of equalateral faces.
-    # Note: The standard model already has equalateral faces, so this model is also equivalent to the standard model.
-    EQUALATERAL = SquareDipyramid::new(def_name: "Equalateral", vertex_scale: 1.0 / Math.sqrt(2.0))
-
 end
