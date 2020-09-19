@@ -490,8 +490,7 @@ module Dice
         #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
         #                  numerical index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil,
-                            transform: IDENTITY)
+        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             group ||= Util::MAIN_MODEL.entities().add_group()
 
@@ -521,8 +520,7 @@ module Dice
 
             # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
-                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_size: die_size, font_size: font_size,
-                             glyph_mapping: glyph_mapping)
+                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping)
             end
 
             # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
@@ -602,16 +600,12 @@ module Dice
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil,
-                   transform: IDENTITY)
+    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil, transform: IDENTITY)
         # If no specific model instance was passed, use the standard instance for the specified model.
         if model.is_a?(Class)
             model = model.STANDARD
         end
-
-        model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size,
-                              font_size: font_size, glyph_mapping: glyph_mapping,
-                              transform: transform)
+        model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping, transform: transform)
     end
 
 end
