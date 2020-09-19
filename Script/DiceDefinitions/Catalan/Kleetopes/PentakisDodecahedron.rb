@@ -124,7 +124,7 @@ module DiceGen::Dice
         end
 
         # A pentakis dodecahedron with standard dimensions.
-        STANDARD = PentakisDodecahedron::new(def_name: "Standard", kleepoint_scale: ((9.0 + Math.sqrt(5.0)) / 19.0)))
+        STANDARD = PentakisDodecahedron::new(def_name: "Standard", kleepoint_scale: ((9.0 + Math.sqrt(5.0)) / 19.0))
         # A pentakis dodecahedron that has been reduced into a dodecahedron.
         REDUCED = PentakisDodecahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
         # A pentakis dodecahedron that has been expanded into a rhombic triacontahedron.

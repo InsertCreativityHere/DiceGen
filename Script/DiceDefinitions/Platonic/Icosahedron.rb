@@ -5,7 +5,7 @@ module DiceGen::Dice
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
         #             is computed by appending this value to the name of the die model (separated by an underscore).
-        def initialize(def_name:, )
+        def initialize(def_name:)
             # Create a new definition for the die.
             definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()

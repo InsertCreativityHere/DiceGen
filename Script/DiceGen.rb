@@ -67,7 +67,7 @@ module Util
 
         # List of all the core objects that are defined in this main script file that shouldn't be undefined.
         protected_objects = [:DiceGen, :Util, :Fonts, :FontUtil, :Font, :SystemFont, :RawFont, :SplicedFont, :Dice,
-                             :DiceUtil, :Die]
+                             :DiceUtil, :DieModel]
         # Create a list of all the objects defined in the 'Fonts' and 'Dice' namespaces, then filter it to only keep the
         # non-protected (removable) objects.
         removable_fonts_objects = DiceGen::Dice.constants().select{|obj| !protected_objects.include?(obj)}
@@ -451,7 +451,7 @@ module Dice
             end
 
             # Create a hash for holding the glyph mappings and add the default mapping into it.
-            @glyph_mappings = {(1..face_count).to_a(), ([0.0] * face_count)}
+            @glyph_mappings = {"default" => [(1..face_count).to_a(), ([0.0] * face_count)]}
         end
 
         # Sets how much each glyph should be offset in the x and y direction relative to the face it's being placed on.
@@ -613,13 +613,13 @@ end
 
 
 
-# Import all the fonts that we've created so far.
-require_relative "Fonts.rb"
-# Import all the die model that we've created so far.
-require_relative "Dice.rb"
-
 # These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
 # modules for the 'DiceGen', 'Fonts', and 'Dice' namespaces.
 include DiceGen
 include Fonts
 include Dice
+
+# Import all the fonts that we've created so far.
+require_relative "Fonts.rb"
+# Import all the die model that we've created so far.
+require_relative "Dice.rb"
