@@ -4,7 +4,7 @@ module DiceGen::Dice
     class Tetrahedron < DieModel
         # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
         # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
-        D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]
+        @@D4_NUMBERING = [['1', '2', '3'], ['2', '4', '3'], ['3', '4', '1'], ['4', '2', '1']]
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -72,7 +72,7 @@ module DiceGen::Dice
                 @face_transforms.each_with_index() do |face_transform, i|
                     face_transform.each_with_index() do |transform, j|
                         # Place the correct glyph at the jth vertex of the ith face.
-                        font.instance.create_glyph(name: D4_NUMBERING[i][j], entities: mesh, transform: transform)
+                        font.instance.create_glyph(name: @@D4_NUMBERING[i][j], entities: mesh, transform: transform)
                     end
                 end
             else

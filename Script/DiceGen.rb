@@ -563,6 +563,9 @@ module Dice
         #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
         #                  numerical index.
         def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
+            # If no type was provided, set it the number of faces on the die.
+            type ||= @face_transforms.length()
+
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
                 face_count = @face_transforms.length()
@@ -584,9 +587,6 @@ module Dice
             # Calcaulte the scale factors for the die and the font.
             die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
-
-            # If no type was provided, set it the number of faces on the die.
-            type ||= @face_transforms.length()
 
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|

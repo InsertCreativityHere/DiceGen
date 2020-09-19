@@ -2,8 +2,8 @@
 module DiceGen::Dice
     # This class defines the mesh model for a heptagonal dipyramid (non-standard D14).
     class HeptagonalDipyramid < DieModel
-        CSIN = Math.sin(Math::PI / 7.0)
-        CCOS = Math.cos(Math::PI / 7.0)
+        @@CSIN = Math.sin(Math::PI / 7.0)
+        @@CCOS = Math.cos(Math::PI / 7.0)
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -23,10 +23,10 @@ module DiceGen::Dice
             c2 =  cb / ca
             c3 = 1.0 / ca
             c4 = 2.0 * cb
-            c5 = (1.0 / CCOS) * vertex_scale
-            c6 = (1.0 / (2.0 * CSIN)) - (2.0 * CSIN)
-            c7 = (1.0 / (2.0 * CSIN))
-            c8 = (1.0 / (2.0 * CCOS))
+            c5 = (1.0 / @@CCOS) * vertex_scale
+            c6 = (1.0 / (2.0 * @@CSIN)) - (2.0 * @@CSIN)
+            c7 = (1.0 / (2.0 * @@CSIN))
+            c8 = (1.0 / (2.0 * @@CCOS))
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new( c0,  c0,  c5)
             v1 = Geom::Point3d::new( c0,  c0, -c5)
@@ -60,7 +60,7 @@ module DiceGen::Dice
         end
 
         # A heptagonal dipyramid with standard dimensions.
-        STANDARD = HeptagonalDipyramid::new(def_name: "Standard", vertex_scale: (CCOS / (2.0 * CSIN ** 2)))
+        STANDARD = HeptagonalDipyramid::new(def_name: "Standard", vertex_scale: (@@CCOS / (2.0 * @@CSIN ** 2)))
         # A heptagonal dipyramid that has been flattened into a triangle.
         FLAT = HeptagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
         # A heptagonal dipyramid where each pyramid's height is equal to their side length.
