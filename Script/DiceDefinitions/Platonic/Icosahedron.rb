@@ -61,7 +61,7 @@ module DiceGen::Dice
         end
 
         # An icosahedron with standard dimensions.
-        STANDARD = Icosahedron::new(def_name: "Standard", vertex_scale: 1.0)
+        STANDARD = Icosahedron::new(def_name: "Standard")
 
     end
 end

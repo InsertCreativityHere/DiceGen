@@ -23,12 +23,12 @@ module DiceGen::Dice
 
             # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(6)
-            faces[0] = die_mesh.add_face([v0, v1, v5, v4])
-            faces[1] = die_mesh.add_face([v0, v4, v6, v2])
-            faces[2] = die_mesh.add_face([v0, v2, v3, v1])
-            faces[3] = die_mesh.add_face([v7, v3, v2, v6])
-            faces[4] = die_mesh.add_face([v7, v6, v4, v5])
-            faces[5] = die_mesh.add_face([v7, v5, v1, v3])
+            faces[0] = mesh.add_face([v0, v1, v5, v4])
+            faces[1] = mesh.add_face([v0, v4, v6, v2])
+            faces[2] = mesh.add_face([v0, v2, v3, v1])
+            faces[3] = mesh.add_face([v7, v3, v2, v6])
+            faces[4] = mesh.add_face([v7, v6, v4, v5])
+            faces[5] = mesh.add_face([v7, v5, v1, v3])
 
             # The distance between two diametric faces is 1" in the base model, and standard D6 dice have a
             # diametric distance of 15mm, so the model must be scaled by a factor of

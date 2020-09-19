@@ -33,7 +33,7 @@ module DiceGen::Dice
             v15 = Geom::Point3d::new( c0, -c2,  c0)
             v16 = Geom::Point3d::new( c0,  c0,  c2)
             v17 = Geom::Point3d::new( c0,  c0, -c2)
-            v16 = Geom::Point3d::new( c3,  c3,  c3)
+            v18 = Geom::Point3d::new( c3,  c3,  c3)
             v19 = Geom::Point3d::new( c3,  c3, -c3)
             v20 = Geom::Point3d::new( c3, -c3,  c3)
             v21 = Geom::Point3d::new( c3, -c3, -c3)
