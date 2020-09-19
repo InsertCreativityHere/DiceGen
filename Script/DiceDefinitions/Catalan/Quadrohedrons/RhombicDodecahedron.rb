@@ -49,5 +49,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A rhombic dodecahedron with standard dimensions.
+        STANDARD = RhombicDodecahedron::new(def_name: "Standard")
+
     end
 end

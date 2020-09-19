@@ -92,5 +92,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A rhombic triacontahedron with standard dimensions.
+        STANDARD = RhombicTriacontahedron::new(def_name: "Standard")
+
     end
 end

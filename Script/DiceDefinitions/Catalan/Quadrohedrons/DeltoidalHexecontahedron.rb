@@ -152,5 +152,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A deltoidal hexecontahedron with standard dimensions.
+        STANDARD = DeltoidalHexecontahedron::new(def_name: "Standard")
+
     end
 end

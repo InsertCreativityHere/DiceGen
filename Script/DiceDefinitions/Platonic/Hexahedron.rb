@@ -39,5 +39,9 @@ module DiceGen::Dice
             # necessary.
             super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
+
+        # A hexahedron with standard dimensions.
+        STANDARD = Hexahedron::new(def_name: "Standard")
+
     end
 end

@@ -88,5 +88,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A dextro pentagonal icositetrahedron with standard dimensions.
+        STANDARD = DextroPentagonalIcositetrahedron::new(def_name: "Standard")
+
     end
 end

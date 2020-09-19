@@ -40,5 +40,9 @@ module DiceGen::Dice
             # be scaled by a factor of 7mm/8mm = 0.875
             super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
+
+        # An octahedron with standard dimensions.
+        STANDARD = Octahedron::new(def_name: "Standard")
+
     end
 end

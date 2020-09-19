@@ -88,5 +88,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A laevo pentagonal icositetrahedron with standard dimensions.
+        STANDARD = LaevoPentagonalIcositetrahedron::new(def_name: "Standard")
+
     end
 end

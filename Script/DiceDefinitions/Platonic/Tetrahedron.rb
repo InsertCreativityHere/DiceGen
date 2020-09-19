@@ -79,5 +79,9 @@ module DiceGen::Dice
                 super
             end
         end
+
+        # A tetrahedron with standard dimensions.
+        STANDARD = Tetrahedron::new(def_name: "Standard")
+
     end
 end

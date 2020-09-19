@@ -74,5 +74,9 @@ module DiceGen::Dice
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end
+
+        # A deltoidal icositetrahedron with standard dimensions.
+        STANDARD = DeltoidalIcositetrahedron::new(def_name: "Standard")
+
     end
 end

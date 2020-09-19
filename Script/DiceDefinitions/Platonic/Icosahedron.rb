@@ -59,5 +59,9 @@ module DiceGen::Dice
             # be scaled by a factor of 4.5mm/8mm = 0.5625
             super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
+
+        # An icosahedron with standard dimensions.
+        STANDARD = Icosahedron::new(def_name: "Standard", vertex_scale: 1.0)
+
     end
 end

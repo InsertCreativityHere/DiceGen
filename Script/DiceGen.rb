@@ -605,7 +605,7 @@ module Dice
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil, transform: IDENTITY)
+    def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
         # If no specific model instance was passed, use the standard instance for the specified model.
         if model.is_a?(Class)
             model = model::STANDARD

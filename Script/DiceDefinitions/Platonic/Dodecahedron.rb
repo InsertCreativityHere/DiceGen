@@ -60,5 +60,9 @@ module DiceGen::Dice
             # be scaled by a factor of 6mm/8mm = 0.75
             super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
+
+        # A dodecahedron with standard dimensions.
+        STANDARD = Dodecahedron::new(def_name: "Standard")
+
     end
 end
