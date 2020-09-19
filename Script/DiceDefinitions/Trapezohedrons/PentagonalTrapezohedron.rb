@@ -52,7 +52,7 @@ module DiceGen::Dice
             # TODO CHECK IF THIS IS EVEN STILL RIGHT NOW THAT IM REDOING EVERYTHING!
             # Glyph models are always 8mm tall when imported, and the glyphs on a D10 are 7mm tall, so glyphs must
             # be scaled by a factor of 7mm/8mm = 0.875
-            super(definition: definition, faces: faces, font_scale: 0.875)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
 
             # Rotate each of the face transforms by TODO
             #TODO MAKE THIS WORK FOR BOTH D10 and D%

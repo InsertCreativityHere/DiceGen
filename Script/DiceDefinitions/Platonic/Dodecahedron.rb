@@ -58,7 +58,7 @@ module DiceGen::Dice
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D12 are 6mm tall, so glyphs must
             # be scaled by a factor of 6mm/8mm = 0.75
-            super(definition: definition, faces: faces, die_scale: 327.048, font_scale: 0.75)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
     end
 end

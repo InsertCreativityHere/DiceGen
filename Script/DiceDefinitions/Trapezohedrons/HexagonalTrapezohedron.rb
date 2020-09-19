@@ -51,7 +51,7 @@ module DiceGen::Dice
             faces[11] = mesh.add_face([v1, v10,  v6,  v4])
 
             #TODO MAKE THE SCALES!
-            super(definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
 
         # A hexagonal trapezohedron with standard dimensions.

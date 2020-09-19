@@ -35,7 +35,7 @@ module DiceGen::Dice
             faces[5] = mesh.add_face([v1, v3, v2])
 
             #TODO MAKE THE SCALES!
-            super(definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
 
         # A triangular dipyramid with standard dimensions.

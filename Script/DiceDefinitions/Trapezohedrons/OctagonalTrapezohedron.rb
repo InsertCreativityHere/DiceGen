@@ -61,7 +61,7 @@ module DiceGen::Dice
             faces[15] = mesh.add_face([v1, v14,  v6, v10])
 
             #TODO MAKE THE SCALES!
-            super(definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
 
         # A octagonal trapezohedron with standard dimensions.

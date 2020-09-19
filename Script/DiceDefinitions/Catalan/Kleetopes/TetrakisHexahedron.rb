@@ -60,7 +60,7 @@ module DiceGen::Dice
             faces[23] = mesh.add_face([v3,  v9,  v8])
 
             #TODO MAKE THE SCALES!
-            super(definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
         end
 
         # A tetrakis hexahedron with standard dimensions.
