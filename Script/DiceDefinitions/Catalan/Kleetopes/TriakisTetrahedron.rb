@@ -1,19 +1,19 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a triakis tetrahedron (non-standard D12).
-    class TriakisTetrahedron < Die
-        # This constant controls how much the triakis points protude from the tetrahedral faces. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a tetrahedron), and a value of 1 makes this shape into a
-        # hexahedron. Setting it to 0.4 produces a standard triakis tetrahedron.
-        KLEEPOINT_SCALE = 0.4
-
+    class TriakisTetrahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   kleepoint_scale: This value controls how much the triakis points protrude from the tetrahedral faces. A
+        #                    value of 0 means they don't protrude at all (it reduces this shape to a tetrahedron), and
+        #                    a value of 1 expands this shape into a hexahedron.
+        def initialize(def_name:, kleepoint_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
-            c0 = ((9.0 * Math.sqrt(2)) / 20.0) * ((10.0 * KLEEPOINT_SCALE + 5.0) / 9.0)
+            c0 = ((9.0 * Math.sqrt(2)) / 20.0) * ((10.0 * kleepoint_scale + 5.0) / 9.0)
             c1 = ((3.0 * Math.sqrt(2)) /  4.0)
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new(-c0,  c0,  c0)
@@ -44,4 +44,12 @@ module DiceGen::Dice
             super(definition: definition, faces: faces)
         end
     end
+
+    # A triakis tetrahedron with standard dimensions.
+    STANDARD = TriakisTetrahedron::new(def_name: "Standard", kleepoint_scale: 0.4)
+    # A triakis tetrahedron that has been reduced into a tetrahedron.
+    REDUCED = TriakisTetrahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+    # A triakis tetrahedron that has been expanded into a hexahedron.
+    EXPANDED = TriakisTetrahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
 end

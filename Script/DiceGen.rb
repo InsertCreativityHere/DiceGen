@@ -425,14 +425,8 @@ module Dice
         end
     end
 
-
     # Abstract base class for all die models.
-    class Die
-        # Limits this class (and it's subclasses) to only ever having a single instance which is globally available.
-        # We use the singleton pattern here because we only want to create the definition of each model once, and these
-        # classes represent the die model definitions, not their component instances, of which there can be multiple.
-        include Singleton
-
+    class DieModel
         # The ComponentDefinition that defines the die's mesh model.
         attr_reader :definition
         # The size of the die in mm, calculated by measuring the distance between two diametric faces, or a face and the
@@ -632,9 +626,14 @@ module Dice
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: 1.0, font_size: 1.0, font_offset: [0,0],
                    font_angle: 0.0, glyph_mapping: nil, transform: IDENTITY)
-        model.instance.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size,
-                                       font_size: font_size, font_offset: font_offset, font_angle: font_angle,
-                                       glyph_mapping: glyph_mapping, transform: transform)
+        # If no specific model instance was passed, use the standard instance for the specified model.
+        if model.is_a?(Class)
+            model = model.STANDARD
+        end
+
+        model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size,
+                              font_size: font_size, font_offset: font_offset, font_angle: font_angle,
+                              glyph_mapping: glyph_mapping, transform: transform)
     end
 
 end

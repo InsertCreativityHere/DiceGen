@@ -1,23 +1,21 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a hexagonal dipyramid (non-standard D12).
-    class HexagonalDipyramid < Die
-        # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a hexagon), and a value of 1 makes the height of the pyramids
-        # equal to their side lengths. Setting it to 'Math.sqrt(3.0)' produces a standard hexagonal dipyramid.
-        # Setting the value to 0 makes all the faces into equalateral triangles, since a hexagon is composed of 6
-        # equalateral triangles, making it impossible to have a regular hexagonal dipyramid.
-        VERTEX_SCALE = Math.sqrt(3.0)
-
+    class HexagonalDipyramid < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   vertex_scale: This value controls how much the vertexes of the pyramids protrude from the base. A value of 0
+        #                 0 means they don't protrude at all (it reduces this shape to a hexagon), and a value of 1
+        #                 makes the height of the pyramids equal to their side lengths.
+        def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = 0.0
             c1 = 1.0
-            c2 = (2.0 / Math.sqrt(3.0)) * VERTEX_SCALE
+            c2 = (2.0 / Math.sqrt(3.0)) * vertex_scale
             c3 =     Math.sqrt(3.0) / 3.0
             c4 = 2 * Math.sqrt(3.0) / 3.0
             # Define all the points that make up the vertices of the die.
@@ -49,4 +47,15 @@ module DiceGen::Dice
             super(definition: definition, faces: faces)
         end
     end
+
+    # A hexagonal dipyramid with standard dimensions.
+    STANDARD = HexagonalDipyramid::new(def_name: "Standard", vertex_scale: Math.sqrt(3.0))
+    # A hexagonal dipyramid that has been flattened into a hexagon.
+    FLAT = HexagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+    # A hexagonal dipyramid where each pyramid's height is equal to their side length.
+    BALANCED = HexagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+    # A hexagonal dipyramid composed entirely of equalateral faces. This model is equivalent to the 'Flat' model, since
+    # hexagons are composed of 6 equalateral triangles internally.
+    EQUALATERAL = HexagonalDipyramid::new(def_name: "Equalateral", vertex_scale: 0.0)
+
 end

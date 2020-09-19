@@ -1,23 +1,23 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a tetragonal trapezohedron (non-standard D8).
-    class TetragonalTrapezohedron < Die
-        # This constant controls how much the vertexes of the trapezohedron protrude from the midline. A value of 0
-        # means they don't protrude at all (it reduces this shape to an octagon), and a value of 1 produces a standard
-        # tetragonal trapezohedron.
-        VERTEX_SCALE = 1.0
-
+    class TetragonalTrapezohedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   vertex_scale: This value controls how much the vertexes of the trapezohedron protrude from the midline. A
+        #                 value of 0 means they don't protrude at all (it reduces this shape to an octagon), and a value
+        #                 of 1 produces a standard tetragonal trapezohedron.
+        def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = 0.0
             c1 = 0.5
-            c2 = (Math.sqrt(2.0 * (3.0 * Math.sqrt(2.0) + 4.0)) / 4.0) * VERTEX_SCALE
+            c2 = (Math.sqrt(2.0 * (3.0 * Math.sqrt(2.0) + 4.0)) / 4.0) * vertex_scale
             c3 =  Math.sqrt(2.0                               ) / 2.0
-            c4 = (Math.sqrt(2.0 * (3.0 * Math.sqrt(2.0) - 4.0)) / 4.0) * VERTEX_SCALE
+            c4 = (Math.sqrt(2.0 * (3.0 * Math.sqrt(2.0) - 4.0)) / 4.0) * vertex_scale
             # Define all the points that make up the vertices of the die.
             v0 = Geom::Point3d::new( c0,  c0,  c2)
             v1 = Geom::Point3d::new( c0,  c0, -c2)
@@ -45,4 +45,10 @@ module DiceGen::Dice
             super(definition: definition, faces: faces)
         end
     end
+
+    # A tetragonal trapezohedron with standard dimensions.
+    STANDARD = TetragonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
+    # A tetragonal trapezohedron that has been flattened into an octagon.
+    FLAT = TetragonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
+
 end

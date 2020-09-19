@@ -1,19 +1,19 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a heptagonal dipyramid (non-standard D14).
-    class HeptagonalDipyramid < Die
-        # This constant controls how much the vertexes of the pyramids protrude from the base. A value of 0 means they
-        # don't protrude at all (it reduces this shape to a heptagon), and a value of 1 makes the height of the pyramids
-        # equal to their side lengths. Setting it to 'CCOS / (2.0 * CSIN * CSIN)' produces a standard heptagonal
-        # dipyramid. It is impossible for the faces of a heptagonal dipyramid to be equalateral triangles.
+    class HeptagonalDipyramid < DieModel
         CSIN = Math.sin(Math::PI / 7.0)
         CCOS = Math.cos(Math::PI / 7.0)
-        VERTEX_SCALE = CCOS / (2.0 * CSIN * CSIN)
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   vertex_scale: This value controls how much the vertexes of the pyramids protrude from the base. A value of 0
+        #                 0 means they don't protrude at all (it reduces this shape to a heptagon), and a value of 1
+        #                 makes the height of the pyramids equal to their side lengths.
+        def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             ca = Math.sin(2.0 * Math::PI / 7.0)
@@ -23,7 +23,7 @@ module DiceGen::Dice
             c2 =  cb / ca
             c3 = 1.0 / ca
             c4 = 2.0 * cb
-            c5 = (1.0 / CCOS) * VERTEX_SCALE
+            c5 = (1.0 / CCOS) * vertex_scale
             c6 = (1.0 / (2.0 * CSIN)) - (2.0 * CSIN)
             c7 = (1.0 / (2.0 * CSIN))
             c8 = (1.0 / (2.0 * CCOS))
@@ -59,4 +59,14 @@ module DiceGen::Dice
             super(definition: definition, faces: faces)
         end
     end
+
+    # A heptagonal dipyramid with standard dimensions.
+    STANDARD = HeptagonalDipyramid::new(def_name: "Standard", vertex_scale: (HeptagonalDipyramid::CCOS /
+                                                                            (2.0 * HeptagonalDipyramid::CSIN ** 2)))
+    # A heptagonal dipyramid that has been flattened into a triangle.
+    FLAT = HeptagonalDipyramid::new(def_name: "Flat", vertex_scale: 0.0)
+    # A heptagonal dipyramid where each pyramid's height is equal to their side length.
+    BALANCED = HeptagonalDipyramid::new(def_name: "Balanced", vertex_scale: 1.0)
+    # It is impossible for the faces of an heptagonal dipyramid to be equalateral triangles.
+
 end

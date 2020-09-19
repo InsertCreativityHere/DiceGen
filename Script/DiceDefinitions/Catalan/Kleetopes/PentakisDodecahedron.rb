@@ -1,20 +1,20 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a pentakis dodecahedron (non-standard D60).
-    class PentakisDodecahedron < Die
-        # This constant controls how much the pentakis points protude from the dodecahedral faces. A value of 0 means
-        # they don't protrude at all (it reduces this shape to a dodecahedron), and a value of 1 makes this shape into a
-        # rhombic triacontahedron. Setting it to '(9.0 + sqrt(5.0)) / 19.0' produces a standard triakis tetrahedron.
-        KLEEPOINT_SCALE = (9.0 + Math.sqrt(5.0)) / 19.0
-
+    class PentakisDodecahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   kleepoint_scale: This value controls how much the pentakis points protrude from the dodecahedral faces. A
+        #                    value of 0 means they don't protrude at all (it reduces this shape to a dodecahedron), and
+        #                    a value of 1 expands this shape into a rhombic triacontahedron.
+        def initialize(def_name:, kleepoint_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             ca = Math.sqrt(5.0)
-            cb = ((20 + 2 * ca) + KLEEPOINT_SCALE * (25 - 7 * ca)) / 30
+            cb = ((20 + 2 * ca) + kleepoint_scale * (25 - 7 * ca)) / 30
             c0 = 0.0
             c1 = 1.5
             c2 =  (3.0  * ca +  3.0) /  4.0
@@ -123,4 +123,12 @@ module DiceGen::Dice
             super(definition: definition, faces: faces)
         end
     end
+
+    # A pentakis dodecahedron with standard dimensions.
+    STANDARD = PentakisDodecahedron::new(def_name: "Standard", kleepoint_scale: ((9.0 + Math.sqrt(5.0)) / 19.0)))
+    # A pentakis dodecahedron that has been reduced into a dodecahedron.
+    REDUCED = PentakisDodecahedron::new(def_name: "Reduced", kleepoint_scale: 0.0)
+    # A pentakis dodecahedron that has been expanded into a rhombic triacontahedron.
+    EXPANDED = PentakisDodecahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
+
 end

@@ -1,26 +1,26 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a pentagonal trapezohedron (non-standard D10).
-    class PentagonalTrapezohedron < Die
-        # This constant controls how much the vertexes of the trapezohedron protrude from the midline. A value of 0
-        # means they don't protrude at all (it reduces this shape to an decagon), and a value of 1 produces a standard
-        # pentagonal trapezohedron.
-        VERTEX_SCALE = 1.0
-
+    class PentagonalTrapezohedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
-        def initialize()
+        #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
+        #             is computed by appending this value to the name of the die model (separated by an underscore).
+        #   vertex_scale: This value controls how much the vertexes of the trapezohedron protrude from the midline. A
+        #                 value of 0 means they don't protrude at all (it reduces this shape to a decagon), and a value
+        #                 of 1 produces a standard pentagonal trapezohedron.
+        def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add(self.class.name)
+            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = 0.0
             c1 = 0.5
             c2 = (Math.sqrt(5.0) + 1.0) / 4.0
             c3 = Math.sqrt((5.0 + 2.0 * Math.sqrt(5.0)) / 20.0)
-            c4 = Math.sqrt((5.0 - 2.0 * Math.sqrt(5.0)) / 20.0) * VERTEX_SCALE
+            c4 = Math.sqrt((5.0 - 2.0 * Math.sqrt(5.0)) / 20.0) * vertex_scale
             c5 = Math.sqrt((5.0 -       Math.sqrt(5.0)) / 40.0)
             c6 = Math.sqrt((5.0 +       Math.sqrt(5.0)) / 10.0)
-            c7 = ((Math.sqrt(25.0 + 11.0 * Math.sqrt(5.0)) + Math.sqrt(10.0) * c6) / Math.sqrt(40.0)) * VERTEX_SCALE
+            c7 = ((Math.sqrt(25.0 + 11.0 * Math.sqrt(5.0)) + Math.sqrt(10.0) * c6) / Math.sqrt(40.0)) * vertex_scale
             # Define all the points that make up the vertices of the die.
             v0  = Geom::Point3d::new( c1,  c3,  c4)
             v1  = Geom::Point3d::new(-c1,  c3,  c4)
@@ -57,15 +57,11 @@ module DiceGen::Dice
             # Rotate each of the face transforms by TODO
             #TODO MAKE THIS WORK FOR BOTH D10 and D%
         end
-
-        # TODO
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, font_scale: 1.0, font_offset: [0,0], font_angle: 0.0,
-                         glyph_mapping: nil)
-            if (type == "D%")
-                #TODO
-            else
-                super
-            end
-        end
     end
+
+    # A pentagonal trapezohedron with standard dimensions.
+    STANDARD = PentagonalTrapezohedron::new(def_name: "Standard", vertex_scale: 1.0)
+    # A pentagonal trapezohedron that has been flattened into a decagon.
+    FLAT = PentagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
+
 end
