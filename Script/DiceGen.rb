@@ -75,13 +75,13 @@ module Util
 
         # Cross your fingers and undefine everything listed in the removable object lists.
         puts "Unloading and deleting imported definitions..."
-        removable_fonts_objects.each() do |obj|
-            puts "    Unloading Dice::#{obj}"
-            Dice.send(:remove_const, obj)
-        end
         removable_dice_objects.each() do |obj|
             puts "    Unloading Fonts::#{obj}"
             Fonts.send(:remove_const, obj)
+        end
+        removable_fonts_objects.each() do |obj|
+            puts "    Unloading Dice::#{obj}"
+            Dice.send(:remove_const, obj)
         end
 
         # All the files that have been imported into the current ruby session are stored in a variable named $"
