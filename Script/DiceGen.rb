@@ -224,11 +224,11 @@ module Fonts
 
         # Translate the glyphs by a hash of (x,y) offset pairs.
         #   offsets: A hash of offset pairs; Keys must correspond to the name of a glyph in this font, and it's value is
-        #            a pair of offsets specifying how much to translate the glyph in each direction (x and y).
+        #            a pair of offsets specifying how much to translate the glyph in each direction (x and y) in mm.
         def set_offsets(offsets)
             offsets.each() do |name, offset|
                 entities = @glyphs[name].entities()
-                vectorOffset = Geom::Vector3d::new(offset[0], offset[1], 0)
+                vectorOffset = Geom::Vector3d::new(offset[0] / 25.4, offset[1] / 25.4, 0)
                 entities.transform_entities(Geom::Transformation.translation(vectorOffset), entities.to_a())
             end
         end
@@ -462,8 +462,8 @@ module Dice
         def set_glyph_offsets(x_offset, y_offset)
             @face_transforms.each() do |face_transform|
                 # Add an extra translation transformsion that offsets the glyphs in face-local coordinates.
-                offset_vector = Util.scale_vector(face_transform.xaxis, x_offset) +
-                                Util.scale_vector(face_transform.yaxis, y_offset)
+                offset_vector = Util.scale_vector(face_transform.xaxis, x_offset / 25.4) +
+                                Util.scale_vector(face_transform.yaxis, y_offset / 25.4)
                 @face_transform = Geom::Transformation.translation(offset_vector) * @face_transform
             end
         end
@@ -574,11 +574,11 @@ module Dice
 
             # If no glyph_mapping was provided, use the default mapping.
             glyph_mapping ||= "default"
-            glyph_angles = []
             glyph_names = []
+            glyph_angles = []
             # Look up the glyph mapping by name.
             if @glyph_mappings.key?(glyph_mapping)
-                glyphs, offsets = @glyph_mappings[glyph_mapping]
+                glyph_names, glyph_angles = @glyph_mappings[glyph_mapping]
             else
                 model_name = self.class().name().split("::").last()
                 raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
@@ -591,7 +591,7 @@ module Dice
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, glyph_angles[i])
+                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Math::PI / 180.0))
                 full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
                 # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
                 # has been scaled up.
