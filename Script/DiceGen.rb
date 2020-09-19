@@ -469,14 +469,16 @@ module Dice
         end
 
         # Creates a new instance of this die with the specified type and font, amoungst other arguments.
-        #   font: The font to use for generating glyphs on the die.
+        #   font: The font to use for generating glyphs on the die. If set to nil, no glyphs will be embossed onto the
+        #         die. Defaults to nil.
         #   type: Either the stringified name for the type of die being created, or the maximum number to count up to.
         #         When specified as a number, it must divide the number of glyph faces on the die. If the type number
         #         is the same as the number of faces, the die will be numbered 'standardly', otherwise the glyphs are
         #         simply repeated. For example, creating a D20 with a type of 5, will cause each number to be repeated
         #         4 times. There are also special types of die that can only be used for some models, for example 'D4'
         #         will only work with a Tetrahedron, and places glyphs in the corners instead of the face. The following
-        #         list contains every special type of die: "D4", "D%".
+        #         list contains every special type of die: "D4", "D%". If set as nil, the type will be set to the number
+        #         of faces on the die, producing a die with no repeated glyphs. Defaults to nil.
         #   group: The group to generate the die into. If left 'nil' then a new top-level group is created for it.
         #          In practice, the die is always created within it's own die group, and the die group is what's placed
         #          into the provided group. Defaults to nil.
@@ -490,7 +492,7 @@ module Dice
         #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
         #                  numerical index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
+        def create_instance(font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             group ||= Util::MAIN_MODEL.entities().add_group()
 
@@ -510,7 +512,7 @@ module Dice
             die_def = instance.definition()
             die_mesh = die_def.entities()
             # Scale the die mesh model to the specified size.
-            unless die_size.nil()
+            unless die_size.nil?()
                 die_mesh.transform_entities(Geom::Transformation.scaling(die_size.to_f() / @die_size), die_mesh.to_a())
             end
 
@@ -560,7 +562,7 @@ module Dice
         #   glyph_mapping: String representing which glyph mapping to use. If left as nil, the default mapping is used
         #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
         #                  numerical index.
-        def place_glyphs(font:, mesh:, type:, die_size: nil, font_size: nil, glyph_mapping: nil)
+        def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
             # First ensure that the die model is compatible with the provided type.
             unless (@face_transforms.length() % type == 0)
                 face_count = @face_transforms.length()
@@ -583,6 +585,9 @@ module Dice
             die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
 
+            # If no type was provided, set it the number of faces on the die.
+            type ||= @face_transforms.length()
+
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
@@ -600,10 +605,10 @@ module Dice
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font:, type:, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil, transform: IDENTITY)
+    def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil,  glyph_mapping: nil, transform: IDENTITY)
         # If no specific model instance was passed, use the standard instance for the specified model.
         if model.is_a?(Class)
-            model = model.STANDARD
+            model = model::STANDARD
         end
         model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping, transform: transform)
     end
