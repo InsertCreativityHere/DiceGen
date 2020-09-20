@@ -231,7 +231,7 @@ module Fonts
         def set_offsets(offsets)
             offsets.each() do |name, offset|
                 entities = @glyphs[name].entities()
-                vectorOffset = Geom::Vector3d::new(offset[0] / 25.4, offset[1] / 25.4, 0)
+                vectorOffset = Geom::Vector3d::new(1000 * offset[0] / 25.4, 1000 * offset[1] / 25.4, 0)
                 entities.transform_entities(Geom::Transformation.translation(vectorOffset), entities.to_a())
             end
         end
@@ -468,8 +468,8 @@ module Dice
         def set_glyph_offsets(x_offset, y_offset)
             @face_transforms.each() do |face_transform|
                 # Add an extra translation transformsion that offsets the glyphs in face-local coordinates.
-                offset_vector = Util.scale_vector(face_transform.xaxis, x_offset / 25.4) +
-                                Util.scale_vector(face_transform.yaxis, y_offset / 25.4)
+                offset_vector = Util.scale_vector(face_transform.xaxis, 1000 * x_offset / 25.4) +
+                                Util.scale_vector(face_transform.yaxis, 1000 * y_offset / 25.4)
                 @face_transform = Geom::Transformation.translation(offset_vector) * @face_transform
             end
         end
