@@ -93,6 +93,9 @@ module Util
         # Clear the import cache, so that any old definitions will get re-imported from scratch.
         @@import_cache = Hash::new()
 
+        # Purge any unused ComponentDefinitions, to minimize naming conflicts while re-importing the model definitions.
+        MAIN_MODEL.definitions.purge_unused()
+
         # Re-require the font and dice definition files.
         puts "Reloading definitions..."
         require_relative "Fonts.rb"
@@ -601,7 +604,7 @@ module Dice
                 offset_vector = Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
                 full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
-                glyph_name = glyph_names[(i % type) + 1].to_s()
+                glyph_name = glyph_names[i % type].to_s()
                 font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
             end
         end
