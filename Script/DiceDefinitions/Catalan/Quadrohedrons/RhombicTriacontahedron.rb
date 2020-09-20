@@ -85,12 +85,15 @@ module DiceGen::Dice
             # diametric distance of 24mm, so the model must be scaled by a factor of
             # 24mm / (2.927051")(25.4mm/") = 0.322810
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 322.810
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on this look best at 4.5mm tall, so glyphs
-            # must be scaled by a factor of 4.5mm/8mm = 0.5625
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 24.0, die_scale: 322.810, font_size: 4.5, definition: definition, faces: faces)
 
-            # TODO ROTATE EACH OF THE FACE TRANSFORMS!
+            # Rotate each of the face transforms so that the glyphs are aligned between the top and the bottom vertices
+            # of the rhombus, instead of being aligned with an edge as they normally are.
+            angle = -Math::atan(c1 / c3)
+            @face_transforms.each_with_index() do |face_transform, i|
+                rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, angle)
+                @face_transforms[i] = rotation * face_transform
+            end
         end
 
         # A rhombic triacontahedron with standard dimensions.

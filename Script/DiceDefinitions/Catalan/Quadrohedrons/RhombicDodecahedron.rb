@@ -31,23 +31,32 @@ module DiceGen::Dice
 
             # Create the faces of the die by joining the vertices with edges. #TODO FIX THIS
             faces = Array::new(12)
-            faces[0]  = mesh.add_face([ v6,  v4,  v8,  v0])
-            faces[1]  = mesh.add_face([ v6,  v0,  v7,  v2])
-            faces[2]  = mesh.add_face([ v6,  v2, v10,  v4])
-            faces[3]  = mesh.add_face([ v9,  v5,  v7,  v0])
-            faces[4]  = mesh.add_face([ v9,  v0,  v8,  v3])
-            faces[5]  = mesh.add_face([ v9,  v3, v13,  v5])
-            faces[6]  = mesh.add_face([v11,  v5, v13,  v1])
-            faces[7]  = mesh.add_face([v11,  v1, v10,  v2])
-            faces[8]  = mesh.add_face([v11,  v2,  v7,  v5])
-            faces[9]  = mesh.add_face([v12,  v4, v10,  v1])
-            faces[10] = mesh.add_face([v12,  v1, v13,  v3])
-            faces[11] = mesh.add_face([v12,  v3,  v8,  v4])
+            faces[0]  = mesh.add_face([v0,  v6,  v4,  v8])
+            faces[1]  = mesh.add_face([v2,  v6,  v0,  v7])
+            faces[2]  = mesh.add_face([v4,  v6,  v2, v10])
+            faces[3]  = mesh.add_face([v0,  v9,  v5,  v7])
+            faces[4]  = mesh.add_face([v3,  v9,  v0,  v8])
+            faces[5]  = mesh.add_face([v5,  v9,  v3, v13])
+            faces[6]  = mesh.add_face([v1, v11,  v5, v13])
+            faces[7]  = mesh.add_face([v2, v11,  v1, v10])
+            faces[8]  = mesh.add_face([v5, v11,  v2,  v7])
+            faces[9]  = mesh.add_face([v1, v12,  v4, v10])
+            faces[10] = mesh.add_face([v3, v12,  v1, v13])
+            faces[11] = mesh.add_face([v4, v12,  v3,  v8])
 
-            #TODO MAKE THE SCALES!
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            # The distance between two diametric faces is 1.5" in the base model, and this looks best with a
+            # diametric distance of 17mm, so the model must be scaled by a factor of
+            # 17mm / (1.5")(25.4mm/") = 0.446194
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 446.194
+            super(die_size: 17.0, die_scale: 446.194, font_size: 6.0, definition: definition, faces: faces)
 
-            # TODO ROTATE EACH OF THE FACE TRANSFORMS!
+            # Rotate each of the face transforms so that the glyphs are aligned between the top and the bottom vertices
+            # of the rhombus, instead of being aligned with an edge as they normally are.
+            angle = -Math::atan(Math.sqrt(2.0) * c2 / c1)
+            @face_transforms.each_with_index() do |face_transform, i|
+                rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, angle)
+                @face_transforms[i] = rotation * face_transform
+            end
         end
 
         # A rhombic dodecahedron with standard dimensions.

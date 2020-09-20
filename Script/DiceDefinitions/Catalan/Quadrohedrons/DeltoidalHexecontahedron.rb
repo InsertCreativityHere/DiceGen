@@ -147,10 +147,21 @@ module DiceGen::Dice
             faces[58] = mesh.add_face([v53,  v9, v57, v25])
             faces[59] = mesh.add_face([v53, v25, v39,  v5])
 
-            #TODO MAKE THE SCALES!
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            # Compute the angle to rotate the glyphs by so they align with the axis of symmetry.
+            angle = -Math.atan((v0 - v8).length() / (2.0 * (DiceUtil::find_face_center(faces[0]) - v42).length()))
 
-            # TODO ROTATE EACH OF THE FACE TRANSFORMS!
+            # The distance between two diametric faces is 4.241982" in the base model, and this looks best with a
+            # diametric distance of 24mm, so the model must be scaled by a factor of
+            # 24mm / (4.241982")(25.4mm/") = 0.222745
+            # Which is further scaled by 1000, since we treat mm as m in the model, to get 222.745
+            super(die_size: 24.0, die_scale: 222.745, font_size: 4.5, definition: definition, faces: faces)
+
+            # Rotate each of the face transforms so that the glyphs are aligned between the top and the bottom vertices
+            # of the rhombus, instead of being aligned with an edge as they normally are.
+            @face_transforms.each_with_index() do |face_transform, i|
+                rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, angle)
+                @face_transforms[i] = rotation * face_transform
+            end
         end
 
         # A deltoidal hexecontahedron with standard dimensions.
