@@ -67,7 +67,6 @@ for step 4 of the conversion/cleaning process.
    This part can't be fully automated with keyboard shortcuts unfortunately...
         Set the Y-dimension to be 8, then copy the value for the Y-scale into the X-scale to ensure it stays proportional.
         "<CMD> + A -> S" to bring up the 'Apply' menu, and apply the scaling operation.
-   After this step, it's often necessary to manually offset the curve to make it look visually appealing and centered.
 5. Convert the curve into a mesh model: This part actually performs the conversion from a 2D vector curve into a 3D mesh model (even if the model has 0 height technically)
         “Object -> Convert To -> Mesh from Curve/Meta/Surf/Text”
         “Object -> V + M”
@@ -77,28 +76,26 @@ for step 4 of the conversion/cleaning process.
         “<CMD> + J”
    This step should produce a warning at the bottom of the screen saying there's no meshes to join. If everything went okay in Inkscape then all the curves
    should of been unioned into a single curve, and so in Blender, there should only be a single mesh, hence the warning. This step is included just in case.
-7. Switch to Edit mode: This switches the display from showing the outline of the mesh model to displaying the actual mesh model itself. This isn't strictly
+7. Save the mesh under the 'meshes' folder of the font: At this point it's customary to save a raw copy of the mesh at full resolution, since the next steps
+   simplify the geometry for the sake of performance. Export it as a DAE file this way Sketchup will actually recognize and be able to import the file.
+        “File -> Export -> Collada (.dae)”
+        “<fn> + F4 + E + C”
+8. Switch to Edit mode: This switches the display from showing the outline of the mesh model to displaying the actual mesh model itself. This isn't strictly
    necessary, but again, it helps seeing where anything might of gone wrong and needs fixing.
         “Edit Mode” && “Select -> All”
         “<TAB>” && "A"
-8. Beautify the meshes: This recalculates the mesh geometry to make it much cleaner looking, and can combine multiple mesh quads together into a single one.
-   This helps to avoid issues with vertex connectedness and also simplifies the geomtry that Sketchup will have to import later.
+9. Lower the poly-count: This step is technically optional, but highly recommended to improve performance in Sketchup. Often the conversion of curves to meshes
+   leaves far more vertices than is necessary, so this step can remove many of these unnecessary vertices (along with their edges and faces) usually without
+   affecting the overall shape much at all.
+        "Modifier Properties -> Add Modifier -> Decimate" (Modifier Properties is one of the tabs in the bottom-right property pane)
+   I find that the normal 'Collapse' option with a ratio of about '0.35' hits the spot, but different ratios will be needed depending on the complexity of the mesh.
+   Sometimes the 'Planar' option with a degree of around 2.0 is also helpful, but usually that and 'Subdivide' are more prone to alter the mesh's macroscopic shape.
+10. Beautify the meshes: This recalculates the mesh geometry to make it cleaner looking, simplifying the geomtry that Sketchup will have to import later.
         "Face -> Beautify Faces"
         "Face -> B"
-9. Convert tris to quads: This beautifies the mesh model further by combining adjacent triads into a quad where applicable.
-        "Face -> Tris to Quads"
-        "<OPT> + J"
-10. Zoom around the model and check to make sure that everything is connected and the geometry looks solid. This is the final product that will get imported
-   into Sketchup, so it's important to make sure it's good enough for importing. Specifically you should check and make sure that places with a heavy
-   concentration of mesh intersections are connected properly. Before step 8 was introduced, it was common for there to be issues at these locations.
-11. Lower the poly-count: This step is totally optional, but will greatly help with performance in Sketchup. Often the way the curves are converted into meshes
-    by Blender causes some parts to have an incredibly high density of vertices to an unnecessary extent. This step can help reduce the number
-    of unnecessary vertices (and edges and faces) by a large amount, usually without hurting the overall shape very much at all.
-    There aren't as strict rules as with the other steps, and it's necessary to somewhat just 'eyeball' how much the glyph is changed by having lower
-    poly-count meshes, and balance that with how few vertices is 'few enough'. The directions also can't be boiled down to key-strokes.
-        "Modifier Properties -> Add Modifier -> Decimate" (Modifier Properties is one of the tabs in the bottom-right property pane)
-    Leaving it on "Collapse" mode seems to be good enough, so it's just a matter of messing with the ratio until you're satisfied.
-12. Export the file: Now that the model is finished, export it as a DAE file this way Sketchup will actually recognize and be able to import the file.
+11. Zoom around the model and check to make sure that everything is connected and the geometry looks solid. If necessary, translate the mesh to make it appear
+    more visually centered.
+12. Export the file: Now that the model is finished, export it as a DAE file into the 'finished' folder of the font.
         “File -> Export -> Collada (.dae)”
         “<fn> + F4 + E + C”
 One final note when Blendering: it doesn’t remember the last folder you saved in, and navigating to the right folder takes time and introduces possibility of error,
@@ -108,10 +105,10 @@ It's also important to delete the number from the scene after words by right cli
 
 The complete process for converting an SVG image to a DAE mesh with Blender is:
     “<fn>  <F4>  I  S”   ->   <Manually select the curves in the Scene Collection>   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
-    Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field. Then adjust placement to center it correctly.
-    "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<TAB>"   ->   "A"   ->   "[Face]  B"   ->   "<OPT>  J"
-    Visually inspect the mesh to make sure all the faces are closed and the curves have been preserved, then optionally decimate the mesh and lower it's polycount.
-    "<fn>  <F4>  E  C"
+    Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
+    "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<fn>  <F4>  E  C"    ->    "<TAB>"   ->   "A"
+    Decimate the curve with "Modifier Properties -> Add Modifier -> Decimate", a good starting point is collapsing it at a 0.35 ratio.
+    "[Face]  B"    ->    <Check the mesh for imperfections and make it appear visually centered>    ->    “<fn> + F4 + E + C”
     Then make sure the delete the current collection by right clicking it in the "Scene Collection" list and hitting "H"
 But it's important to make sure that before you start converting any curves that you've opened the "Transform" menu with "N",
 and set the "Transform Pivot Point" to "Bounding Box Center" by hitting "B" within the menu.

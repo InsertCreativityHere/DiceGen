@@ -634,3 +634,29 @@ include Dice
 require_relative "Fonts.rb"
 # Import all the die model that we've created so far.
 require_relative "Dice.rb"
+
+
+Original:
+	1080 verts
+	2116 edges
+	1055 faces
+
+Planar Decimate @ 2deg
+	818 verts
+	1592 edges
+	793 faces
+
+Planar Decimate @ 2deg  +  Collapse Decimate @ 0.4 ratio
+	342 verts
+	640 edges
+	317 faces
+
+Collapse Decimate @ 0.35 ratio
+	394 verts
+	744 edges
+	369 faces
+
+Collapse Decimate @ 0.35 ratio  +  Planar Decimate @ 2deg
+	388 verts
+	732 edges
+	363 faces
