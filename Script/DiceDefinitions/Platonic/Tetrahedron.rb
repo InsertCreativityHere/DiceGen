@@ -32,14 +32,11 @@ module DiceGen::Dice
             # dice have a diametric distance of 18mm, so the model must be scaled by a factor of
             # 18mm / (0.816497")(25.4mm/") = 0.867929
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 867.929
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on a D4 are 6mm tall, so glyphs must
-            # be scaled by a factor of 6mm/8mm = 0.75
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 18.0, die_scale: 867.929, font_size: 6.0, definition: definition, faces: faces)
         end
 
         # TODO
-        def place_glyphs(font:, mesh:, type:, die_scale: 1.0, glyph_mapping: nil)
+        def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
             # If the type is anything other than "D4", delegate to the default implementation.
             unless (type == "D4")
                 return super

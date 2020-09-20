@@ -54,10 +54,7 @@ module DiceGen::Dice
             # diametric distance of 20mm, so the model must be scaled by a factor of
             # 20mm / (1.511523")(25.4mm/") = 0.520933
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 520.933
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on a D20 are 4.5mm tall, so glyphs must
-            # be scaled by a factor of 4.5mm/8mm = 0.5625
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 20, die_scale: 520.933, font_size: 4.5, definition: definition, faces: faces)
         end
 
         # An icosahedron with standard dimensions.

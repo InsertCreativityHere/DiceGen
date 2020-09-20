@@ -35,10 +35,7 @@ module DiceGen::Dice
             # diametric distance of 15mm, so the model must be scaled by a factor of
             # 15mm / (0.816497")(25.4mm/") = 0.723274
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 723.274
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on a D8 are 7mm tall, so glyphs must
-            # be scaled by a factor of 7mm/8mm = 0.875
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 15.0, die_scale: 723.274, font_size: 7.0, definition: definition, faces: faces)
         end
 
         # An octahedron with standard dimensions.

@@ -34,10 +34,7 @@ module DiceGen::Dice
             # diametric distance of 15mm, so the model must be scaled by a factor of
             # 15mm / (1")(25.4mm/") = 0.590551
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 590.551
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on a D6 are 8mm tall, so no scaling is
-            # necessary.
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 15.0, die_scale: 590.551, font_size: 8.0, definition: definition, faces: faces)
         end
 
         # A hexahedron with standard dimensions.

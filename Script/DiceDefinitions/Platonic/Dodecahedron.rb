@@ -55,10 +55,7 @@ module DiceGen::Dice
             # diametric distance of 18.5mm, so the model must be scaled by a factor of
             # 18.5mm / (2.227033")(25.4mm/") = 0.327048
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 327.048
-            #
-            # Glyph models are always 8mm tall when imported, and the glyphs on a D12 are 6mm tall, so glyphs must
-            # be scaled by a factor of 6mm/8mm = 0.75
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
+            super(die_size: 18.5, die_scale: 327.048, font_size: 6.0, definition: definition, faces: faces)
         end
 
         # A dodecahedron with standard dimensions.
