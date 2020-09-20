@@ -84,7 +84,7 @@ module DiceGen::Dice
             faces[23] = mesh.add_face([v3, v23,  v8, v32, v16])
 
             #TODO MAKE THE SCALES!
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
 
             # TODO ROTATE EACH OF THE FACE TRANSFORMS!
         end

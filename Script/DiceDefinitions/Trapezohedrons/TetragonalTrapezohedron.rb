@@ -42,7 +42,7 @@ module DiceGen::Dice
             faces[7] = mesh.add_face([v1, v8, v4, v6])
 
             #TODO MAKE THE SCALES!
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
         end
 
         # A tetragonal trapezohedron with standard dimensions.

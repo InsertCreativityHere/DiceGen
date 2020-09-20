@@ -37,7 +37,7 @@ module DiceGen::Dice
             #
             # Glyph models are always 8mm tall when imported, and the glyphs on a D6 are 8mm tall, so no scaling is
             # necessary.
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
         end
 
         # A hexahedron with standard dimensions.

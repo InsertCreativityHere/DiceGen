@@ -434,17 +434,20 @@ module Dice
         #   die_scale: The amount to scale the die model by to make it 'die_size' mm large. This scaling is applied
         #              before any glyphs are placed onto the die.
         #   font_size: The height to scale the glyphs to before embossing them onto the die (in mm).
-        #   font_scale: The factor to scale the glyphs by to make them 'font_size' mm tall. This is applied directly
-        #               after the glyph has been placed, but not embossed.
-        def initialize(definition:, faces:, die_size:, die_scale:, font_size:, font_scale:)
+        def initialize(definition:, faces:, die_size:, die_scale:, font_size:)
             @definition = definition
             @die_size = die_size
             @font_size = font_size
             entities = @definition.entities()
             entities.transform_entities(Geom::Transformation.scaling(die_scale), entities.to_a())
 
+            # Glyphs are nominally 8mm high, so the font_scale factor can be computed by dividing the font_size by 8.
+            font_scale = font_size / 8.0
+
+            # Allocate an array for storing all the face transforms.
             face_count = faces.length()
             @face_transforms = Array::new(face_count)
+
             # Iterate through each face of the die and compute their face-local coordinate transformations.
             faces.each_with_index() do |face, i|
                 @face_transforms[i] = DiceUtil.get_face_transform(face) * Geom::Transformation.scaling(font_scale)

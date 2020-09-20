@@ -38,7 +38,7 @@ module DiceGen::Dice
             faces[7] = mesh.add_face([v5, v2, v0])
 
             #TODO MAKE THE SCALES!
-            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, font_scale: 1.0, definition: definition, faces: faces)
+            super(die_size: 1.0, die_scale: 1.0, font_size: 1.0, definition: definition, faces: faces)
         end
 
         # A square dipyramid with standard dimensions. This model is entirely composed of equalateral sides, and is
