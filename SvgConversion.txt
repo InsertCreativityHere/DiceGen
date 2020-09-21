@@ -107,7 +107,7 @@ The complete process for converting an SVG image to a DAE mesh with Blender is:
     “<fn>  <F4>  I  S”   ->   <Manually select the curves in the Scene Collection>   ->   “A”   ->   “[Object]  S  O”   ->   “[Object]  N  C”
     Set the Y-dimension to 8, and copy the value that appears for y-scaling into the x-scaling field.
     "<CMD>  A"   ->   "S"   -> "[Object]  V  M"   ->   "<CMD>  J"   ->   "<fn>  <F4>  E  C"    ->    "<TAB>"   ->   "A"
-    Decimate the curve with "Modifier Properties -> Add Modifier -> Decimate", a good starting point is collapsing it at a 0.35 ratio.
+    Decimate the curve with "Modifier Properties -> Add Modifier -> Decimate", a good starting point is collapsing it at a 0.4 ratio.
     "[Face]  B"    ->    <Check the mesh for imperfections and make it appear visually centered>    ->    “<fn> + F4 + E + C”
     Then make sure the delete the current collection by right clicking it in the "Scene Collection" list and hitting "H"
 But it's important to make sure that before you start converting any curves that you've opened the "Transform" menu with "N",

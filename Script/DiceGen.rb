@@ -127,18 +127,18 @@ module Fonts
             unless File.exists?(font_folder)
                 raise "Folder '#{font_folder}' does not exist or is inaccessible."
             end
-            # And that it has a "meshes" subdirectory.
-            unless File.exists?(font_folder + "/meshes")
-                raise "Folder '#{font_folder}' does not contain a 'meshes' subdirectory."
+            # And that it has a "finished" subdirectory.
+            unless File.exists?(font_folder + "/finished")
+                raise "Folder '#{font_folder}' does not contain a 'finished' subdirectory."
             end
 
             meshes = Hash::new()
-            puts "Importing meshes from '#{font_folder}/meshes':"
+            puts "Importing meshes from '#{font_folder}/finished':"
 
             # If no meshes were explicitely listed, try to import every mesh file for the font.
             # Otherwise, only attempt to import the specified mesh files.
             if (mesh_names.nil?())
-                (Dir["#{font_folder}/meshes/*.dae"]).each() do |file|
+                (Dir["#{font_folder}/finished/*.dae"]).each() do |file|
                     # Get the file name on it's own, and without it's extension.
                     filename = File.basename(file, ".dae")
 
@@ -146,7 +146,7 @@ module Fonts
                 end
             else
                 mesh_names.each() do |mesh|
-                    meshes[mesh] = Util.import_definition("#{font_folder}/meshes/#{mesh}.dae")
+                    meshes[mesh] = Util.import_definition("#{font_folder}/finished/#{mesh}.dae")
                 end
             end
 
