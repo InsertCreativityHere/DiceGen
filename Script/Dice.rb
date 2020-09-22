@@ -6,7 +6,7 @@ module DiceGen::Dice
     (Dir["#{__dir__}/DiceDefinitions/**/*.rb"]).each() do |file|
         require file
         model_name = File.basename(file, ".rb")
-        puts "    Loaded #{model_name}#{' ' * (50 - model_name.length())}=>    #{(Class.const_get(model_name)).constants()}"
+        puts "    Loaded #{model_name}#{' ' * (40 - model_name.length())}=>    #{(Class.const_get(model_name)).constants()}"
     end
 
 end

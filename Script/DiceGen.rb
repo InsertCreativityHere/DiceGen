@@ -162,7 +162,7 @@ module Fonts
             # The new glyph's definition name is formed by concatenating the names of the component glyphs.
             name = ""
             # Calculate the total width of the combined glyphs and the padding in between them.
-            total_width = padding * (glyphs.count() - 1)
+            total_width = padding * (glyphs.count() - 1.0)
             glyphs.each() do |glyph|
                 name += glyph.name()
                 total_width += glyph.bounds().width()
@@ -173,17 +173,17 @@ module Fonts
             entities = definition.entities()
 
             # Keep a running tally of the current x position, starting at the leftmost point.
-            xPos = -total_width / 2
+            xPos = -total_width / 2.0
 
             # Create instances of the component glyphs in the new definition.
             glyphs.each() do |glyph|
                 # Calculate the x position to place the glyph at so the new spliced glyph is still centered.
-                width = glyph.bounds().width()
-                offset = Geom::Point3d::new(xPos + (width / 2), 0, 0)
+                bounds = glyph.bounds()
+                offset = Geom::Point3d::new(xPos + (bounds.width() / 2.0) - bounds.center().x, 0, 0)
                 # Create an instance of the component glyph to splice it into the definition.
                 entities.add_instance(glyph, Geom::Transformation.translation(offset))
                 # Increment the position by the width of the glyph we just placed, plus the padding between glyphs.
-                xPos += width + padding
+                xPos += bounds.width() + padding
             end
 
             return definition
@@ -326,10 +326,11 @@ module Fonts
         #   folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
         #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
         #         it's the actual font folder that it expects to get.
-        #   padding: The amount of horizontal space to leave in between glyphs when splicing them together.
+        #   padding: The amount of horizontal space to leave in between glyphs when splicing them together (in mm).
         def initialize(name:, folder:, padding:)
             super(name: name, folder: folder)
-            @padding = padding
+            # Convert the padding from mm to inches (except that we actually use meters in place of mm in the model).
+            @padding = padding * (1000.0 / 25.4)
         end
 
         # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
@@ -344,7 +345,7 @@ module Fonts
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: padding)
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: @padding)
             end
             return super
         end
