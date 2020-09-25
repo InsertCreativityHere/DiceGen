@@ -14,6 +14,16 @@ module Util
     RESOURCE_DIR = "/Users/austin/DiceStuff/Resources"
     SCRIPT_DIR = "/Users/austin/DiceStuff/Script"
 
+    # Conversion factor for converting from meters to inches
+    MTOI = (1000.0 / 25.4)
+    # Conversion factor for converting from inches to meters
+    ITOM = (25.4 / 1000.0)
+
+    # Conversion factor for converting from degrees to radians
+    DTOR = (Math::PI / 180.0)
+    # Conversion factor for converting from radians to degrees
+    RTOD = (180.0 / Math::PI)
+
     # Hash that stores the definitions for everything we import to prevent reloading the same defintion twice.
     # Values are the stringified name of the ComponentDefinition, and keys are the filenames that the definitions were
     # imported from.
@@ -118,7 +128,7 @@ module Fonts
         #                the mesh files, but the one above it; This function expects our custom directory scheme to be
         #                followed, and so it's the actual font folder that it expects to get.
         #   mesh_names:  Array listing the names of the meshes that should be imported (without file extensions). When
-        #                specified, only these meshes are loaded, and a warning message is issues if any names aren't
+        #                specified, only these meshes are loaded, and a warning message is issued if any names aren't
         #                loaded. When set to 'nil', all meshes are loaded instead. Defaults to 'nil'
         #   return: A hash of mesh definitions whose keys are the names of each imported file (without their extensions)
         #           and each value is the ComponentDefinition for the mesh that was imported from that file.
@@ -156,17 +166,42 @@ module Fonts
         # Combines 2 glyphs together into a composite glyph, with the glyphs placed to the left and right of each other.
         #   glyphs: Array of ComponentDefinitions containing the glyphs to be spliced together. The original glyphs are
         #           in no way altered by this function.
-        #   padding: The amount of horizontal space to place between the glyphs when combining them.
+        #   chars: The plain text names of the glyphs that are being spliced. This corresponds to the text represented
+        #          by the provided glyph array.
+        #   padding_matrix: Hash containing the amount of horizontal padding space to leave between specific pairs of
+        #                   glyphs. Each key is an ordered pair of glyphs (like "79"), and the corresponding value is
+        #                   how much padding should be placed between them during splicing.
+        #   default_padding: The default amount of padding to leave between glyphs when no value is specified in the
+        #                    padding_matrix.
         #   return: The ComponentDefinition of the new composite glyph.
-        def splice_glyphs(glyphs:, padding:)
-            # The new glyph's definition name is formed by concatenating the names of the component glyphs.
+        def splice_glyphs(glyphs:, chars:, padding_matrix:, default_padding:)
+            # The new glyph's definition name is formed by concatenating the component glyph's names with underscores.
             name = ""
             # Calculate the total width of the combined glyphs and the padding in between them.
-            total_width = padding * (glyphs.count() - 1.0)
-            glyphs.each() do |glyph|
-                name += glyph.name()
+            total_width = 0.0
+            # Array for storing the padding values between each pair of glyphs.
+            padding = []
+
+            # Temporarily stores the previous glyph we iterated over for computing the padding between pairs.
+            previousGlyph = nil
+            glyphs.each_with_index() do |glyph, i|
+                # Concatenate the name of the current glyph onto the compound glyph's name with an underscore.
+                name += ('_' + glyph.name())
+                # Add the glyph's width to the total width.
                 total_width += glyph.bounds().width()
+
+                # Compute the padding that should be placed between this pair of glyphs.
+                unless previousGlyph.nil?()
+                    pair_padding = (padding_matrix[chars[(i-1)..i]] || default_padding)
+                    padding[i - 1] = pair_padding
+                    total_width += pair_padding
+                end
+                previousGlyph = glyph
             end
+            # Remove the trailing underscore from the compound name.
+            name = name[0..-2]
+            # Add a final padding value of 0 so that no padding is added to the end of the compound glyph.
+            padding.push(0.0)
 
             # Create a new definition to splice the glyphs into.
             definition = Util::MAIN_MODEL.definitions.add(name)
@@ -176,14 +211,14 @@ module Fonts
             xPos = -total_width / 2.0
 
             # Create instances of the component glyphs in the new definition.
-            glyphs.each() do |glyph|
+            glyphs.each_with_index() do |glyph, i|
                 # Calculate the x position to place the glyph at so the new spliced glyph is still centered.
                 bounds = glyph.bounds()
-                offset = Geom::Point3d::new(xPos + (bounds.width() / 2.0) - bounds.center().x, 0, 0)
+                offset = Geom::Point3d::new(xPos + (bounds.width() / 2.0) - bounds.center().x, 0.0, 0.0)
                 # Create an instance of the component glyph to splice it into the definition.
                 entities.add_instance(glyph, Geom::Transformation.translation(offset))
                 # Increment the position by the width of the glyph we just placed, plus the padding between glyphs.
-                xPos += bounds.width() + padding
+                xPos += bounds.width() + padding[i]
             end
 
             return definition
@@ -231,7 +266,7 @@ module Fonts
         def set_offsets(offsets)
             offsets.each() do |name, offset|
                 entities = @glyphs[name].entities()
-                vectorOffset = Geom::Vector3d::new(1000 * offset[0] / 25.4, 1000 * offset[1] / 25.4, 0)
+                vectorOffset = Geom::Vector3d::new(Util::MTOI * offset[0], Util::MTOI * offset[1], 0)
                 entities.transform_entities(Geom::Transformation.translation(vectorOffset), entities.to_a())
             end
         end
@@ -284,7 +319,7 @@ module Fonts
                 def_entitites = definition.entities()
 
                 # Draw the 3D text centered with the correct attributes and a letter-height of 8mm.
-                def_entitites.add_3d_text(name, TextAlignCenter, system_font, is_bold, is_italic, 314.961)
+                def_entitites.add_3d_text(name, TextAlignCenter, system_font, is_bold, is_italic, (8 * Util::MTOI))
 
                 # Center the glyph's bounding box to the origin.
                 offset = ORIGIN - definition.bounds().center()
@@ -317,8 +352,15 @@ module Fonts
     # A font where a base set of glyphs is provided that all other composite glyphs can be generated from. For instance,
     # supplying an glyphs for every single individual digits, allows for generating glyphs for any base 10 number.
     class SplicedFont < RawFont
-        # The amount of horizontal space to leave in between glyphs when splicing them together
-        attr_reader :padding
+        # Hash that specified the amount of padding to place between specific pairs of glyphs. Each key should be the
+        # names of two glyphs, and the corresponding value indicates how much padding space should be left between the
+        # two glyphs when being spliced in that order. '{"13" => 0.2}' indicates 0.2mm should be left between a 1 and 3
+        # when they are spliced together. Note that the keys are order dependent. "13" and "31" will and should have
+        # different padding values.
+        attr_reader :padding_matrix
+        # The default amount of padding space to leave between glyphs when splicing if no padding is specified for them
+        # in the padding matrix.
+        attr_reader :default_padding
 
         # Create a new spliced font with the specified font, and whose base glyphs are defined by meshes stored in DAE
         # files. Every mesh in the font folder is loaded, and afterwards, composite glyphs are generated as needed.
@@ -326,11 +368,18 @@ module Fonts
         #   folder: The absolute path of the base font folder. This is NOT the folder immediately containing the mesh
         #         files, but the one above it; This function expects our custom directory scheme to be followed, and so
         #         it's the actual font folder that it expects to get.
-        #   padding: The amount of horizontal space to leave in between glyphs when splicing them together (in mm).
-        def initialize(name:, folder:, padding:)
+        #   padding_matrix: Hash containing the amount of horizontal padding space to leave between specific pairs of
+        #                   glyphs. Each key is an ordered pair of glyphs (like "79"), and the corresponding value is
+        #                   how much padding should be placed between them during splicing.
+        #   default_padding: The default amount of padding to leave between glyphs when no value is specified in the
+        #                    padding_matrix.
+        def initialize(name:, folder:, padding_matrix:, default_padding:)
             super(name: name, folder: folder)
-            # Convert the padding from mm to inches (except that we actually use meters in place of mm in the model).
-            @padding = padding * (1000.0 / 25.4)
+            # Convert the paddings from mm to inches (except that we actually use meters in place of mm in the model).
+            @padding_matrix = Hash[padding_matrix.map{ |k,v| [k, v * Util::MTOI]}]
+
+            #Hash[my_hash.map{|k,str| [k,"%#{str}%"] } ]
+            @default_padding = default_padding * Util::MTOI
         end
 
         # Creates and returns an instance of the specified glyph as a 2D model. The glyph is always created in it's own
@@ -345,7 +394,7 @@ module Fonts
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
-                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, padding: @padding)
+                @glyphs[name] = FontUtil.splice_glyphs(glyphs: char_glyphs, chars: name, padding_matrix: @padding_matrix, default_padding: @default_padding)
             end
             return super
         end
@@ -469,8 +518,8 @@ module Dice
         def set_glyph_offsets(x_offset, y_offset)
             @face_transforms.each() do |face_transform|
                 # Add an extra translation transformsion that offsets the glyphs in face-local coordinates.
-                offset_vector = Util.scale_vector(face_transform.xaxis, 1000 * x_offset / 25.4) +
-                                Util.scale_vector(face_transform.yaxis, 1000 * y_offset / 25.4)
+                offset_vector = Util.scale_vector(face_transform.xaxis, Util::MTOI * x_offset) +
+                                Util.scale_vector(face_transform.yaxis, Util::MTOI * y_offset)
                 @face_transform = Geom::Transformation.translation(offset_vector) * @face_transform
             end
         end
@@ -598,7 +647,7 @@ module Dice
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Math::PI / 180.0))
+                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
                 full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
                 # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
                 # has been scaled up.

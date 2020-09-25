@@ -47,7 +47,7 @@ module DiceGen::Dice
             # Create an array for storing the computed vertex transforms.
             @vertex_transforms = Array::new(4)
             # 120 degrees clockwise in radians. The angle between any two vertices of a face.
-            angle = -120 * Math::PI / 180
+            angle = -120 * Util::DTOR
             # The distance to offset each glyph from the center for the vertex transforms.
             offset = 1000 * glyph_vertex_offset / 25.4
 
@@ -93,7 +93,7 @@ module DiceGen::Dice
             @vertex_transforms.each_with_index() do |vertex_transform, i|
                 vertex_transform.each_with_index() do |transform, j|
                     # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                    glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Math::PI / 180.0))
+                    glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
                     full_transform = transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
                     # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
                     # has been scaled up.

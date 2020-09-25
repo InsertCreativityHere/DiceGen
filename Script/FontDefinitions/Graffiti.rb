@@ -1,9 +1,14 @@
 
 module DiceGen::Fonts
 
-    Graffiti = SplicedFont::new(name: "graffiti", folder: "#{FONT_DIR}/MadiGraffitiFont", padding: 0.1)
+    # Define the common arguments for graffiti fonts in a centralized location.
+    GRAFFITI_ARGS = {:name => "graffiti", :folder => "#{FONT_DIR}/MadiGraffitiFont", :default_padding => 0.1, :padding_matrix => {
 
-    Graffiti_Lotus = SplicedFont::new(name: "graffiti", folder: "#{FONT_DIR}/MadiGraffitiFont", padding: 0.1)
+    }}
+
+    Graffiti = SplicedFont::new(**GRAFFITI_ARGS)
+
+    Graffiti_Lotus = SplicedFont::new(**GRAFFITI_ARGS)
     Graffiti_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
 
 end
