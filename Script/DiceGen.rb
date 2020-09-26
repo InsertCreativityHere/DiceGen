@@ -70,7 +70,7 @@ module Util
     # Manually reloads all the dice and font definitions by manually deleting their definitions from the current Ruby
     # session, and then re-requiring them. This might be dangerous, but it seems to work so far *shrugs*.
     # This really helps when editing dice definitions on the fly in Sketchup, since IRB never needs to be restarted.
-    def reload_script_definitions()
+    def reload_script()
         # First we manually delete any of the classes or modules that we've loaded from the definition scripts.
         # We assume that these files are all directly in the 'Fonts' and 'Dice' namespace, and then delete anything
         # except for a list of protected classes and modules that we know are defined in this file.
@@ -247,7 +247,7 @@ module Fonts
         #   glyphs: A hash of glyphs to add into the font, following the same scheme as '@glyphs'. If the font already
         #           contains a glyph with the same name as one of the new glyphs, it is replaced with the new glyph.
         def set_glyphs(glyphs)
-            @glyphs.merge(glyphs)
+            @glyphs.merge!(glyphs)
         end
 
         # Scales the glyphs by a hash of scale factors.
@@ -278,7 +278,7 @@ module Fonts
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
         def create_glyph(name:, entities:, transform: IDENTITY)
-            return entities.add_instance(@glyphs[name], transform).make_unique()
+            return entities.add_instance(@glyphs[name.to_s()], transform).make_unique()
         end
     end
 
@@ -312,6 +312,7 @@ module Fonts
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
         def create_glyph(name:, entities:, transform: IDENTITY)
+            name = name.to_s()
             # Lazily create the requested glyph via the 3D text tool if we haven't already created and cached it before.
             unless @glyphs.key?(name)
                 # Create a new definition to draw the text into.
@@ -391,6 +392,7 @@ module Fonts
         #   transform: A custom transformation that is applied to the glyph after placement. Defaults to no transform.
         #   return: The group that immediately components the glyph's mesh.
         def create_glyph(name:, entities:, transform: IDENTITY)
+            name = name.to_s()
             # Lazily create the requested glyph via splicing if it doesn't already have a definition.
             unless @glyphs.key?(name)
                 char_glyphs = name.chars().map{ |char| @glyphs[char] }
