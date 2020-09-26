@@ -1,6 +1,7 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D12 die (a dodecahedron).
+    # By default this model has a size of 18.5mm, and a font size of 6mm.
     class Dodecahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -56,6 +57,12 @@ module DiceGen::Dice
             # 18.5mm / (2.227033")(25.4mm/") = 0.327048
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 327.048
             super(die_size: 18.5, die_scale: 327.048, font_size: 6.0, definition: definition, faces: faces)
+
+            # Add the additional glyph mappings supported by this model.
+            a0 = 0.0; a1 = 72.0; a2 = 144.0; a3 = 216.0; a4 = 288.0;
+            #                                 1               5                  10
+            @glyph_mappings["chessex"]   = [[10,  9,  5, 11,  3,  6,  4,  2,  1, 12,  7,  8],
+                                            [a1, a2, a3, a3, a1, a2, a0, a4, a4, a3, a0, a4]]
         end
 
         # A dodecahedron with standard dimensions.

@@ -1,6 +1,7 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D6 die (a hexhedron (fancy word for cube)).
+    # By default this model has a size of 15mm, and a font size of 8mm.
     class Hexahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -35,6 +36,11 @@ module DiceGen::Dice
             # 15mm / (1")(25.4mm/") = 0.590551
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 590.551
             super(die_size: 15.0, die_scale: 590.551, font_size: 8.0, definition: definition, faces: faces)
+
+            # Add the additional glyph mappings supported by this model.
+            a0 = 0.0; a1 = 90.0; a2 = 180.0; a3 = 270.0;
+            @glyph_mappings["chessex"]   = [[5, 1, 3, 2, 4, 6], [a1, a2, a0, a1, a2, a0]]
+            @glyph_mappings["rybonator"] = [[5, 1, 4, 2, 3, 6], [a1, a2, a2, a0, a3, a1]]
         end
 
         # A hexahedron with standard dimensions.

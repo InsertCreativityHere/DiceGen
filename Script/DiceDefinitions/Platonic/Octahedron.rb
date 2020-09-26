@@ -1,6 +1,7 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octahedron).
+    # By default this model has a size of 15mm, and a font size of 7mm.
     class Octahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -36,6 +37,11 @@ module DiceGen::Dice
             # 15mm / (0.816497")(25.4mm/") = 0.723274
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 723.274
             super(die_size: 15.0, die_scale: 723.274, font_size: 7.0, definition: definition, faces: faces)
+
+            # Add the additional glyph mappings supported by this model.
+            a0 = 0.0; a1 = 120.0; a2 = 240;
+            @glyph_mappings["chessex"]   = [[1, 7, 5, 3, 2, 8, 6, 4], [a1] * 8]
+            @glyph_mappings["rybonator"] = [[1, 3, 5, 7, 6, 8, 2, 4], [a1] * 8]
         end
 
         # An octahedron with standard dimensions.

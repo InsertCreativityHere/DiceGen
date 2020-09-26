@@ -1,6 +1,7 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
+    # By default this model has a size of 18mm, and a font size of 6mm.
     class Tetrahedron < DieModel
         # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
         # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
@@ -44,9 +45,10 @@ module DiceGen::Dice
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 867.929
             super(die_size: 18.0, die_scale: 867.929, font_size: 6.0, definition: definition, faces: faces)
 
-            # Add the additional glyph mappings supported by this model
-            @glyph_mappings["rybonator"] = [[], []]
-            @glyph_mappings["chessex"] = [[], []]
+            # Add the additional glyph mappings supported by this model.
+            a0 = 0.0; a1 = 120.0; a2 = 240.0;
+            @glyph_mappings["chessex"]   = [[1, 4, 2, 3], [a2, a0, a0, a2]]
+            @glyph_mappings["rybonator"] = [[1, 4, 2, 3], [a2, a0, a0, a2]]
 
             # Create an array for storing the computed vertex transforms.
             @vertex_transforms = Array::new(4)
@@ -85,17 +87,18 @@ module DiceGen::Dice
 
             # Iterate through each face and generate glyphs at the vertices of the face.
             @vertex_transforms.each_with_index() do |vertex_transform, i|
+                face_transform = @face_transforms[i]
                 vertex_transform.each_with_index() do |transform, j|
                     # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                    glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
-                    full_transform = transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
+                    glyph_rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, (glyph_angles[i] * Util::DTOR))
+                    full_transform = glyph_rotation * transform * Geom::Transformation.scaling(font_scale)
                     # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
                     # has been scaled up.
                     offset_vector = Util.scale_vector(@face_transforms[i].origin - ORIGIN, (die_scale - 1.0))
                     full_transform = Geom::Transformation.translation(offset_vector) * full_transform
 
                     # Place the glyph at the jth vertex of the ith face.
-                    glyph_name = glyph_names[@@D4_NUMBERING[i][j] - 1].to_s()
+                    glyph_name = @@D4_NUMBERING[glyph_names[i] - 1][j].to_s()
                     font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
                 end
             end

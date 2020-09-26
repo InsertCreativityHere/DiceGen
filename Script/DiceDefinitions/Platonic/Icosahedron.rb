@@ -1,6 +1,7 @@
 
 module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D20 die (an icosahedron).
+    # By default this model has a size of 20mm, and a font size of 4.5mm.
     class Icosahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
         #   def_name: The name of this definition. Every ComponentDefinition can be referenced with a unique name that
@@ -54,7 +55,13 @@ module DiceGen::Dice
             # diametric distance of 20mm, so the model must be scaled by a factor of
             # 20mm / (1.511523")(25.4mm/") = 0.520933
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 520.933
-            super(die_size: 20, die_scale: 520.933, font_size: 4.5, definition: definition, faces: faces)
+            super(die_size: 20.0, die_scale: 520.933, font_size: 4.5, definition: definition, faces: faces)
+
+            # Add the additional glyph mappings supported by this model.
+            a0 = 0.0; a1 = 120.0; a2 = 240.0;
+            #                                 1               5                  10                  15                  20
+            @glyph_mappings["chessex"]   = [[ 1,  7, 15,  5, 13,  8, 16,  6, 14, 20,  9, 19,  3, 17, 10, 12,  2, 18,  4, 11],
+                                            [a0, a0, a0, a2, a2, a0, a0, a2, a2, a2, a2, a2, a0, a2, a1, a1, a1, a0, a1, a2]]
         end
 
         # An icosahedron with standard dimensions.
