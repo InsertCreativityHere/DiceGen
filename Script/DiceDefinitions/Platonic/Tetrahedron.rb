@@ -73,17 +73,7 @@ module DiceGen::Dice
                 return super
             end
 
-            # If no glyph_mapping was provided, use the default mapping.
-            glyph_mapping ||= "default"
-            glyph_names = []
-            glyph_angles = []
-            # Look up the glyph mapping by name.
-            if @glyph_mappings.key?(glyph_mapping)
-                glyph_names, glyph_angles = @glyph_mappings[glyph_mapping]
-            else
-                model_name = self.class().name().split("::").last()
-                raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
-            end
+            glyph_name, glyph_angles = resolve_glyph_mapping(glyph_mapping)
 
             # Calcaulte the scale factors for the die and the font.
             die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
