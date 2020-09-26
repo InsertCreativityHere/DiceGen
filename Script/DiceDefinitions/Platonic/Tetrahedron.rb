@@ -44,6 +44,10 @@ module DiceGen::Dice
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 867.929
             super(die_size: 18.0, die_scale: 867.929, font_size: 6.0, definition: definition, faces: faces)
 
+            # Add the additional glyph mappings supported by this model
+            @glyph_mappings["rybonator"] = [[], []]
+            @glyph_mappings["chessex"] = [[], []]
+
             # Create an array for storing the computed vertex transforms.
             @vertex_transforms = Array::new(4)
             # 120 degrees clockwise in radians. The angle between any two vertices of a face.
@@ -73,7 +77,7 @@ module DiceGen::Dice
                 return super
             end
 
-            glyph_name, glyph_angles = resolve_glyph_mapping(glyph_mapping)
+            glyph_name, glyph_angles = resolve_glyph_mapping(glyph_mapping: glyph_mapping)
 
             # Calcaulte the scale factors for the die and the font.
             die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))

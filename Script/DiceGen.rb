@@ -476,7 +476,7 @@ module Dice
         # what glyph should be placed on a face, and the second array specifies the angle that the glyph should be
         # rotated by prior to embossing. The arrays follow the same order as the faces, so the 'i'th entry in each
         # array will be used for the 'i'th face of the die.
-        @@glyph_mappings = Hash::new()
+        attr_reader :glyph_mappings
 
         # Super constructor for all dice models that stores the die's model definition, and computes a set of
         # transformations from the die's faces that can be used to easily add glyphs to the die later on.
@@ -505,6 +505,9 @@ module Dice
             faces.each_with_index() do |face, i|
                 @face_transforms[i] = DiceUtil.get_face_transform(face) * Geom::Transformation.scaling(font_scale)
             end
+
+            # Create a hash to hold the glyph mappings and add the default mapping into it.
+            @glyph_mappings = {"default" => [(1..face_count).to_a(), ([0.0] * face_count)]}
         end
 
         # Sets how much each glyph should be offset in the x and y direction relative to the face it's being placed on.
@@ -533,8 +536,8 @@ module Dice
             glyph_names = []
             glyph_angles = []
             # Look up the glyph mapping by name.
-            if @@glyph_mappings.key?(glyph_mapping)
-                return @@glyph_mappings[glyph_mapping]
+            if @glyph_mappings.key?(glyph_mapping)
+                return @glyph_mappings[glyph_mapping]
             else
                 model_name = self.class().name().split("::").last()
                 raise "Specified glyph mapping: '#{glyph_mapping}' isn't defined for the #{model_name} die model."
