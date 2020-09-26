@@ -11,24 +11,27 @@ Inkscape is used before Blender to quality check and clean up the SVG image befo
    Not strictly required, but it will really help you see any issues in the curve throughout the process that might need attention.
         "Edit Paths by Node"
         "N"
-2. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
+2. Convert everything to a path: Everything has to be a simple path in order to be unioned properly, these steps convert all the strokes and objects to paths.
+        "Path -> Object to Path" && "Path -> Stoke to Path"
+        "<Shift> + <CMD> + C" && "<Option> + <CMD> + C"
+3. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
    This process may need to be repeated multiple times depending on how must nesting there is. Usually it seems like 2 is enough though.
         “Edit -> Select All” && “Object -> Ungroup”
         “<CMD> + A” && “<Shift> + <CMD> + G”
-3. Combine the paths together into a single path: This eliminates any overlaps or intersections that Blender couldn't handle by joining everything together.
+4. Combine the paths together into a single path: This eliminates any overlaps or intersections that Blender couldn't handle by joining everything together.
         “Path -> Union”
         “<CMD> + +”
-4. Inspect the curve for any leftover irregularities that need to be fixed manually.
+5. Inspect the curve for any leftover irregularities that need to be fixed manually.
    This can be done with the node-editing toolbar that is at the bottom of the top menu bar. Obviously, there's no set process for this, and it's often unnecessary even.
-5. Save the cleaned file: This should be self explanatory (hopefully...)
+6. Save the cleaned file: This should be self explanatory (hopefully...)
         “ File -> Save As”
         “<Shift> + <CMD> + S”
-6. Close the file: also should be self explanatory, but including it's keyboard shortcut makes processing the images all the faster.
+7. Close the file: also should be self explanatory, but including it's keyboard shortcut makes processing the images all the faster.
         “ File -> Close”
         “<CMD> + W”
 
 The complete process for running an SVG image through Inkscape is:
-    “N”   ->   “<CMD>  A”   ->   “<Shift>  <CMD>  G”   ->   “<Shift>  <CMD>  G”   ->   “<CMD>   +”
+    “N”   ->   “<CMD>  A”   ->   "<Shift> + <CMD> + C"   ->   "<Option> + <CMD> + C"   ->   “<Shift>  <CMD>  G”*4   ->   “<CMD>   +”
     Visually inspect the final curve and it's nodes to make sure there isn't any weird paths or overlapping left. If there is, fix it obviously.
     ”<Shift>  <CMD>  S”   ->   “<CMD>  W”
 
