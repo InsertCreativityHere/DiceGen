@@ -11,27 +11,41 @@ Inkscape is used before Blender to quality check and clean up the SVG image befo
    Not strictly required, but it will really help you see any issues in the curve throughout the process that might need attention.
         "Edit Paths by Node"
         "N"
-2. Convert everything to a path: Everything has to be a simple path in order to be unioned properly, these steps convert all the strokes and objects to paths.
-        "Path -> Object to Path" && "Path -> Stoke to Path"
-        "<Shift> + <CMD> + C" && "<Option> + <CMD> + C"
-3. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
+2. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
    This process may need to be repeated multiple times depending on how must nesting there is. Usually it seems like 2 is enough though.
         “Edit -> Select All” && “Object -> Ungroup”
         “<CMD> + A” && “<Shift> + <CMD> + G”
-4. Combine the paths together into a single path: This eliminates any overlaps or intersections that Blender couldn't handle by joining everything together.
+3. Convert strokes and objects to paths: In order for unioning to work correctly without altering the shape of the drawing, everything must be converted to closed raw paths first.
+   This step requires visual inspection and manual conversion, and so can't be fully automated with keyboard shortcuts. Just go through the right hand column and convert any strokes
+   or objects into paths (it'll probably be necessary to ungroup them afterwards afterwards, as objects will be converted into stroke+path groups). At this point, it's also good to
+   delete any empty or errorneous paths, as those will interfere with the unioning process later as well. You can tell if something is empty if when it's select no anchor points or
+   bounding boxes appear in the screen, or really just if nothing shows up at all.
+   To delete an entity use:
+        "Edit -> Delete"
+        "<Backspace>"
+   To convert strokes and objects into paths use:
+        "Path -> Stoke to Path"
+        "<Option> + <CMD> + C"
+4. Ungroup everything: Remove the groupings so that the vector paths are all at the top level and at equal footing.
+   This process may need to be repeated multiple times depending on how must nesting there is. Usually it seems like 2 is enough though.
+        “Edit -> Select All” && “Object -> Ungroup”
+        “<CMD> + A” && “<Shift> + <CMD> + G”
+5. Combine the paths together into a single path: This eliminates any overlaps or intersections that Blender couldn't handle by joining everything together.
         “Path -> Union”
         “<CMD> + +”
-5. Inspect the curve for any leftover irregularities that need to be fixed manually.
+6. Inspect the curve for any leftover irregularities that need to be fixed manually.
    This can be done with the node-editing toolbar that is at the bottom of the top menu bar. Obviously, there's no set process for this, and it's often unnecessary even.
-6. Save the cleaned file: This should be self explanatory (hopefully...)
+7. Save the cleaned file: This should be self explanatory (hopefully...)
         “ File -> Save As”
         “<Shift> + <CMD> + S”
-7. Close the file: also should be self explanatory, but including it's keyboard shortcut makes processing the images all the faster.
+8. Close the file: also should be self explanatory, but including it's keyboard shortcut makes processing the images all the faster.
         “ File -> Close”
         “<CMD> + W”
 
 The complete process for running an SVG image through Inkscape is:
-    “N”   ->   “<CMD>  A”   ->   "<Shift> + <CMD> + C"   ->   "<Option> + <CMD> + C"   ->   “<Shift>  <CMD>  G”*4   ->   “<CMD>   +”
+    “N”   ->   “<CMD>  A”   ->   “<Shift>  <CMD>  G”   ->   “<Shift>  <CMD>  G”
+    Delete any empty entities, and convert all strokes and objects into paths with "<Backspace>" and "<Option> + <CMD> + C" respectively
+    “<CMD>   +”
     Visually inspect the final curve and it's nodes to make sure there isn't any weird paths or overlapping left. If there is, fix it obviously.
     ”<Shift>  <CMD>  S”   ->   “<CMD>  W”
 
