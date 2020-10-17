@@ -1,5 +1,6 @@
-Models
-PrintHistory
-Resources
+Models/*
+PrintHistory/*
+Resources/VectorFonts/*
+Resources/VectorImages/*
 
 .DS_STORE
