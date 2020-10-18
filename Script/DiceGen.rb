@@ -631,6 +631,7 @@ module Dice
         #          In practice, the die is always created within it's own die group, and the die group is what's placed
         #          into the provided group. Defaults to nil.
         #   scale: The amount to scale the die by after it's been created. Defaults to 1.0 (no scaling).
+        #   depth: The depth to emboss the glyphs into the die by in mm. Defaults to 0mm (no embossing).
         #   die_size: The size to make the die in mm. Specifically this sets the distance between two diametric faces,
         #             or a face and the vertex diametrically opposite to it if necessary (like for tetrahedrons (D4)).
         #             If left as nil, it uses the default size for the die. Defaults to nil.
@@ -640,7 +641,7 @@ module Dice
         #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
         #                  numerical index.
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
-        def create_instance(font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
+        def create_instance(font: nil, type: nil, group: nil, scale: 1.0, depth: 0.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
             group ||= Util::MAIN_MODEL.entities().add_group()
 
@@ -672,7 +673,7 @@ module Dice
                 # Get the array containing each of the glyph definitions.
                 glyph_array = get_glyphs(font: font, mesh: glyph_mesh, type: type, font_size: font_size, glyph_mapping: glyph_mapping)
                 # Emboss the glyphs onto the die.
-                emboss_glyphs(die_mesh: die_mesh, glyphs: glyph_array, die_size: die_size)
+                emboss_glyphs(die_mesh: die_mesh, glyphs: glyph_array, die_size: die_size, depth: depth)
             end
 
             # Delete the temporary glyph group.
@@ -719,8 +720,8 @@ module Dice
             return glyph_definitions
         end
 
-        # TODO WE NEED TO ADD A DEPTH PARAMETER TO THIS!
-        def emboss_glyphs(die_mesh:, glyphs:, die_size: nil)
+        # TODO
+        def emboss_glyphs(die_mesh:, glyphs:, die_size: nil, depth: 0.0)
             glyphs.each_with_index() do |glyph, i|
                 # Get all the faces that make up the current glyphs.
                 faces = glyph.entities().grep(Sketchup::Face)
@@ -746,19 +747,22 @@ module Dice
                         die_mesh.add_face(DiceUtil.transform_points(points: loop.vertices(), transform: full_transform))
                     end
 
-                    # TODO HERE WE NEED TO PUSH PULL THE MAIN FACE!
+                    # Emboss the face by pushing it into the die.
+                    unless (depth == 0.0)
+                        main_face.pushpull(-depth * Util::MTOI)
+                    end
                 end
             end
         end
     end
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
-    def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
+    def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, depth: 0.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
         # If no specific model instance was passed, use the standard instance for the specified model.
         if model.is_a?(Class)
             model = model::STANDARD
         end
-        model.create_instance(font: font, type: type, group: group, scale: scale, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping, transform: transform)
+        model.create_instance(font: font, type: type, group: group, scale: scale, depth: depth, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping, transform: transform)
     end
 
 end
