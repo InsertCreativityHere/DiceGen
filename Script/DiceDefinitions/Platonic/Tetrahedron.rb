@@ -79,7 +79,7 @@ module DiceGen::Dice
                 return super
             end
 
-            glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping: glyph_mapping)
+            glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping)
 
             # Calcaulte the scale factors for the die and the font.
             die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))

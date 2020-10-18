@@ -216,7 +216,7 @@ module Fonts
                 bounds = glyph.bounds()
                 offset = Geom::Point3d::new(xPos + (bounds.width() / 2.0) - bounds.center().x, 0.0, 0.0)
                 # Create an instance of the component glyph to splice it into the definition.
-                entities.add_instance(glyph, Geom::Transformation.translation(offset))
+                (entities.add_instance(glyph, Geom::Transformation.translation(offset)).make_unique()).explode()
                 # Increment the position by the width of the glyph we just placed, plus the padding between glyphs.
                 xPos += bounds.width() + padding[i]
             end
@@ -458,6 +458,76 @@ module Dice
 
             return Geom::Transformation.axes(face_center, x_vector, y_vector, normal)
         end
+
+        # Computes a new array containing all the providing elements sorted by their containment heirarchy. If the bounds of
+        # element1 strictly contain the bounds of element2, then element1 will appear before element2 in the sorted array.
+        # The algorithm this method computes the opposite and reverses the list at the end.
+        #   elements: The array of elements to be sorted. This array isn't altered by the method.
+        #   return: An array with all the elements sorted by their containment heirarchy.
+        def sort_by_bounds(elements)
+            sorted_elements = Array::new()
+
+            # Iterate through the provided elements.
+            elements.each() do |element|
+                # Iterate through every element already in the list. If the current element is contained by any of these, we
+                # insert the current element immediately before it's container. If no element contains the current element, this
+                # flag remains unset, and the current element is appended at the end (indicating it's a top-level container).
+                is_toplevel = true
+
+                sorted_elements.each_with_index() do |test_element, i|
+                    # Check if the current element is contained by the test_element.
+                    if (test_element.bounds().contains?(element.bounds()))
+                        sorted_elements.insert(i, element)
+                        is_toplevel = false
+                        break
+                    end
+                end
+
+                if (is_toplevel)
+                    sorted_elements.push(element)
+                end
+            end
+
+            # Reverse the list and return it.
+            sorted_elements.reverse!()
+            return sorted_elements
+        end
+
+        # Removes and returns the outer-most loop from an array of loops.
+        # If none of the loops are marked as an outer-most loop, this raises an exception.
+        #   loops: Array of loops to search for the outer-most loop.
+        #   return: A reference to the outer-most loop, or an exception if none were found.
+        def get_outer_loop(loops)
+            loops.each() do |loop|
+                if (loop.outer?())
+                    loops.delete(loop)
+                    return loop
+                end
+            end
+            raise "No outermost loop was found."
+        end
+
+        # Transforms an array of points. This doesn't transform the provided array in place,
+        # and instead returns a new array that contains the transformed points.
+        #   points: Array of points that should be transformed.
+        #   transform: The transform to apply to each of the points.
+        #   return: An array containing the resulting points after they've been transformed.
+        def transform_points(points:, transform:)
+            # Convert any vertices into points.
+            results = Array::new(points.length())
+            points.each_with_index() do |point, i|
+                if (point.is_a?(Sketchup::Vertex))
+                    results[i] = point.position()
+                else
+                    results[i] = point
+                end
+            end
+
+            results.each() do |point|
+                point.transform!(transform)
+            end
+            return results
+        end
     end
 
     # Abstract base class for all die models.
@@ -532,7 +602,7 @@ module Dice
         #   returns: The array components of the glyph mapping. The first array specifies the name of the glyph that
         #            should be embossed on each face (the ith entry is the glyph that should be used on the ith face),
         #            and the second array specifies what angle each glyph should be rotated by.
-        def resolve_glyph_mapping(glyph_mapping:)
+        def resolve_glyph_mapping(glyph_mapping)
             # If no glyph_mapping was provided, use the default mapping.
             glyph_mapping ||= "default"
             glyph_names = []
@@ -594,28 +664,21 @@ module Dice
                 die_mesh.transform_entities(Geom::Transformation.scaling(die_size.to_f() / @die_size), die_mesh.to_a())
             end
 
-            # Create a separate group for placing glyphs into.
+            # Create a separate group for temporarily placing glyphs into.
             glyph_group = group.entities().add_group()
             glyph_mesh = glyph_group.entities()
 
-            # Place the glyphs onto the die in preperation for embossing by calling the provided function.
             unless font.nil?()
-                place_glyphs(font: font, mesh: glyph_mesh, type: type, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping)
+                # Get the array containing each of the glyph definitions.
+                glyph_array = get_glyphs(font: font, mesh: glyph_mesh, type: type, font_size: font_size, glyph_mapping: glyph_mapping)
+                # Emboss the glyphs onto the die.
+                emboss_glyphs(die_mesh: die_mesh, glyphs: glyph_array, die_size: die_size)
             end
 
-            # Force Sketchup to recalculate the bounds of all the groups so that the intersection works properly.
-            die_def.invalidate_bounds()
-            glyph_group.definition().invalidate_bounds()
-
-            # Emboss the glyphs onto the faces of the die, then delete the glyphs.
-            # TODO figure out why things aren't embossed correctly still.
-            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, glyph_mesh.to_a())
+            # Delete the temporary glyph group.
             glyph_group.erase!()
-
-            # Intersect the die mesh with itself to make sure the glyphs get embossed correctly. There's an issue where
-            # without this, the inner edges of glyphs don't connect to form a subface on the face of the die.
-            # This line doesn't completely fix the issue, it still happens, but it helps reduce it's prevalence.
-            die_mesh.intersect_with(false, IDENTITY, die_mesh, IDENTITY, true, die_mesh.to_a())
+            # Force Sketchup to recalculate the bounds of the die so future operations function correctly.
+            die_def.invalidate_bounds()
 
             # Combine the scaling transformation with the provided external transform and apply them both to the die.
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
@@ -624,23 +687,8 @@ module Dice
             Util::MAIN_MODEL.commit_operation()
         end
 
-        # Creates and places glyphs onto the faces of the die. This default implementation iterates through each face
-        # and places the corresponding number on it, but subclasses can override this method for custom glyph placement.
-        #   font: The font to create the glyphs in.
-        #   mesh: The collection of entities where glyphs should be generated into.
-        #   type: The type of die that the glyphs are being placed for. This can either be a special type like "D4" or
-        #         "D%" which are handled by overriden versions of this function, or a number indicating the maximum
-        #         number to count up to on the die. If there are more faces than the type number, numbers are repeated.
-        #         However, the die type must divide the number of faces evenly.
-        #   die_size: The size of the die in mm. Specifically, this must be the distance between two diametric faces, or
-        #             a face and a vertex diametrically opposite to it if necessary (like for the tetrahedron (D4)).
-        #             If left as nil, it uses the default size for the die. Defaults to nil.
-        #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
-        #              die. Defaults to nil.
-        #   glyph_mapping: String representing which glyph mapping to use. If left as nil, the default mapping is used
-        #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
-        #                  numerical index.
-        def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
+        # TODO
+        def get_glyphs(font:, mesh:, type: nil, font_size: nil, glyph_mapping: nil)
             # If no type was provided, set it the number of faces on the die.
             type ||= @face_transforms.length()
 
@@ -651,24 +699,55 @@ module Dice
             end
 
             # Resolve the glyph mapping to an array of glyphs and the angles to rotate them by.
-            glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping: glyph_mapping)
+            glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping)
 
-            # Calcaulte the scale factors for the die and the font.
-            die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
+            # Calculate the scale factor for the font.
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
 
+            # Create an array for storing the glyph's definitions in.
+            glyph_definitions = Array::new(@face_transforms.length())
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
-                # First scale and rotate the glyph, then perform the face-local coordinate transformation.
+                # Calculate the transformation to scale and rotate the glyphs.
                 glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
-                full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
-                # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
-                # has been scaled up.
-                offset_vector = Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
-                full_transform = Geom::Transformation.translation(offset_vector) * full_transform
+                full_transform = glyph_rotation * Geom::Transformation.scaling(font_scale)
 
                 glyph_name = glyph_names[i % type].to_s()
-                font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
+                instance = font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
+                glyph_definitions[i] = instance.definition()
+            end
+            return glyph_definitions
+        end
+
+        # TODO WE NEED TO ADD A DEPTH PARAMETER TO THIS!
+        def emboss_glyphs(die_mesh:, glyphs:, die_size: nil)
+            glyphs.each_with_index() do |glyph, i|
+                # Get all the faces that make up the current glyphs.
+                faces = glyph.entities().grep(Sketchup::Face)
+
+                # Calculate the die's scale factor.
+                die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
+                # Calculate the full face transform that accounts for die scaling.
+                offset_vector = Util.scale_vector(@face_transforms[i].origin - ORIGIN, (die_scale - 1.0))
+                full_transform = Geom::Transformation.translation(offset_vector) * @face_transforms[i]
+
+                # Sort the faces by containment order and emboss them onto the die in order.
+                (DiceUtil.sort_by_bounds(faces)).each() do |face|
+                    # Get the loops that bound the face.
+                    loops = face.loops()
+
+                    # Remove the outer-most loop from the array so we can handle it first.
+                    outer_loop = DiceUtil.get_outer_loop(loops)
+                    # Create the main face by placing the outer loop onto the die.
+                    main_face = die_mesh.add_face(DiceUtil.transform_points(points: outer_loop.vertices(), transform: full_transform))
+
+                    # Create the inner faces on the die from their loops afterwards.
+                    loops.each() do |loop|
+                        die_mesh.add_face(DiceUtil.transform_points(points: loop.vertices(), transform: full_transform))
+                    end
+
+                    # TODO HERE WE NEED TO PUSH PULL THE MAIN FACE!
+                end
             end
         end
     end
