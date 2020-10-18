@@ -1,0 +1,109 @@
+What is a more effecient way to do this?
+
+We do all the normal stuff, bu instead of using the intersect function we do a custom intersection
+
+
+Okay, so the actual shapes of the dice are fine how they are right now, BUT we need to add a field for storing the actual faces, and not just their transforms.
+
+Then we'll need to completely redo the glyph generation.
+So we'll actually want to remove place_glyphs with a new method which just creates an array of groups, each with the glyph's for a single face.
+Then we'll pass this to an emboss_glyphs method which will actually handle the transforms and emboss them on the spot.
+For the embossing algorithm, we'll want to completely avoid intersecting the entire model. It's just way too slow, and we know what we're interseting with anyways.
+
+We'll cross that bridge later.
+
+
+Hmmmmmmm, actually we already know all this stuff at the glyph level, we don't need to calculate this for every single die... We can just do it once at font initialization.
+But how will the embossing actually work? We'll need it to support... Yeah fine, whatever, we'll do it every single time and hopefully that will be fast enough.
+
+The real issue is how can we tell which faces are from the intersection, and which aren't...
+
+
+
+
+Okay, okay, okay. So, we have an array of faces, and we have an array of glyphs, the first we do is we get face[i] and glyph[i],
+
+The we create bounds[i] which have the bounds for the faces,
+
+
+
+
+# TODO WE NEED TO ADD A DEPTH PARAMETER TO THIS!
+def emboss_glyphs(die_mesh:, glyphs:, transforms:)
+    glyphs.each_with_index() |glyph, i| do:
+        # Get all the faces that make up the current glyphs.
+        faces = glyph.entities().grep(Sketchup::Face)
+
+        # Sort the faces by containment order and emboss them onto the die in order.
+        (sort_by_bounds(faces)).each() |face| do
+            # Get the loops that bound the face.
+            loops = face.loops()
+
+            # Remove the outer-most loop from the array so we can handle it first.
+            outer_loop = get_outer_loop(loops)
+            # Create the main face by placing the outer loop onto the die.
+            main_face = die_mesh.add_face(transform_points(points: outer_loop.vertices(), transform: transforms[i]))
+
+            # Create the inner faces on the die from their loops afterwards.
+            loops.each() |loop| do
+                die_mesh.add_face(transform_points(points: loop.vertices(), transform: transforms[i]))
+            end
+
+            # TODO HERE WE NEED TO PUSH PULL THE MAIN FACE!
+    end
+end
+
+
+
+
+
+
+
+===== OLD CODE =====
+        # Creates and places glyphs onto the faces of the die. This default implementation iterates through each face
+        # and places the corresponding number on it, but subclasses can override this method for custom glyph placement.
+        #   font: The font to create the glyphs in.
+        #   mesh: The collection of entities where glyphs should be generated into.
+        #   type: The type of die that the glyphs are being placed for. This can either be a special type like "D4" or
+        #         "D%" which are handled by overriden versions of this function, or a number indicating the maximum
+        #         number to count up to on the die. If there are more faces than the type number, numbers are repeated.
+        #         However, the die type must divide the number of faces evenly.
+        #   die_size: The size of the die in mm. Specifically, this must be the distance between two diametric faces, or
+        #             a face and a vertex diametrically opposite to it if necessary (like for the tetrahedron (D4)).
+        #             If left as nil, it uses the default size for the die. Defaults to nil.
+        #   font_size: The height to make the glyphs on the die, in mm. If nil, it uses the default glyph size for the
+        #              die. Defaults to nil.
+        #   glyph_mapping: String representing which glyph mapping to use. If left as nil, the default mapping is used
+        #                  where no rotating is performed, and each face is embossed with a glyph corresponding to it's
+        #                  numerical index.
+        def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
+            # If no type was provided, set it the number of faces on the die.
+            type ||= @face_transforms.length()
+
+            # First ensure that the die model is compatible with the provided type.
+            unless (@face_transforms.length() % type == 0)
+                face_count = @face_transforms.length()
+                raise "Incompatible die type: a D#{face_count} model cannot be used to generate D#{type} dice."
+            end
+
+            # Resolve the glyph mapping to an array of glyphs and the angles to rotate them by.
+            glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping)
+
+            # Calculate the scale factors for the die and the font.
+            die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
+            font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
+
+            # Iterate through each face in order and generate the corresponding number on it.
+            @face_transforms.each_with_index() do |face_transform, i|
+                # First scale and rotate the glyph, then perform the face-local coordinate transformation.
+                glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
+                full_transform = face_transform * glyph_rotation * Geom::Transformation.scaling(font_scale)
+                # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
+                # has been scaled up.
+                offset_vector = Util.scale_vector(face_transform.origin - ORIGIN, (die_scale - 1.0))
+                full_transform = Geom::Transformation.translation(offset_vector) * full_transform
+
+                glyph_name = glyph_names[i % type].to_s()
+                font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
+            end
+        end
