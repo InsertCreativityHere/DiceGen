@@ -6,7 +6,9 @@ module DiceGen::Dice
     (Dir["#{__dir__}/DiceDefinitions/**/*.rb"]).each() do |file|
         require file
         model_name = File.basename(file, ".rb")
-        puts "    Loaded #{model_name}#{' ' * (40 - model_name.length())}=>    #{(Class.const_get(model_name)).constants()}"
+        variants = "#{(Class.const_get(model_name)).constants()}".gsub(":", "")
+        mappings = "#{(Class.const_get(model_name))::STANDARD.glyph_mappings.keys()}".gsub("\"", "")
+        puts "    Loaded #{model_name}#{' ' * (36 - model_name.length())}#{variants}#{' ' * (42 - variants.length())}#{mappings}"
     end
 
 end
