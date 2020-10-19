@@ -706,7 +706,7 @@ module Dice
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
 
             # Create an array for storing the glyph's definitions in.
-            glyph_definitions = Array::new(@face_transforms.length())
+            glyph_instances = Array::new(@face_transforms.length())
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
                 # Calculate the transformation to scale and rotate the glyphs.
@@ -715,22 +715,23 @@ module Dice
 
                 glyph_name = glyph_names[i % type].to_s()
                 instance = font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
-                glyph_definitions[i] = instance.definition()
+                glyph_instances[i] = instance
             end
-            return glyph_definitions
+            return glyph_instances
         end
 
         # TODO
         def emboss_glyphs(die_mesh:, glyphs:, die_size: nil, depth: 0.0)
             glyphs.each_with_index() do |glyph, i|
                 # Get all the faces that make up the current glyphs.
-                faces = glyph.entities().grep(Sketchup::Face)
+                faces = glyph.definition.entities().grep(Sketchup::Face)
+                glyph_transform = glyph.transformation()
 
                 # Calculate the die's scale factor.
                 die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
                 # Calculate the full face transform that accounts for die scaling.
                 offset_vector = Util.scale_vector(@face_transforms[i].origin - ORIGIN, (die_scale - 1.0))
-                full_transform = Geom::Transformation.translation(offset_vector) * @face_transforms[i]
+                full_transform = Geom::Transformation.translation(offset_vector) * @face_transforms[i] * glyph_transform
 
                 # Sort the faces by containment order and emboss them onto the die in order.
                 (DiceUtil.sort_by_bounds(faces)).each() do |face|
