@@ -3,17 +3,14 @@ module DiceGen::Dice
     # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
     # By default this model has a size of 18mm, and a font size of 6mm.
     class Tetrahedron < DieModel
-        # Stores the order that numbers should be placed onto the faces of a D4 with. Each entry starts with the number
-        # corresponding to a respective face, then lists the numbers for each remaining vertex in clockwise order.
-        @@D4_NUMBERING = [[1, 2, 3], [2, 4, 3], [3, 4, 1], [4, 2, 1]]
+        # Dictionary that stores the order that numbers should be placed onto the faces of a D4 with for each glyph
+        # mapping. Each value is a 2D array that stores which glyph should be placed on the jth vertex of the ith face.
+        attr_accessor :d4_numbering
 
         # An array of transformations used to place glyphs onto the vertexes of this die model. Normally, glyphs are
         # placed at the center of each face but for 'D4' type dice, the glyphs are placed at the tips of the faces next
-        # to the vertexes. Each entry is a coordinate transformation like 'face_transforms', but rotated and scaled to
-        # place the die in the corners instead of the center.
-        # The transforms are stored in a 4x3 array, where vertex_transforms[i][j] is the transform for the jth vertex of
-        # the ith face. Each transform is computed by translating up the y-axis, then rotating by either 0, 120, or 240
-        # degrees depending on which corner the transform is for.
+        # to the vertexes. These transforms offset the glyph from the center, then rotate them by 0, 120, or 240 degrees
+        # depending on which corner the glyph is being placed into.
         attr_accessor :vertex_transforms
 
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -45,63 +42,65 @@ module DiceGen::Dice
             # Which is further scaled by 1000, since we treat mm as m in the model, to get 867.929
             super(die_size: 18.0, die_scale: 867.929, font_size: 6.0, definition: definition, faces: faces)
 
+            @d4_numbering = {"default" => [[1, 2, 3], [2, 4, 3], [3, 4, 1], [4, 2, 1]]}
             # Add the additional glyph mappings supported by this model.
             a0 = 0.0; a1 = 120.0; a2 = 240.0;
             @glyph_mappings["chessex"]   = [[1, 4, 2, 3], [a2, a0, a0, a2]]
+            @d4_numbering["chessex"]     = [[1, 2, 3], [2, 4, 3], [3, 4, 1], [4, 2, 1]]
             @glyph_mappings["rybonator"] = [[1, 4, 2, 3], [a2, a0, a0, a2]]
+            @d4_numbering["rybonator"]   = [[1, 2, 3], [2, 4, 3], [3, 4, 1], [4, 2, 1]]
 
-            # Create an array for storing the computed vertex transforms.
-            @vertex_transforms = Array::new(4)
             # 120 degrees clockwise in radians. The angle between any two vertices of a face.
             angle = -120 * Util::DTOR
-            # The distance to offset each glyph from the center for the vertex transforms.
-            offset = 1000 * glyph_vertex_offset / 25.4
+            # Compute the distance to offset each glyph from the center for the vertex transforms.
+            offset = glyph_vertex_offset * Util::MTOI
+            translation = Geom::Transformation.translation(Geom::Vector3d::new(0, offset, 0))
 
-            # Iterate through each of the already calculated face transforms and compute a vertex transform for each of
-            # the corners of the respective face.
-            @face_transforms.each_with_index() do |face_transform, i|
-                # Calculate the translation component by offseting the glyph in the local y-direction.
-                translation = Geom::Transformation.translation(Util.scale_vector(face_transform.yaxis, offset))
-                vertex_transforms[i] = Array::new(3)
-                # Iterate through each of the 3 vertices to calculate the rotation component.
-                (0..2).each() do |j|
-                    # Rotate the glyph around the local z-axis and the center of the face by 120*j degrees clockwise.
-                    rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, angle * j)
-                    vertex_transforms[i][j] = rotation * translation * face_transform
-                end
+            # Compute the vertex transforms. These are applied before the face transforms and are for moving and
+            # aligning glyphs into the corners of each face of the D4.
+            @vertex_transforms = Array::new(3)
+            (0..2).each() do |i|
+                # Rotate the glyph around the z-axis and the origin by 120*j degrees clockwise.
+                rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, angle * i)
+                @vertex_transforms[i] = rotation * translation
             end
         end
 
-        # TODO
-        def place_glyphs(font:, mesh:, type: nil, die_size: nil, font_size: nil, glyph_mapping: nil)
+        #TODO
+        def get_glyphs(font:, mesh:, type: nil, font_size: nil, glyph_mapping: nil)
             # If the type is anything other than "D4", delegate to the default implementation.
             unless (type == "D4")
                 return super
             end
 
+            # Resolve the glyph mapping to an array of glyphs and the angles to rotate them by.
             glyph_names, glyph_angles = resolve_glyph_mapping(glyph_mapping)
 
-            # Calcaulte the scale factors for the die and the font.
-            die_scale = (die_size.nil?()? 1.0 : (die_size.to_f() / @die_size))
+            # Calculate the scale factor for the font.
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
 
-            # Iterate through each face and generate glyphs at the vertices of the face.
-            @vertex_transforms.each_with_index() do |vertex_transform, i|
-                face_transform = @face_transforms[i]
-                vertex_transform.each_with_index() do |transform, j|
-                    # First scale and rotate the glyph, then perform the face-local coordinate transformation.
-                    glyph_rotation = Geom::Transformation.rotation(face_transform.origin, face_transform.zaxis, (glyph_angles[i] * Util::DTOR))
-                    full_transform = glyph_rotation * transform * Geom::Transformation.scaling(font_scale)
-                    # Then, translate the glyph by a z-offset that ensures the glyph and face are coplanar, even if the die
-                    # has been scaled up.
-                    offset_vector = Util.scale_vector(@face_transforms[i].origin - ORIGIN, (die_scale - 1.0))
-                    full_transform = Geom::Transformation.translation(offset_vector) * full_transform
+            # Create an array for storing the glyphs in.
+            glyph_instances = Array::new(@face_transforms.length())
+            # Iterate through each face in order and generate the corresponding numbers on it.
+            @face_transforms.each_with_index() do |face_transform, i|
+                # Create a group for placing the multiple glyphs into and add it into the instances list.
+                glyph_group = mesh.add_group()
+                glyph_instances[i] = glyph_group
+                glyph_mesh = glyph_group.entities()
 
-                    # Place the glyph at the jth vertex of the ith face.
-                    glyph_name = @@D4_NUMBERING[glyph_names[i] - 1][j].to_s()
-                    font.create_glyph(name: glyph_name, entities: mesh, transform: full_transform)
+                # Iterate through each vertex and create a glyph in it.
+                @vertex_transforms.each_with_index() do |transform, j|
+                    # Calculate the transformations to scale and rotate the glyphs.
+                    glyph_rotation = Geom::Transformation.rotation(ORIGIN, Z_AXIS, (glyph_angles[i] * Util::DTOR))
+                    full_transform = glyph_rotation * transform * Geom::Transformation.scaling(font_scale)
+
+                    # Place and explode the glyph at the jth vertex of the ith face in the group's mesh.
+                    # We explode it to prevent having more than 1 layer of nesting, which messes up the embossing.
+                    glyph_name = @d4_numbering[glyph_mapping][glyph_names[i] - 1][j].to_s()
+                    font.create_glyph(name: glyph_name, entities: glyph_mesh, transform: full_transform).explode()
                 end
             end
+            return glyph_instances
         end
 
         # A tetrahedron with standard dimensions.
