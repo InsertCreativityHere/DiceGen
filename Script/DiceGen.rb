@@ -705,7 +705,7 @@ module Dice
             # Calculate the scale factor for the font.
             font_scale = (font_size.nil?()? 1.0 : (font_size.to_f() / @font_size))
 
-            # Create an array for storing the glyph's definitions in.
+            # Create an array for storing the glyphs in.
             glyph_instances = Array::new(@face_transforms.length())
             # Iterate through each face in order and generate the corresponding number on it.
             @face_transforms.each_with_index() do |face_transform, i|
