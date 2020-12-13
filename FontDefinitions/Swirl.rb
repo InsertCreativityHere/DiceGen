@@ -9,6 +9,6 @@ module DiceGen::Fonts
     Swirl = SplicedFont::new(**SWIRL_ARGS)
 
     Swirl_Lotus = SplicedFont::new(**SWIRL_ARGS)
-    Swirl_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
+    Swirl_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
 
 end

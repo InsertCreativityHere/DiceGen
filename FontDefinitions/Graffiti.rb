@@ -9,6 +9,6 @@ module DiceGen::Fonts
     Graffiti = SplicedFont::new(**GRAFFITI_ARGS)
 
     Graffiti_Lotus = SplicedFont::new(**GRAFFITI_ARGS)
-    Graffiti_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
+    Graffiti_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
 
 end

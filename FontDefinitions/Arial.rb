@@ -7,6 +7,6 @@ module DiceGen::Fonts
     Arial = SystemFont::new(**ARIAL_ARGS)
 
     Arial_Lotus = SystemFont::new(**ARIAL_ARGS)
-    Arial_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
+    Arial_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
 
 end

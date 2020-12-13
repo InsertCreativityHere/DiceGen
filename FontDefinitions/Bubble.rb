@@ -9,6 +9,6 @@ module DiceGen::Fonts
     Bubble = SplicedFont::new(**BUBBLE_ARGS)
 
     Bubble_Lotus = SplicedFont::new(**BUBBLE_ARGS)
-    Bubble_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
+    Bubble_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
 
 end

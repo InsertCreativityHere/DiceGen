@@ -9,6 +9,6 @@ module DiceGen::Fonts
     MadiFont2 = SplicedFont::new(**MADIFONT2_ARGS)
 
     MadiFont2_Lotus = SplicedFont::new(**MADIFONT2_ARGS)
-    MadiFont2_Lotus.set_glyphs({"20" => VECTOR_IMAGES["flowa3"]})
+    MadiFont2_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
 
 end
