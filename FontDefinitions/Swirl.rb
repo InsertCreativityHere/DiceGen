@@ -1,14 +1,12 @@
 
 module DiceGen::Fonts
 
-    # Define the common arguments for swirl fonts in a centralized location.
-    SWIRL_ARGS = {:name => "swirl", :folder => "#{FONT_DIR}/Swirl", :default_padding => 0.1, :padding_matrix => {
+    # Define the padding matrix for splicing the Swirl glyphs together.
+    SWIRL_MATRIX = {
 
-    }}
+    }
 
-    Swirl = SplicedFont::new(**SWIRL_ARGS)
-
-    Swirl_Lotus = SplicedFont::new(**SWIRL_ARGS)
-    Swirl_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
+    Swirl = SplicedFont::new(name: "Swirl", folder: "#{FONT_DIR}/Swirl", padding_matrix: SWIRL_MATRIX)
+    Swirl.set_glyphs({"*" => VECTOR_IMAGES["lotuslogo"]})
 
 end

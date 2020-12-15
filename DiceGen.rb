@@ -371,15 +371,13 @@ module Fonts
         #         it's the actual font folder that it expects to get.
         #   padding_matrix: Hash containing the amount of horizontal padding space to leave between specific pairs of
         #                   glyphs. Each key is an ordered pair of glyphs (like "79"), and the corresponding value is
-        #                   how much padding should be placed between them during splicing.
+        #                   how much padding should be placed between them during splicing. Defaults to an empty hash.
         #   default_padding: The default amount of padding to leave between glyphs when no value is specified in the
-        #                    padding_matrix.
-        def initialize(name:, folder:, padding_matrix:, default_padding:)
+        #                    padding_matrix. Defaults to 0.1mm.
+        def initialize(name:, folder:, default_padding: 0.1, padding_matrix: {})
             super(name: name, folder: folder)
             # Convert the paddings from mm to inches (except that we actually use meters in place of mm in the model).
             @padding_matrix = Hash[padding_matrix.map{ |k,v| [k, v * Util::MTOI]}]
-
-            #Hash[my_hash.map{|k,str| [k,"%#{str}%"] } ]
             @default_padding = default_padding * Util::MTOI
         end
 

@@ -1,14 +1,12 @@
 
 module DiceGen::Fonts
 
-    # Define the common arguments for bubble fonts in a centralized location.
-    BUBBLE_ARGS = {:name => "bubble", :folder => "#{FONT_DIR}/Bubble", :default_padding => 0.1, :padding_matrix => {
+    # Define the padding matrix for splicing the Bubble glyphs together.
+    BUBBLE_MATRIX = {
 
-    }}
+    }
 
-    Bubble = SplicedFont::new(**BUBBLE_ARGS)
-
-    Bubble_Lotus = SplicedFont::new(**BUBBLE_ARGS)
-    Bubble_Lotus.set_glyphs({"20" => VECTOR_IMAGES["lotuslogo"]})
+    Bubble = SplicedFont::new(name: "Bubble", folder: "#{FONT_DIR}/Bubble", padding_matrix: BUBBLE_MATRIX)
+    Bubble.set_glyphs({"*" => VECTOR_IMAGES["lotuslogo"]})
 
 end
