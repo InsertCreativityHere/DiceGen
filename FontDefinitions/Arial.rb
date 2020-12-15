@@ -1,6 +1,7 @@
 
 module DiceGen
 module Fonts
+module Definitions
 
     # This class defines the Arial font family.
     class Arial < SystemFont
@@ -19,5 +20,6 @@ module Fonts
         BOTH = Arial::new(italic: true, bold: true)
     end
 
+end
 end
 end

@@ -1,6 +1,7 @@
 
 module DiceGen
 module Fonts
+module Definitions
 
     # This class defines the Graffiti font family.
     class Graffiti < SplicedFont
@@ -21,5 +22,6 @@ module Fonts
         STANDARD = Graffiti::new()
     end
 
+end
 end
 end

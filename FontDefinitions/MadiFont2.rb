@@ -1,6 +1,7 @@
 
 module DiceGen
 module Fonts
+module Definitions
 
     # This class defines the MadiFont2 font family.
     class MadiFont2 < SplicedFont
@@ -21,5 +22,6 @@ module Fonts
         STANDARD = MadiFont2::new()
     end
 
+end
 end
 end

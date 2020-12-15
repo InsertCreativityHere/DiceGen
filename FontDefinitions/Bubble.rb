@@ -1,6 +1,7 @@
 
 module DiceGen
 module Fonts
+module Definitions
 
     # This class defines the Bubble font family.
     class Bubble < SplicedFont
@@ -21,5 +22,6 @@ module Fonts
         STANDARD = Bubble::new()
     end
 
+end
 end
 end

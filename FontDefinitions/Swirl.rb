@@ -1,6 +1,7 @@
 
 module DiceGen
 module Fonts
+module Definitions
 
     # This class defines the Swirl font family.
     class Swirl < SplicedFont
@@ -21,5 +22,6 @@ module Fonts
         STANDARD = Swirl::new()
     end
 
+end
 end
 end
