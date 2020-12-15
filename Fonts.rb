@@ -15,19 +15,21 @@ module Definitions
 
     # Import all the ruby files in the 'FontDefinitions' directory; Each of these defines a font family.
     puts "===== Loading Glyphs ====="
+    output_string = ""
     (Dir["#{__dir__}/FontDefinitions/**/*.rb"]).each() do |file|
         require file
+
+        family_name = File.basename(file, ".rb")
+        font = Definitions.const_get(family_name)
+        variants = font.constants().select{|c| font.const_get(c).is_a? Font}
+        variants = "#{variants}".gsub(":", "")
+
+        output_string += "    Loaded #{family_name}#{' ' * (20 - family_name.length())}#{variants}\n"
     end
 
     # List all the fonts that were imported.
     puts "===== Loading Fonts ====="
-    ((Definitions.constants().map{|c| Definitions.const_get(c)}).select{|c| c.instance_of? Class}).each() do |font|
-        family_name = font.name.split('::').last()
-        variants = font.constants().select{|c| font.const_get(c).is_a? Font}
-        variants = "#{variants}".gsub(":", "")
-
-        puts "    Loaded #{family_name}#{' ' * (20 - family_name.length())}#{variants}"
-    end
+    puts output_string
 
 end
 end
