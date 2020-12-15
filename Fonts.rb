@@ -20,8 +20,8 @@ module Definitions
         require file
 
         family_name = File.basename(file, ".rb")
-        font = Definitions.const_get(family_name)
-        variants = font.constants().select{|c| font.const_get(c).is_a? Font}
+        family = Definitions.const_get(family_name)
+        variants = family.constants().select{|c| family.const_get(c).is_a? Font}
         variants = "#{variants}".gsub(":", "")
 
         output_string += "    Loaded #{family_name}#{' ' * (20 - family_name.length())}#{variants}\n"
