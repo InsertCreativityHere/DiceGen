@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a sharp-edged standard D20 die (an icosahedron).
     # By default this model has a size of 20mm, and a font size of 4.5mm.
     class Icosahedron < DieModel
@@ -68,4 +71,7 @@ module DiceGen::Dice
         STANDARD = Icosahedron::new(def_name: "Standard")
 
     end
+
+end
+end
 end

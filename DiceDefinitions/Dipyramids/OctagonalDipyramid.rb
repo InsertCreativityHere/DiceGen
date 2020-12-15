@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for an octagonal dipyramid (non-standard D16).
     class OctagonalDipyramid < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -61,4 +64,7 @@ module DiceGen::Dice
         # It is impossible for the faces of an octagonal dipyramid to be equalateral triangles.
 
     end
+
+end
+end
 end

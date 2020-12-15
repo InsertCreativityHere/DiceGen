@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a heptagonal dipyramid (non-standard D14).
     class HeptagonalDipyramid < DieModel
         @@CSIN = Math.sin(Math::PI / 7.0)
@@ -68,4 +71,7 @@ module DiceGen::Dice
         # It is impossible for the faces of an heptagonal dipyramid to be equalateral triangles.
 
     end
+
+end
+end
 end

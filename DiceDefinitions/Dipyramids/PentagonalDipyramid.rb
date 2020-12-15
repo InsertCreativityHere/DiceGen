@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a pentagonal dipyramid (non-standard D10).
     class PentagonalDipyramid < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -57,4 +60,7 @@ module DiceGen::Dice
                                            vertex_scale: Math.sqrt((5.0 - Math.sqrt(5.0)) / 10.0))
 
     end
+
+end
+end
 end

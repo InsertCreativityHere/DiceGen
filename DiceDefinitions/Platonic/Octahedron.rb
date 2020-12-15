@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a sharp-edged standard D8 die (an equilateral octahedron).
     # By default this model has a size of 15mm, and a font size of 7mm.
     class Octahedron < DieModel
@@ -48,4 +51,7 @@ module DiceGen::Dice
         STANDARD = Octahedron::new(def_name: "Standard")
 
     end
+
+end
+end
 end

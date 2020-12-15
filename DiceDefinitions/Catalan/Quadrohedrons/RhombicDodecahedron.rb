@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a rhombic dodecahedron (non-standard D12).
     class RhombicDodecahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -63,4 +66,7 @@ module DiceGen::Dice
         STANDARD = RhombicDodecahedron::new(def_name: "Standard")
 
     end
+
+end
+end
 end

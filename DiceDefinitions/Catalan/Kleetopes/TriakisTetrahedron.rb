@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a triakis tetrahedron (non-standard D12).
     class TriakisTetrahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -52,4 +55,7 @@ module DiceGen::Dice
         EXPANDED = TriakisTetrahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
 
     end
+
+end
+end
 end

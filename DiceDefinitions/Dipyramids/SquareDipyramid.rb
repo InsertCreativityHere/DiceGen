@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a square dipyramid (non-standard D8).
     # Technically this shape is just a scaled version of the octahedron, so this is capable of being a standard die,
     # but since this doesn't necessarily have to contain equalateral triangles, it's kept as a separate solid.
@@ -53,4 +56,7 @@ module DiceGen::Dice
         EQUALATERAL = SquareDipyramid::new(def_name: "Equalateral", vertex_scale: 1.0 / Math.sqrt(2.0))
 
     end
+
+end
+end
 end

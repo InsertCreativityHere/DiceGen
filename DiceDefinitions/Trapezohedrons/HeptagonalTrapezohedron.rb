@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a heptagonal trapezohedron (non-standard D14).
     class HeptagonalTrapezohedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -72,4 +75,7 @@ module DiceGen::Dice
         FLAT = HeptagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
 
     end
+
+end
+end
 end

@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a triangular dipyramid (non-standard D6).
     class TriangularDipyramid < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -48,4 +51,7 @@ module DiceGen::Dice
         EQUALATERAL = TriangularDipyramid::new(def_name: "Equalateral", vertex_scale: (Math.sqrt(6.0) / 3.0))
 
     end
+
+end
+end
 end

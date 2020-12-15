@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a deltoidal hexecontahedron (non-standard D60).
     class DeltoidalHexecontahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -168,4 +171,7 @@ module DiceGen::Dice
         STANDARD = DeltoidalHexecontahedron::new(def_name: "Standard")
 
     end
+
+end
+end
 end

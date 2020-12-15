@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a pentagonal trapezohedron (non-standard D10).
     class PentagonalTrapezohedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -64,4 +67,7 @@ module DiceGen::Dice
         FLAT = PentagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
 
     end
+
+end
+end
 end

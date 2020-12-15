@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a pentakis dodecahedron (non-standard D60).
     class PentakisDodecahedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -131,4 +134,7 @@ module DiceGen::Dice
         EXPANDED = PentakisDodecahedron::new(def_name: "Expanded", kleepoint_scale: 1.0)
 
     end
+
+end
+end
 end

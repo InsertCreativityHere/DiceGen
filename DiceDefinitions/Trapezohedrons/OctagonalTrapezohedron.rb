@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for an octagonal trapezohedron (non-standard D16).
     class OctagonalTrapezohedron < DieModel
         # Lays out the geometry for the die in a new ComponentDefinition and adds it to the main DefinitionList.
@@ -70,4 +73,7 @@ module DiceGen::Dice
         FLAT = OctagonalTrapezohedron::new(def_name: "Flat", vertex_scale: 0.0)
 
     end
+
+end
+end
 end

@@ -1,5 +1,8 @@
 
-module DiceGen::Dice
+module DiceGen
+module Dice
+module Definitions
+
     # This class defines the mesh model for a sharp-edged standard D4 die (a tetrahedron).
     # By default this model has a size of 18mm, and a font size of 6mm.
     class Tetrahedron < DieModel
@@ -107,4 +110,7 @@ module DiceGen::Dice
         STANDARD = Tetrahedron::new(def_name: "Standard", glyph_vertex_offset: 6.25)
 
     end
+
+end
+end
 end
