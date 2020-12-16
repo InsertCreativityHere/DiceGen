@@ -13,7 +13,7 @@ module Definitions
         #                 of 1 produces a standard trigonal trapezohedron.
         def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = 0.0

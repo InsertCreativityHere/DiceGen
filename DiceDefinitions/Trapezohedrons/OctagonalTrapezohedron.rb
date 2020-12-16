@@ -13,7 +13,7 @@ module Definitions
         #                 value of 1 produces a standard octagonal trapezohedron.
         def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             ca = Math.sqrt(2.0)

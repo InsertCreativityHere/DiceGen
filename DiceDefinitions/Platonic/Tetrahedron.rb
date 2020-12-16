@@ -22,7 +22,7 @@ module Definitions
         #   glyph_vertex_offset: The distance to offset each glyph from the center by for 'D4' type dice.
         def initialize(def_name:, glyph_vertex_offset:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = Math.sqrt(2.0) / 4.0

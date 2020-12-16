@@ -16,7 +16,7 @@ module Definitions
         #                 makes the height of the pyramids equal to their side lengths.
         def initialize(def_name:, vertex_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             ca = Math.sin(2.0 * Math::PI / 7.0)

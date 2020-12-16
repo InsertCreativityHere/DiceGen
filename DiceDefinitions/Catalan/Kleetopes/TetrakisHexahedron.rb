@@ -13,7 +13,7 @@ module Definitions
         #                    a value of 1 expands this shape into a rhombic dodecahedron.
         def initialize(def_name:, kleepoint_scale:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             c0 = 0.0

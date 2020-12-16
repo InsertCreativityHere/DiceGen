@@ -10,7 +10,7 @@ module Definitions
         #             is computed by appending this value to the name of the die model (separated by an underscore).
         def initialize(def_name:)
             # Create a new definition for the die.
-            definition = Util::MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
+            definition = $MAIN_MODEL.definitions.add("#{self.class.name}_#{def_name}")
             mesh = definition.entities()
 
             ca = Math.sqrt(33.0)
