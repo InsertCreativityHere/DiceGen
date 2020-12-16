@@ -85,8 +85,8 @@ module Util
         # All the files that have been imported into the current ruby session are stored in a variable named $"
         # We manually remove any files relating to die or font defitions from this list to 'un-require' them, so that
         # we when 'require' them in the next step, Ruby will load a fresh copy of the file.
-        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
-        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
+        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/DieLoader.rb"}
+        $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/FontLoader.rb"}
 
         # Clear the import cache, so that any old definitions will get re-imported from scratch.
         @@import_cache = Hash::new()
@@ -98,8 +98,8 @@ module Util
 
         # Re-require the font and dice definition files.
         puts "Reloading definitions..."
-        require_relative "Fonts.rb"
-        require_relative "Dice.rb"
+        require_relative "FontLoader.rb"
+        require_relative "DieLoader.rb"
     end
 end
 
@@ -759,9 +759,9 @@ end
 
 
 # Import all the fonts that we've created so far.
-require_relative "Fonts.rb"
+require_relative "FontLoader.rb"
 # Import all the die model that we've created so far.
-require_relative "Dice.rb"
+require_relative "DieLoader.rb"
 
 
 # These lines just make life easier when typing things into IRB,
