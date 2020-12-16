@@ -7,10 +7,10 @@ module DiceGen
     require_relative "Dice.rb"
     # Import the core code for font definitions.
     require_relative "Fonts.rb"
-    # Import all the die model that we've created so far.
-    require_relative "DieLoader.rb"
     # Import all the fonts that we've created so far.
     require_relative "FontLoader.rb"
+    # Import all the die model that we've created so far.
+    require_relative "DieLoader.rb"
 
     # Helper method that just forwards to the 'create_instance' method of the specified die model.
     def create_die(model:, font: nil, type: nil, group: nil, scale: 1.0, depth: 0.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
