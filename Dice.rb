@@ -2,8 +2,6 @@
 module DiceGen
 module Dice
 
-    include DiceGen
-
     #  Module containing dice specific utility code.
     module DiceUtil
         module_function

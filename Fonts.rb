@@ -2,8 +2,6 @@
 module DiceGen
 module Fonts
 
-    include DiceGen
-
     # Module containing font specific utility code.
     module FontUtil
         module_function
