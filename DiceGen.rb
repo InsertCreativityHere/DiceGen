@@ -8,7 +8,7 @@ module Util
     module_function
 
     # Stores the currently active Sketchup model.
-    MAIN_MODEL = Sketchup::active_model
+    $MAIN_MODEL = Sketchup::active_model
 
     # Path the base directory of the script.
     RESOURCE_DIR = "/Users/austin/DiceStuff/Resources"
@@ -37,7 +37,7 @@ module Util
     def import_definition(file)
         # Check if we've already imported the file, and if so, return the cached definition.
         if @@import_cache.key?(file)
-            return MAIN_MODEL.definitions[@@import_cache[file]]
+            return $MAIN_MODEL.definitions[@@import_cache[file]]
         end
 
         # Check if the file exists and is reachable.
@@ -46,14 +46,14 @@ module Util
         end
 
         # Try to import the file's model and check if it was successful.
-        result = MAIN_MODEL.import(file)
+        result = $MAIN_MODEL.import(file)
         unless result
             raise "Failed to import model from the file '#{file}'"
         end
         puts "    Loaded '#{File.basename(file, ".dae")}.dae'"
 
         # Cache and return the most recently created definition; ie: the one we just imported.
-        definition = MAIN_MODEL.definitions[-1]
+        definition = $MAIN_MODEL.definitions[-1]
         @@import_cache[file] = definition.guid()
         return definition
     end
@@ -71,31 +71,21 @@ module Util
     # session, and then re-requiring them. This might be dangerous, but it seems to work so far *shrugs*.
     # This really helps when editing dice definitions on the fly in Sketchup, since IRB never needs to be restarted.
     def reload_script()
-        # First we manually delete any of the classes or modules that we've loaded from the definition scripts.
-        # We assume that these files are all directly in the 'Fonts' and 'Dice' namespace, and then delete anything
-        # except for a list of protected classes and modules that we know are defined in this file.
+        # First we manually delete any of the classes or modules that we've loaded from the definition scripts,
+        # We assume that all these files are in one of the 'Definitions' modules. *crosses fingers*
 
-        # List of all the core objects that are defined in this main script file that shouldn't be undefined.
-        protected_objects = [:DiceGen, :Util, :Fonts, :FontUtil, :Font, :SystemFont, :RawFont, :SplicedFont, :Dice,
-                             :DiceUtil, :DieModel]
-        # Create a list of all the objects defined in the 'Fonts' and 'Dice' namespaces, then filter it to only keep the
-        # non-protected (removable) objects.
-        removable_fonts_objects = DiceGen::Dice.constants().select{|obj| !protected_objects.include?(obj)}
-        removable_dice_objects = DiceGen::Fonts.constants().select{|obj| !protected_objects.include?(obj)}
-
-        # Cross your fingers and undefine everything listed in the removable object lists.
         puts "Unloading and deleting imported definitions..."
-        removable_dice_objects.each() do |obj|
-            puts "    Unloading Fonts::#{obj}"
-            Fonts.send(:remove_const, obj)
+        Fonts::Definitions.constants().each() do |obj|
+            puts "    Unloading Font definition: '#{obj}'"
+            Fonts::Definitions.send(:remove_const, obj)
         end
-        removable_fonts_objects.each() do |obj|
-            puts "    Unloading Dice::#{obj}"
-            Dice.send(:remove_const, obj)
+        Dice::Definitions.constants().each() do |obj|
+            puts "    Unloading Die definition: '#{obj}'"
+            Dice::Definitions.send(:remove_const, obj)
         end
 
         # All the files that have been imported into the current ruby session are stored in a variable named $"
-        # We manually remove any files relating to dice or font defitions from this list to 'un-require' them, so that
+        # We manually remove any files relating to die or font defitions from this list to 'un-require' them, so that
         # we when 'require' them in the next step, Ruby will load a fresh copy of the file.
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/DiceDefinitions/") || file == "#{SCRIPT_DIR}/Dice.rb"}
         $".delete_if{|file| file.start_with?("#{SCRIPT_DIR}/FontDefinitions/") || file == "#{SCRIPT_DIR}/Fonts.rb"}
@@ -104,7 +94,9 @@ module Util
         @@import_cache = Hash::new()
 
         # Purge any unused ComponentDefinitions, to minimize naming conflicts while re-importing the model definitions.
-        MAIN_MODEL.definitions.purge_unused()
+        # Then reset the MAIN_MODEL to whatever the active model in Sketchup currently is.
+        $MAIN_MODEL.definitions.purge_unused()
+        $MAIN_MODEL = Sketchup::active_model
 
         # Re-require the font and dice definition files.
         puts "Reloading definitions..."
@@ -204,7 +196,7 @@ module Fonts
             padding.push(0.0)
 
             # Create a new definition to splice the glyphs into.
-            definition = Util::MAIN_MODEL.definitions.add(name)
+            definition = $MAIN_MODEL.definitions.add(name)
             entities = definition.entities()
 
             # Keep a running tally of the current x position, starting at the leftmost point.
@@ -316,7 +308,7 @@ module Fonts
             # Lazily create the requested glyph via the 3D text tool if we haven't already created and cached it before.
             unless @glyphs.key?(name)
                 # Create a new definition to draw the text into.
-                definition = Util::MAIN_MODEL.definitions.add(@name + '_' + name)
+                definition = $MAIN_MODEL.definitions.add(@name + '_' + name)
                 def_entitites = definition.entities()
 
                 # Draw the 3D text centered with the correct attributes and a letter-height of 8mm.
@@ -374,7 +366,7 @@ module Fonts
         #                   how much padding should be placed between them during splicing. Defaults to an empty hash.
         #   default_padding: The default amount of padding to leave between glyphs when no value is specified in the
         #                    padding_matrix. Defaults to 0.1mm.
-        def initialize(name:, folder:, default_padding: 0.1, padding_matrix: {})
+        def initialize(name:, folder:, padding_matrix: {}, default_padding: 0.1)
             super(name: name, folder: folder)
             # Convert the paddings from mm to inches (except that we actually use meters in place of mm in the model).
             @padding_matrix = Hash[padding_matrix.map{ |k,v| [k, v * Util::MTOI]}]
@@ -641,10 +633,10 @@ module Dice
         #   transform: A custom transformation that is applied to the die after generation. Defaults to no transform.
         def create_instance(font: nil, type: nil, group: nil, scale: 1.0, depth: 0.0, die_size: nil, font_size: nil, glyph_mapping: nil, transform: IDENTITY)
             # If no group was provided, create a new top-level group for the die.
-            group ||= Util::MAIN_MODEL.entities().add_group()
+            group ||= $MAIN_MODEL.entities().add_group()
 
             # Start a new operation so that creating the die can be undone/aborted if necessary.
-            Util::MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
+            $MAIN_MODEL.start_operation('Create ' + self.class.name.split('::').last(), true)
 
             # Create an instance of the die model within the enclosing group.
             # We have to make 2 instances so that 'make_unique' works correctly. If only one instance exists,
@@ -683,7 +675,7 @@ module Dice
             die_mesh.transform_entities(transform * Geom::Transformation.scaling(scale), die_mesh.to_a())
 
             # Commit the operation to signal to Sketchup that the die has been created.
-            Util::MAIN_MODEL.commit_operation()
+            $MAIN_MODEL.commit_operation()
         end
 
         # TODO
@@ -768,14 +760,16 @@ end
 end
 
 
-
-# These lines just make life easier when typing things into IRB, by making it so we don't have to explicitely state the
-# modules for the 'DiceGen', 'Fonts', and 'Dice' namespaces.
-include DiceGen
-include Fonts
-include Dice
-
 # Import all the fonts that we've created so far.
 require_relative "Fonts.rb"
 # Import all the die model that we've created so far.
 require_relative "Dice.rb"
+
+
+# These lines just make life easier when typing things into IRB,
+# by making it so we don't have to explicitely state modules.
+include DiceGen
+include DiceGen::Fonts
+include DiceGen::Fonts::Definitions
+include DiceGen::Dice
+include DiceGen::Dice::Definitions
