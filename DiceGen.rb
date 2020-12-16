@@ -1,6 +1,4 @@
 
-require 'singleton'
-
 module DiceGen
 
 # Module containing general use utility code.
