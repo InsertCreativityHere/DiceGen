@@ -751,6 +751,10 @@ module Dice
         if model.is_a?(Class)
             model = model::STANDARD
         end
+        # Same for the font. Use the standard font of the family it none were specified.
+        if font.is_a?(Class)
+            font = font::STANDARD
+        end
         model.create_instance(font: font, type: type, group: group, scale: scale, depth: depth, die_size: die_size, font_size: font_size, glyph_mapping: glyph_mapping, transform: transform)
     end
 
