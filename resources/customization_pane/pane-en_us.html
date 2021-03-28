@@ -5,176 +5,119 @@
     <title>DiceForge Customization Pane</title>
 </head>
 <body>
-    <div id="model-menu" class="menu">
-        <h3 id="model-menu-header" class="menu-header">
-            <span id=model-menu-dropdown>&#x25B8;</span>
-            <span id=model-menu-label>Model</span>
-        </h3>
-        <div id=model-menu-content class="menu-content">
-TODO
-        </div>
-    </div>
-
-    <div id="faces-menu" class="menu">
-        <h3 id=faces-menu-header class="menu-header">
-            <span id=faces-menu-dropdown>&#x25B8;</span>
-            <span id=faces-menu-label>Faces</span>
-        </h3>
-        <div id=faces-menu-content class="menu-content">
-            <div id="recess-faces-field">
-                <label for="recess-faces-checkbox">Recess Faces</label>
-                <input type="checkbox" id="recess-faces-checkbox">
+    <script src="interface.js"></script>
+    <form novalidate>
+        <div id="model-menu" class="menu">
+            <h3 id="model-menu-header" class="menu-header">
+                <span id=model-menu-dropdown>&#x25B8;</span>
+                <span id=model-menu-label>Model</span>
+            </h3>
+            <div id=model-menu-content class="menu-content">
+    TODO
             </div>
-            <div id="recess-faces-section">
-                <hr>
-                <div id="face-depth-field" class="slider-field">
-                    <label for="face-depth-slider">Depth</label>
-                    0<input type="range" id="face-depth-slider" step="0.5" value="5" min="0" max="8">8
-                    <input type="number" id="face-depth-input" value="5">
+        </div>
+
+        <div id="faces-menu" class="menu">
+            <h3 id="faces-menu-header" class="menu-header">
+                <span id="faces-menu-dropdown">&#x25B8;</span>
+                <span id="faces-menu-label">Faces</span>
+            </h3>
+            <div id=faces-menu-content class="menu-content">
+                <div id="recess-faces-field">
+                    <label for="recess-faces-checkbox">Recess Faces</label>
+                    <input type="checkbox" id="recess-faces-checkbox">
                 </div>
-                <div id="face-border-width-field" class="slider-field">
-                    <label for="face-border-width-slider">Border Width</label>
-                    0<input type="range" id="face-border-width-slider" step="0.1" value="0.5" min="0" max="2">2
-                    <input type="number" id="face-border-width-input" value="0.5">
-                </div>
-                <div id="face-border-corners-field" class="chooser-field">
-                    <label for="face-border-corners-chooser">Border Corners</label>
-                    <select id="face-border-corners-chooser">
-                        <option value="EMPTY">Empty</option>
-                        <option value="STRAIGHT">Straight</option>
-                        <option value="ROUNDED">Rounded</option>
-                    </select>
-                </div>
-                <div id="straight-border-corners-section">
-                    <div id="straight-border-corners-protrusion-field" class="slider-field">
-                        <label for="straight-border-corners-protrusion-slider">Protrusion</label>
-                        0<input type="range" id="straight-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
-                        <input type="number" id="straight-border-corners-protrusion-input" value="0.2">
+                <div id="recess-faces-section">
+                    <hr>
+                    <div id="face-depth-field" class="slider-field">
+                        <label for="face-depth-slider">Depth</label>
+                        0<input type="range" id="face-depth-slider" step="0.5" value="5" min="0" max="8">8
+                        <input type="number" id="face-depth-input" step="0.5" value="5" formnovalidate>
+                    </div>
+                    <div id="face-border-width-field" class="slider-field">
+                        <label for="face-border-width-slider">Border Width</label>
+                        0<input type="range" id="face-border-width-slider" step="0.1" value="0.5" min="0" max="2">2
+                        <input type="number" id="face-border-width-input" step="0.1" value="0.5">
+                    </div>
+                    <div id="face-border-corners-field" class="chooser-field">
+                        <label for="face-border-corners-chooser">Border Corners</label>
+                        <select id="face-border-corners-chooser">
+                            <option value="EMPTY">Empty</option>
+                            <option value="STRAIGHT">Straight</option>
+                            <option value="ROUNDED">Rounded</option>
+                        </select>
+                    </div>
+                    <div id="straight-border-corners-section">
+                        <div id="straight-border-corners-protrusion-field" class="slider-field">
+                            <label for="straight-border-corners-protrusion-slider">Protrusion</label>
+                            0<input type="range" id="straight-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                            <input type="number" id="straight-border-corners-protrusion-input" step="0.05" value="0.2">
+                        </div>
+                    </div>
+                    <div id="rounded-border-corners-section">
+                        <div id="rounded-border-corners-protrusion-field" class="slider-field">
+                            <label for="rounded-border-corners-protrusion-slider">Protrusion</label>
+                            0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                            <input type="number" id="rounded-border-corners-protrusion-input" step="0.05" value="0.2">
+                        </div>
+                        <div id="rounded-border-corners-curvature-field" class="slider-field">
+                            <label for="rounded-border-corners-curvature-slider">Curvature</label>
+                            0<input type="range" id="rounded-border-corners-curvature-slider" step="0.1" value="0.5" min="0" max="2">2
+                            <input type="number" id="rounded-border-corners-curvature-input" step="0.1" value="0.5">
+                        </div>
                     </div>
                 </div>
-                <div id="rounded-border-corners-section">
-                    <div id="rounded-border-corners-protrusion-field" class="slider-field">
-                        <label for="rounded-border-corners-protrusion-slider">Protrusion</label>
-                        0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
-                        <input type="number" id="rounded-border-corners-protrusion-input" value="0.2">
+                <div id="round-faces-field">
+                    <label for="round-faces-checkbox">Round Faces</label>
+                    <input type="checkbox" id="round-faces-checkbox">
+                </div>
+                <div id="round-faces-section">
+                    <hr>
+                    <div id="face-curvature-field" class="slider-field">
+                        <label for="face-curvature-slider">Curvature</label>
+                        0<input type="range" id="face-curvature-slider" step="0.1" value="0.2" min="0" max="2">2
+                        <input type="number" id="face-curvature-input" step="0.1" value="0.2">
                     </div>
-                    <div id="rounded-border-corners-curvature-field" class="slider-field">
-                        <label for="rounded-border-corners-curvature-slider">Curvature</label>
-                        0<input type="range" id="rounded-border-corners-curvature-slider" step="0.1" value="0.5" min="0" max="2">2
-                        <input type="number" id="rounded-border-corners-curvature-input" value="0.5">
+                    <div id="face-subdivisions-field" class="slider-field">
+                        <label for="face-subdivisions-slider">Subdivisions</label>
+                        0<input type="range" id="face-subdivisions-slider" step="1" value="6" min="0" max="10">10
+                        <input type="number" id="face-subdivisions-input" step="1" value="6">
                     </div>
                 </div>
             </div>
-            <div id="round-faces-field">
-                <label for="round-faces-checkbox">Round Faces</label>
-                <input type="checkbox" id="round-faces-checkbox">
-            </div>
-            <div id="round-faces-section">
-                <hr>
-                <div id="face-curvature-field" class="slider-field">
-                    <label for="face-curvature-slider">Curvature</label>
-                    0<input type="range" id="face-curvature-slider" step="0.1" value="0.2" min="0" max="2">2
-                    <input type="number" id="face-curvature-input" value="0.2">
-                </div>
-                <div id="face-subdivisions-field" class="slider-field">
-                    <label for="face-subdivisions-slider">Subdivisions</label>
-                    0<input type="range" id="face-subdivisions-slider" step="1" value="6" min="0" max="10">10
-                    <input type="number" id="face-subdivisions-input" value="6">
-                </div>
+        </div>
+
+        <div id="edges-menu" class="menu">
+            <h3 id=edges-menu-header class="menu-header">
+                <span id=edges-menu-dropdown>&#x25B8;</span>
+                <span id=edges-menu-label>Edges</span>
+            </h3>
+            <div id=edges-menu-content class="menu-content">
+    TODO
             </div>
         </div>
-    </div>
 
-    <div id="edges-menu" class="menu">
-        <h3 id=edges-menu-header class="menu-header">
-            <span id=edges-menu-dropdown>&#x25B8;</span>
-            <span id=edges-menu-label>Edges</span>
-        </h3>
-        <div id=edges-menu-content class="menu-content">
-TODO
-        </div>
-    </div>
-
-    <div id="corners-menu" class="menu">
-        <h3 id=corners-menu-header class="menu-header">
-            <span id=corners-menu-dropdown>&#x25B8;</span>
-            <span id=corners-menu-label>Corners</span>
-        </h3>
-        <div id=corners-menu-content class="menu-content">
-TODO
-        </div>
-    </div>
-
-    <div id="glyphs-menu" class="menu">
-        <h3 id=glyphs-menu-header class="menu-header">
-            <span id=glyphs-menu-dropdown>&#x25B8;</span>
-            <span id=glyphs-menu-label>Glyphs</span>
-        </h3>
-        <div id=glyphs-menu-content class="menu-content">
-TODO
-        </div>
-    </div>
-
-
-
-
-
-
-
-
-
-
-    <div id="model-menu">
-        <div id="base-model-field">
-            
-        </div>
-        <div id="variables-section">
-            <hr>
-        </div>
-    </div>
-    <div id="faces-menu">
-        <div id="recess-faces-field">
-
-        </div>
-        <div id="recess-faces-section">
-            <hr>
-            <div id="depth-field">
-
-            </div>
-            <div id="border-width-field">
-
-            </div>
-            <div id="border-corners-field">
-
-            </div>
-            <hr>
-            <div id="protrusion-field">
-
-            </div>
-            <div id="curvature-field">
-
+        <div id="corners-menu" class="menu">
+            <h3 id=corners-menu-header class="menu-header">
+                <span id=corners-menu-dropdown>&#x25B8;</span>
+                <span id=corners-menu-label>Corners</span>
+            </h3>
+            <div id=corners-menu-content class="menu-content">
+    TODO
             </div>
         </div>
-        <div id="round-faces-field">
 
-        </div>
-        <div id="round-faces-section">
-            <div id="curvature-field">
-
+        <div id="glyphs-menu" class="menu">
+            <h3 id=glyphs-menu-header class="menu-header">
+                <span id=glyphs-menu-dropdown>&#x25B8;</span>
+                <span id=glyphs-menu-label>Glyphs</span>
+            </h3>
+            <div id=glyphs-menu-content class="menu-content">
+    TODO
             </div>
-            <div id="subdivisions-field">
-
-            </div>
         </div>
-    </div>
-    <div id="edges-menu">
 
-    </div>
-    <div id="corners-menu">
-
-    </div>
-    <div id="glyphs-menu">
-
-    </div>
+    </form>
+    <script src="initialize.js"></script>
 </body>
 </html>
