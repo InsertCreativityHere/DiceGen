@@ -12,12 +12,27 @@ function toggleMenu(menuName) {
     }
 }
 
+function toggleSection(sectionName) {
+    content = document.getElementById(`${sectionName}-section`);
+    checkbox = document.getElementById(`${sectionName}-checkbox`);
+
+    if (checkbox.checked) {
+        content.style.display = "block";
+    } else {
+        content.style.display = "none";
+    }
+}
+
 function synchronizeSlider(inputName) {
     input = document.getElementById(`${inputName}-input`);
     slider = document.getElementById(`${inputName}-slider`);
 
-    // Set the sliders's value to match the input.
-    slider.value = input.value;
+    // Set the sliders's value to match the input, unless it's empty, then use the slider's default value.
+    if (input.value == "") {
+        slider.value = slider.defaultValue;
+    } else {
+        slider.value = input.value;
+    }
 }
 
 function synchronizeInput(sliderName) {
@@ -29,16 +44,7 @@ function synchronizeInput(sliderName) {
 }
 
 function updateRecessFacesCheckbox() {
-    content = document.getElementById("recess-faces-section");
-    checkbox = document.getElementById("recess-faces-checkbox");
-
-    if (checkbox.checked) {
-        content.style.display = "block";
-        // TODO
-    } else {
-        content.style.display = "none";
-        // TODO
-    }
+    toggleSection("recess-faces");
 }
 
 function updateFaceDepthSlider() {
@@ -50,57 +56,75 @@ function updateFaceDepthInput() {
 }
 
 function updateBorderWidthSlider() {
-
+    synchronizeInput("face-border-width");
 }
 
 function updateBorderWidthInput() {
-
+    synchronizeSlider("face-border-width");
 }
 
 function updateBorderCornersChooser() {
+    chooser = document.getElementById("face-border-corners-chooser");
+    straightCornersSection = document.getElementById("straight-border-corners-section");
+    roundedCornersSection = document.getElementById("rounded-border-corners-section");
 
+    switch (chooser.value) {
+        case "EMPTY":
+            straightCornersSection.style.display = "none";
+            roundedCornersSection.style.display = "none";
+            break;
+        case "STRAIGHT":
+            straightCornersSection.style.display = "block";
+            roundedCornersSection.style.display = "none";
+            break;
+        case "ROUNDED":
+            straightCornersSection.style.display = "none";
+            roundedCornersSection.style.display = "block";
+            break;
+        default:
+    }
 }
 
 function updateStraightBorderCornersProtrusionSlider() {
-
+    synchronizeInput("straight-border-corners-protrusion");
 }
 
 function updateStraightBorderCornersProtrusionInput() {
-
+    synchronizeSlider("straight-border-corners-protrusion");
 }
 
-function updateRoundedBorderProtrusionSlider() {
-
+function updateRoundedBorderCornersProtrusionSlider() {
+    synchronizeInput("rounded-border-corners-protrusion");
 }
 
-function updateRoundedBorderProtrusionInput() {
-
+function updateRoundedBorderCornersProtrusionInput() {
+    synchronizeSlider("rounded-border-corners-protrusion");
 }
 
-function updateRoundedBorderCurvatureSlider() {
-
+function updateRoundedBorderCornersCurvatureSlider() {
+    synchronizeInput("rounded-border-corners-curvature");
 }
 
-function updateRoundedBorderCurvatureInput() {
-
+function updateRoundedBorderCornersCurvatureInput() {
+    synchronizeSlider("rounded-border-corners-curvature");
 }
 
 function updateRoundFacesCheckbox() {
-
+    toggleSection("round-faces");
 }
 
 function updateFaceCurvatureSlider() {
-    
+    synchronizeInput("face-curvature");
 }
 
 function updateFaceCurvatureInput() {
-
+    synchronizeSlider("face-curvature");
 }
 
 function updateFaceSubdivisionsSlider() {
-
+    synchronizeInput("face-subdivisions");
 }
 
 function updateFaceSubdivisionsInput() {
-
+    synchronizeSlider("face-subdivisions");
 }
