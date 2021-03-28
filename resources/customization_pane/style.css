@@ -1,0 +1,39 @@
+
+body {
+    font-family: Arial;
+}
+
+hr {
+    margin: 2px 0px;
+}
+
+h3 {
+    margin: 0px;
+}
+
+.menu-content {
+    margin: 5px;
+    padding: 8px 10px 8px 10px;
+
+    border-style: solid;
+    border-width: 2px;
+}
+
+.field::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.slider-input {
+    float: right;
+}
+
+input[type="number"] {
+    width: 50px;
+    font-size: 14px;
+}
+
+select {
+    float: right;
+}

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>DiceForge Customization Pane</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <script src="interface.js"></script>
@@ -23,23 +24,27 @@
                 <span id="faces-menu-label">Faces</span>
             </h3>
             <div id=faces-menu-content class="menu-content">
-                <div id="recess-faces-field">
+                <div id="recess-faces-field" class="field">
                     <label for="recess-faces-checkbox">Recess Faces</label>
                     <input type="checkbox" id="recess-faces-checkbox">
                 </div>
-                <div id="recess-faces-section">
+                <div id="recess-faces-section" class="section">
                     <hr>
-                    <div id="face-depth-field" class="slider-field">
+                    <div id="face-depth-field" class="field">
                         <label for="face-depth-slider">Depth</label>
-                        0<input type="range" id="face-depth-slider" step="0.5" value="5" min="0" max="8">8
-                        <input type="number" id="face-depth-input" step="0.5" value="5" formnovalidate>
+                        <span class="slider-input">
+                            0<input type="range" id="face-depth-slider" step="0.1" value="5" min="0" max="8">8
+                            <input type="number" id="face-depth-input" step="0.5" value="5" formnovalidate>
+                        </span>
                     </div>
-                    <div id="face-border-width-field" class="slider-field">
+                    <div id="face-border-width-field" class="field">
                         <label for="face-border-width-slider">Border Width</label>
-                        0<input type="range" id="face-border-width-slider" step="0.1" value="0.5" min="0" max="2">2
-                        <input type="number" id="face-border-width-input" step="0.1" value="0.5">
+                        <span class="slider-input">
+                            0<input type="range" id="face-border-width-slider" step="0.1" value="0.5" min="0" max="2">2
+                            <input type="number" id="face-border-width-input" step="0.1" value="0.5">
+                        </span>
                     </div>
-                    <div id="face-border-corners-field" class="chooser-field">
+                    <div id="face-border-corners-field" class="field">
                         <label for="face-border-corners-chooser">Border Corners</label>
                         <select id="face-border-corners-chooser">
                             <option value="EMPTY">Empty</option>
@@ -47,41 +52,51 @@
                             <option value="ROUNDED">Rounded</option>
                         </select>
                     </div>
-                    <div id="straight-border-corners-section">
-                        <div id="straight-border-corners-protrusion-field" class="slider-field">
+                    <div id="straight-border-corners-section" class="section">
+                        <div id="straight-border-corners-protrusion-field" class="field">
                             <label for="straight-border-corners-protrusion-slider">Protrusion</label>
-                            0<input type="range" id="straight-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
-                            <input type="number" id="straight-border-corners-protrusion-input" step="0.05" value="0.2">
+                            <span class="slider-input">
+                                0<input type="range" id="straight-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                                <input type="number" id="straight-border-corners-protrusion-input" step="0.05" value="0.2">
+                            </span>
                         </div>
                     </div>
-                    <div id="rounded-border-corners-section">
-                        <div id="rounded-border-corners-protrusion-field" class="slider-field">
+                    <div id="rounded-border-corners-section" class="section">
+                        <div id="rounded-border-corners-protrusion-field" class="field">
                             <label for="rounded-border-corners-protrusion-slider">Protrusion</label>
-                            0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
-                            <input type="number" id="rounded-border-corners-protrusion-input" step="0.05" value="0.2">
+                            <span class="slider-input">
+                                0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                                <input type="number" id="rounded-border-corners-protrusion-input" step="0.05" value="0.2">
+                            </span>
                         </div>
-                        <div id="rounded-border-corners-curvature-field" class="slider-field">
+                        <div id="rounded-border-corners-curvature-field" class="field">
                             <label for="rounded-border-corners-curvature-slider">Curvature</label>
-                            0<input type="range" id="rounded-border-corners-curvature-slider" step="0.1" value="0.5" min="0" max="2">2
-                            <input type="number" id="rounded-border-corners-curvature-input" step="0.1" value="0.5">
+                            <span class="slider-input">
+                                0<input type="range" id="rounded-border-corners-curvature-slider" step="0.1" value="0.5" min="0" max="2">2
+                                <input type="number" id="rounded-border-corners-curvature-input" step="0.1" value="0.5">
+                            </span>
                         </div>
                     </div>
                 </div>
-                <div id="round-faces-field">
+                <div id="round-faces-field" class="field">
                     <label for="round-faces-checkbox">Round Faces</label>
                     <input type="checkbox" id="round-faces-checkbox">
                 </div>
-                <div id="round-faces-section">
+                <div id="round-faces-section" class="section">
                     <hr>
-                    <div id="face-curvature-field" class="slider-field">
+                    <div id="face-curvature-field" class="field">
                         <label for="face-curvature-slider">Curvature</label>
-                        0<input type="range" id="face-curvature-slider" step="0.1" value="0.2" min="0" max="2">2
-                        <input type="number" id="face-curvature-input" step="0.1" value="0.2">
+                        <span class="slider-input">
+                            0<input type="range" id="face-curvature-slider" step="0.1" value="0.2" min="0" max="2">2
+                            <input type="number" id="face-curvature-input" step="0.1" value="0.2">
+                        </span>
                     </div>
-                    <div id="face-subdivisions-field" class="slider-field">
+                    <div id="face-subdivisions-field" class="field">
                         <label for="face-subdivisions-slider">Subdivisions</label>
-                        0<input type="range" id="face-subdivisions-slider" step="1" value="6" min="0" max="10">10
-                        <input type="number" id="face-subdivisions-input" step="1" value="6">
+                        <span class="slider-input">
+                            0<input type="range" id="face-subdivisions-slider" step="1" value="8" min="0" max="8">8
+                            <input type="number" id="face-subdivisions-input" step="1" value="8">
+                        </span>
                     </div>
                 </div>
             </div>

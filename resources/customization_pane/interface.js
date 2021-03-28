@@ -1,4 +1,3 @@
-
 function toggleMenu(menuName) {
     content = document.getElementById(`${menuName}-menu-content`);
     dropdown = document.getElementById(`${menuName}-menu-dropdown`);
@@ -23,7 +22,7 @@ function toggleSection(sectionName) {
     }
 }
 
-function synchronizeSlider(inputName) {
+function synchronizeToInput(inputName) {
     input = document.getElementById(`${inputName}-input`);
     slider = document.getElementById(`${inputName}-slider`);
 
@@ -35,7 +34,7 @@ function synchronizeSlider(inputName) {
     }
 }
 
-function synchronizeInput(sliderName) {
+function synchronizeToSlider(sliderName) {
     input = document.getElementById(`${sliderName}-input`);
     slider = document.getElementById(`${sliderName}-slider`);
 
@@ -43,24 +42,33 @@ function synchronizeInput(sliderName) {
     input.value = slider.value;
 }
 
+function fillEmptyInput(inputName) {
+    input = document.getElementById(`${inputName}-input`);
+
+    // If the input is empty, fill it with it's default value.
+    if (input.value == "") {
+        input.value = input.defaultValue;
+    }
+}
+
 function updateRecessFacesCheckbox() {
     toggleSection("recess-faces");
 }
 
 function updateFaceDepthSlider() {
-    synchronizeInput("face-depth");
+    synchronizeToSlider("face-depth");
 }
 
 function updateFaceDepthInput() {
-    synchronizeSlider("face-depth");
+    synchronizeToInput("face-depth");
 }
 
 function updateBorderWidthSlider() {
-    synchronizeInput("face-border-width");
+    synchronizeToSlider("face-border-width");
 }
 
 function updateBorderWidthInput() {
-    synchronizeSlider("face-border-width");
+    synchronizeToInput("face-border-width");
 }
 
 function updateBorderCornersChooser() {
@@ -82,31 +90,33 @@ function updateBorderCornersChooser() {
             roundedCornersSection.style.display = "block";
             break;
         default:
+            console.error(`Critical: impossible value stored in face-border-corners-chooser! value=${chooser.value}`);
+            break;
     }
 }
 
 function updateStraightBorderCornersProtrusionSlider() {
-    synchronizeInput("straight-border-corners-protrusion");
+    synchronizeToSlider("straight-border-corners-protrusion");
 }
 
 function updateStraightBorderCornersProtrusionInput() {
-    synchronizeSlider("straight-border-corners-protrusion");
+    synchronizeToInput("straight-border-corners-protrusion");
 }
 
 function updateRoundedBorderCornersProtrusionSlider() {
-    synchronizeInput("rounded-border-corners-protrusion");
+    synchronizeToSlider("rounded-border-corners-protrusion");
 }
 
 function updateRoundedBorderCornersProtrusionInput() {
-    synchronizeSlider("rounded-border-corners-protrusion");
+    synchronizeToInput("rounded-border-corners-protrusion");
 }
 
 function updateRoundedBorderCornersCurvatureSlider() {
-    synchronizeInput("rounded-border-corners-curvature");
+    synchronizeToSlider("rounded-border-corners-curvature");
 }
 
 function updateRoundedBorderCornersCurvatureInput() {
-    synchronizeSlider("rounded-border-corners-curvature");
+    synchronizeToInput("rounded-border-corners-curvature");
 }
 
 function updateRoundFacesCheckbox() {
@@ -114,17 +124,17 @@ function updateRoundFacesCheckbox() {
 }
 
 function updateFaceCurvatureSlider() {
-    synchronizeInput("face-curvature");
+    synchronizeToSlider("face-curvature");
 }
 
 function updateFaceCurvatureInput() {
-    synchronizeSlider("face-curvature");
+    synchronizeToInput("face-curvature");
 }
 
 function updateFaceSubdivisionsSlider() {
-    synchronizeInput("face-subdivisions");
+    synchronizeToSlider("face-subdivisions");
 }
 
 function updateFaceSubdivisionsInput() {
-    synchronizeSlider("face-subdivisions");
+    synchronizeToInput("face-subdivisions");
 }
