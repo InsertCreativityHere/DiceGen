@@ -1,32 +1,9 @@
-
 body {
     font-family: Arial;
 }
 
-hr {
-    margin: 2px 0px;
-}
-
 h3 {
     margin: 0px;
-}
-
-.menu-content {
-    margin: 5px;
-    padding: 8px 10px 8px 10px;
-
-    border-style: solid;
-    border-width: 2px;
-}
-
-.field::after {
-    content: "";
-    clear: both;
-    display: table;
-}
-
-.slider-input {
-    float: right;
 }
 
 input[type="number"] {
@@ -34,6 +11,42 @@ input[type="number"] {
     font-size: 14px;
 }
 
-select {
-    float: right;
+input[type="range"] {
+    width: 100px;
+}
+
+.dropdown-arrow {
+    width: 10px;
+    display: inline-block;
+}
+
+.menu-content {
+    margin: 5px;
+    padding: 5px 10px 6px 10px;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.section {
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+}
+
+.field {
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.slider-input {
+    display: inline-block;
+}
+
+#base-model-button {
+    width: 200px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

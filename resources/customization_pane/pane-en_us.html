@@ -10,39 +10,42 @@
     <form novalidate>
         <div id="model-menu" class="menu">
             <h3 id="model-menu-header" class="menu-header">
-                <span id=model-menu-dropdown>&#x25B8;</span>
+                <span id=model-menu-dropdown class="dropdown-arrow">&#x25B8;</span>
                 <span id=model-menu-label>Model</span>
             </h3>
             <div id=model-menu-content class="menu-content">
-    TODO
+                <div id="base-model-field" class=field>
+                    <label for="base-model-button"><b>Base Model</b></label>
+                    <button type="button" id="base-model-button">None</button>
+                </div>
+                <div id="model-variables-section" class="section"></div>
             </div>
         </div>
 
         <div id="faces-menu" class="menu">
             <h3 id="faces-menu-header" class="menu-header">
-                <span id="faces-menu-dropdown">&#x25B8;</span>
+                <span id="faces-menu-dropdown" class="dropdown-arrow">&#x25B8;</span>
                 <span id="faces-menu-label">Faces</span>
             </h3>
             <div id=faces-menu-content class="menu-content">
                 <div id="recess-faces-field" class="field">
-                    <label for="recess-faces-checkbox">Recess Faces</label>
+                    <label for="recess-faces-checkbox"><b>Recess Faces</b></label>
                     <input type="checkbox" id="recess-faces-checkbox">
                 </div>
-                <div id="recess-faces-section" class="section">
-                    <hr>
+                <div id="recess-faces-section" class="section" style="margin-bottom:10px;">
                     <div id="face-depth-field" class="field">
                         <label for="face-depth-slider">Depth</label>
-                        <span class="slider-input">
+                        <div class="slider-input">
                             0<input type="range" id="face-depth-slider" step="0.1" value="5" min="0" max="8">8
-                            <input type="number" id="face-depth-input" step="0.5" value="5" formnovalidate>
-                        </span>
+                            <input type="number" id="face-depth-input" step="0.5" value="5">
+                        </div>
                     </div>
                     <div id="face-border-width-field" class="field">
                         <label for="face-border-width-slider">Border Width</label>
-                        <span class="slider-input">
-                            0<input type="range" id="face-border-width-slider" step="0.1" value="0.5" min="0" max="2">2
+                        <div class="slider-input">
+                            0<input type="range" id="face-border-width-slider" step="0.05" value="0.5" min="0" max="2">2
                             <input type="number" id="face-border-width-input" step="0.1" value="0.5">
-                        </span>
+                        </div>
                     </div>
                     <div id="face-border-corners-field" class="field">
                         <label for="face-border-corners-chooser">Border Corners</label>
@@ -52,51 +55,50 @@
                             <option value="ROUNDED">Rounded</option>
                         </select>
                     </div>
-                    <div id="straight-border-corners-section" class="section">
+                    <div id="straight-border-corners-section" class="sub-section">
                         <div id="straight-border-corners-protrusion-field" class="field">
                             <label for="straight-border-corners-protrusion-slider">Protrusion</label>
-                            <span class="slider-input">
-                                0<input type="range" id="straight-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                            <div class="slider-input">
+                                0<input type="range" id="straight-border-corners-protrusion-slider" step="0.01" value="0.2" min="0" max="1">1
                                 <input type="number" id="straight-border-corners-protrusion-input" step="0.05" value="0.2">
-                            </span>
+                            </div>
                         </div>
                     </div>
-                    <div id="rounded-border-corners-section" class="section">
+                    <div id="rounded-border-corners-section" class="sub-section">
                         <div id="rounded-border-corners-protrusion-field" class="field">
                             <label for="rounded-border-corners-protrusion-slider">Protrusion</label>
-                            <span class="slider-input">
-                                0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.05" value="0.2" min="0" max="1">1
+                            <div class="slider-input">
+                                0<input type="range" id="rounded-border-corners-protrusion-slider" step="0.01" value="0.2" min="0" max="1">1
                                 <input type="number" id="rounded-border-corners-protrusion-input" step="0.05" value="0.2">
-                            </span>
+                            </div>
                         </div>
                         <div id="rounded-border-corners-curvature-field" class="field">
                             <label for="rounded-border-corners-curvature-slider">Curvature</label>
-                            <span class="slider-input">
-                                0<input type="range" id="rounded-border-corners-curvature-slider" step="0.1" value="0.5" min="0" max="2">2
+                            <div class="slider-input">
+                                0<input type="range" id="rounded-border-corners-curvature-slider" step="0.05" value="0.5" min="0" max="2">2
                                 <input type="number" id="rounded-border-corners-curvature-input" step="0.1" value="0.5">
-                            </span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div id="round-faces-field" class="field">
-                    <label for="round-faces-checkbox">Round Faces</label>
+                    <label for="round-faces-checkbox"><b>Round Faces</b></label>
                     <input type="checkbox" id="round-faces-checkbox">
                 </div>
                 <div id="round-faces-section" class="section">
-                    <hr>
                     <div id="face-curvature-field" class="field">
                         <label for="face-curvature-slider">Curvature</label>
-                        <span class="slider-input">
-                            0<input type="range" id="face-curvature-slider" step="0.1" value="0.2" min="0" max="2">2
+                        <div class="slider-input">
+                            0<input type="range" id="face-curvature-slider" step="0.05" value="0.2" min="0" max="2">2
                             <input type="number" id="face-curvature-input" step="0.1" value="0.2">
-                        </span>
+                        </div>
                     </div>
                     <div id="face-subdivisions-field" class="field">
                         <label for="face-subdivisions-slider">Subdivisions</label>
-                        <span class="slider-input">
+                        <div class="slider-input">
                             0<input type="range" id="face-subdivisions-slider" step="1" value="8" min="0" max="8">8
                             <input type="number" id="face-subdivisions-input" step="1" value="8">
-                        </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -104,7 +106,7 @@
 
         <div id="edges-menu" class="menu">
             <h3 id=edges-menu-header class="menu-header">
-                <span id=edges-menu-dropdown>&#x25B8;</span>
+                <span id=edges-menu-dropdown class="dropdown-arrow">&#x25B8;</span>
                 <span id=edges-menu-label>Edges</span>
             </h3>
             <div id=edges-menu-content class="menu-content">
@@ -114,7 +116,7 @@
 
         <div id="corners-menu" class="menu">
             <h3 id=corners-menu-header class="menu-header">
-                <span id=corners-menu-dropdown>&#x25B8;</span>
+                <span id=corners-menu-dropdown class="dropdown-arrow">&#x25B8;</span>
                 <span id=corners-menu-label>Corners</span>
             </h3>
             <div id=corners-menu-content class="menu-content">
@@ -124,7 +126,7 @@
 
         <div id="glyphs-menu" class="menu">
             <h3 id=glyphs-menu-header class="menu-header">
-                <span id=glyphs-menu-dropdown>&#x25B8;</span>
+                <span id=glyphs-menu-dropdown class="dropdown-arrow">&#x25B8;</span>
                 <span id=glyphs-menu-label>Glyphs</span>
             </h3>
             <div id=glyphs-menu-content class="menu-content">

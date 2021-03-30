@@ -1,6 +1,9 @@
 function initializeMenu(menuName) {
     document.getElementById(`${menuName}-menu-content`).style.display = "none";
-    document.getElementById(`${menuName}-menu-header`).addEventListener("click", function() {
+    document.getElementById(`${menuName}-menu-dropdown`).addEventListener("click", function() {
+        toggleMenu(menuName);
+    });
+    document.getElementById(`${menuName}-menu-label`).addEventListener("click", function() {
         toggleMenu(menuName);
     });
 }
@@ -15,6 +18,7 @@ function hideSection(sectionId) {
     document.getElementById(sectionId).style.display = "none";
 }
 
+hideSection("model-variables-section");
 hideSection("recess-faces-section");
 hideSection("straight-border-corners-section");
 hideSection("rounded-border-corners-section");
