@@ -1,6 +1,6 @@
 function toggleMenu(menuName) {
-    content = document.getElementById(`${menuName}-menu-content`);
-    dropdown = document.getElementById(`${menuName}-menu-dropdown`);
+    let content = document.getElementById(`${menuName}-menu-content`);
+    let dropdown = document.getElementById(`${menuName}-menu-dropdown`);
 
     if (content.style.display == "none") {
         content.style.display = "block";
@@ -12,8 +12,8 @@ function toggleMenu(menuName) {
 }
 
 function toggleSection(sectionName) {
-    content = document.getElementById(`${sectionName}-section`);
-    checkbox = document.getElementById(`${sectionName}-checkbox`);
+    let content = document.getElementById(`${sectionName}-section`);
+    let checkbox = document.getElementById(`${sectionName}-checkbox`);
 
     if (checkbox.checked) {
         content.style.display = "block";
@@ -23,8 +23,8 @@ function toggleSection(sectionName) {
 }
 
 function synchronizeToInput(inputName) {
-    input = document.getElementById(`${inputName}-input`);
-    slider = document.getElementById(`${inputName}-slider`);
+    let input = document.getElementById(`${inputName}-input`);
+    let slider = document.getElementById(`${inputName}-slider`);
 
     // Set the sliders's value to match the input, unless it's empty, then use the slider's default value.
     if (input.value == "") {
@@ -35,15 +35,15 @@ function synchronizeToInput(inputName) {
 }
 
 function synchronizeToSlider(sliderName) {
-    input = document.getElementById(`${sliderName}-input`);
-    slider = document.getElementById(`${sliderName}-slider`);
+    let input = document.getElementById(`${sliderName}-input`);
+    let slider = document.getElementById(`${sliderName}-slider`);
 
     // Set the input's value to match the slider.
     input.value = slider.value;
 }
 
 function fillEmptyInput(inputName) {
-    input = document.getElementById(`${inputName}-input`);
+    let input = document.getElementById(`${inputName}-input`);
 
     // If the input is empty, fill it with it's default value.
     if (input.value == "") {
@@ -72,9 +72,9 @@ function updateBorderWidthInput() {
 }
 
 function updateBorderCornersChooser() {
-    chooser = document.getElementById("face-border-corners-chooser");
-    straightCornersSection = document.getElementById("straight-border-corners-section");
-    roundedCornersSection = document.getElementById("rounded-border-corners-section");
+    let chooser = document.getElementById("face-border-corners-chooser");
+    let straightCornersSection = document.getElementById("straight-border-corners-section");
+    let roundedCornersSection = document.getElementById("rounded-border-corners-section");
 
     switch (chooser.value) {
         case "EMPTY":
