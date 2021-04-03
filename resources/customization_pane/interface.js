@@ -25,37 +25,6 @@ function toggleSection(sectionName) {
 
 
 
-function synchronizeToInput(inputName) {
-    const input = document.getElementById(`${inputName}-input`);
-    const slider = document.getElementById(`${inputName}-slider`);
-
-    // Set the sliders's value to match the input, unless it's empty, then use the slider's default value.
-    if (input.value == "") {
-        slider.value = slider.defaultValue;
-    } else {
-        slider.value = input.value;
-    }
-}
-
-function synchronizeToSlider(sliderName) {
-    const input = document.getElementById(`${sliderName}-input`);
-    const slider = document.getElementById(`${sliderName}-slider`);
-
-    // Set the input's value to match the slider.
-    input.value = slider.value;
-}
-
-function fillEmptyInput(inputName) {
-    const input = document.getElementById(`${inputName}-input`);
-
-    // If the input is empty, fill it with it's default value.
-    if (input.value == "") {
-        input.value = input.defaultValue;
-    }
-}
-
-
-
 // TODO selectBaseModel goes here
 
 
