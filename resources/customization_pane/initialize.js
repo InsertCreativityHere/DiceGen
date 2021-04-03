@@ -1,4 +1,4 @@
-// Sets functions on the main menu names (and drop-down arrows) for toggling the menu's visibility when clicked.
+// Sets functions on the main menu labels and drop-down arrows that toggle the menu's visibility when clicked.
 function initializeMenu(menuName) {
     document.getElementById(`${menuName}-menu-content`).style.display = "none";
     document.getElementById(`${menuName}-menu-dropdown`).addEventListener("click", function() {
@@ -16,7 +16,7 @@ initializeMenu("edges");
 initializeMenu("corners");
 initializeMenu("glyphs");
 
-// Hides an element when the page loads. Usually their visibility will be toggled by Javascript later.
+// Hides an element when the page loads. Usually their visibility will be toggled later via Javascript.
 function hideElement(elementId) {
     document.getElementById(elementId).style.display = "none";
 }
@@ -37,19 +37,19 @@ hideElement("glyphs-section");
 
 // Sets a series of event listeners on fields that have a range slider and an input box in them.
 // These listeners keep the slider and input box in sync when their values change, and ensure that input boxes can never
-// be left empty.
+// be left empty (they will be filled with their default values instead).
 function configureSliderInput(fieldName) {
     // Add a function to update the input box's value to match the slider's when the slider is changed.
-    document.getElementById(`${fieldName}-slider`).addEventListener("input", function() {
-        const input = document.getElementById(`${sliderName}-input`);
-        const slider = document.getElementById(`${sliderName}-slider`);
+    document.getElementById(`${fieldName}-slider`).addEventListener("input", function(fieldName) {
+        const input = document.getElementById(`${fieldName}-input`);
+        const slider = document.getElementById(`${fieldName}-slider`);
         input.value = slider.value;
     });
 
-    // Add a function to update the slider's value to match the input's when the input box is changed.
-    document.getElementById(`${fieldName}-input`).addEventListener("input", function() {
-        const input = document.getElementById(`${inputName}-input`);
-        const slider = document.getElementById(`${inputName}-slider`);
+    // Add a function to update the slider's value to match the input box's when the input box is changed.
+    document.getElementById(`${fieldName}-input`).addEventListener("input", function(fieldName) {
+        const input = document.getElementById(`${fieldName}-input`);
+        const slider = document.getElementById(`${fieldName}-slider`);
 
         // If the input box is empty, then use the slider's default value.
         if (input.value == "") {
@@ -59,9 +59,9 @@ function configureSliderInput(fieldName) {
         }
     });
 
-    // Add a function to fill the input box with it's default value if the user clicks out of it while it's empty.
-    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function() {
-        const input = document.getElementById(`${inputName}-input`);
+    // Add a function to fill the input box with it's default value if the user clicks off of it while it's empty.
+    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function(fieldName) {
+        const input = document.getElementById(`${fieldName}-input`);
 
         // If the input is empty, fill it with it's default value.
         if (input.value == "") {
