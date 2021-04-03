@@ -6,6 +6,18 @@ h3 {
     margin: 0px;
 }
 
+button {
+    width: 200px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+select {
+    width: 90px;
+}
+
 input[type="number"] {
     width: 50px;
     font-size: 14px;
@@ -43,10 +55,10 @@ input[type="range"] {
     display: inline-block;
 }
 
-#base-model-button {
+#glyph-mapping-chooser {
     width: 200px;
-    font-size: 12px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+#glyphs-section {
+    display: grid;
 }

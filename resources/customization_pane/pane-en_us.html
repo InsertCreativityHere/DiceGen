@@ -97,7 +97,7 @@
                         <label for="face-subdivisions-slider">Subdivisions</label>
                         <div class="slider-input">
                             0<input type="range" id="face-subdivisions-slider" step="1" value="8" min="0" max="8">8
-                            <input type="number" id="face-subdivisions-input" step="1" value="8">
+                            <input type="number" id="face-subdivisions-input" step="1" value="8" min="0">
                         </div>
                     </div>
                 </div>
@@ -110,7 +110,39 @@
                 <span id=edges-menu-label>Edges</span>
             </h3>
             <div id=edges-menu-content class="menu-content">
-    TODO
+                <div id="edge-type-field" class="field">
+                    <label for="edge-type-chooser"><b>Edge Type</b></label>
+                    <select id="edge-type-chooser">
+                        <option value="NORMAL">Normal</option>
+                        <option value="BEVELED">Beleved</option>
+                        <option value="ROUNDED">Rounded</option>
+                    </select>
+                </div>
+                <div id="beveled-edge-type-section" class="section">
+                    <div id="beveled-edge-depth-field" class="field">
+                        <label for="beveled-edge-depth-slider">Depth</label>
+                        <div class="slider-input">
+                            0<input type="range" id="beveled-edge-depth-slider" step="0.05" value="0.4" min="0" max="2">2
+                            <input type="number" id="beveled-edge-depth-input" step="0.1" value="0.4">
+                        </div>
+                    </div>
+                </div>
+                <div id="rounded-edge-type-section" class="section">
+                    <div id="rounded-edge-depth-field" class="field">
+                        <label for="rounded-edge-depth-slider">Depth</label>
+                        <div class="slider-input">
+                            0<input type="range" id="rounded-edge-depth-slider" step="0.05" value="0.4" min="0" max="2">2
+                            <input type="number" id="rounded-edge-depth-input" step="0.1" value="0.4">
+                        </div>
+                    </div>
+                    <div id="rounded-edge-curvature-field" class="field">
+                        <label for="rounded-edge-curvature-slider">Curvature</label>
+                        <div class="slider-input">
+                            0<input type="range" id="rounded-edge-curvature-slider" step="0.05" value="1.0" min="0" max="2">2
+                            <input type="number" id="rounded-edge-curvature-input" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -120,7 +152,60 @@
                 <span id=corners-menu-label>Corners</span>
             </h3>
             <div id=corners-menu-content class="menu-content">
-    TODO
+                <div id="corner-type-field" class="field">
+                    <label for="corner-type-chooser"><b>Corner Type</b></label>
+                    <select id="corner-type-chooser">
+                        <option value="NORMAL">Normal</option>
+                        <option value="TRUNCATED">Truncated</option>
+                        <option value="KLEETOPED">Kleetoped</option>
+                        <option value="ROUNDED">Rounded</option>
+                    </select>
+                </div>
+                <div id="lock-corner-edge-types-field" class="field">
+                    <label for="lock-corner-edge-types-checkbox">Lock Corners to Edge Type</label>
+                    <input type="checkbox" id="lock-corner-edge-types-checkbox">
+                </div>
+                <div id="truncated-corner-type-section" class="section">
+                    <div id="truncated-corner-depth-field" class="field">
+                        <label for="truncated-corner-depth-slider">Depth</label>
+                        <div class="slider-input">
+                            0<input type="range" id="truncated-corner-depth-slider" step="0.05" value="1.0" min="0" max="3">3
+                            <input type="number" id="truncated-corner-depth-input" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                </div>
+                <div id="kleetoped-corner-type-section" class="section">
+                    <div id="kleetoped-corner-depth-field" class="field">
+                        <label for="kleetoped-corner-depth-slider">Depth</label>
+                        <div class="slider-input">
+                            0<input type="range" id="kleetoped-corner-depth-slider" step="0.05" value="1.0" min="0" max="3">3
+                            <input type="number" id="kleetoped-corner-depth-input" step="0.1" value="1.0">
+                        </div>
+                    </div>
+                    <div id="kleetoped-corner-protrusion-field" class="field">
+                        <label for="kleetoped-corner-protrusion-slider">Protrusion</label>
+                        <div class="slider-input">
+                            0<input type="range" id="kleetoped-corner-protrusion-slider" step="0.05" value="0.8" min="0" max="5">5
+                            <input type="number" id="kleetoped-corner-protrusion-input" step="0.1" value="0.8">
+                        </div>
+                    </div>
+                </div>
+                <div id="rounded-corner-type-section" class="section">
+                    <div id="rounded-corner-depth-field" class="field">
+                        <label for="rounded-corner-depth-slider">Depth</label>
+                        <div class="slider-input">
+                            0<input type="range" id="rounded-corner-depth-slider" step="0.05" value="0.8" min="0" max="3">3
+                            <input type="number" id="rounded-corner-depth-input" step="0.1" value="0.8">
+                        </div>
+                    </div>
+                    <div id="rounded-corner-curvature-field" class="field">
+                        <label for="rounded-corner-curvature-slider">Curvature</label>
+                        <div class="slider-input">
+                            0<input type="range" id="rounded-corner-curvature-slider" step="0.05" value="0.4" min="0" max="2">2
+                            <input type="number" id="rounded-corner-curvature-input" step="0.1" value="0.4">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -130,7 +215,15 @@
                 <span id=glyphs-menu-label>Glyphs</span>
             </h3>
             <div id=glyphs-menu-content class="menu-content">
-    TODO
+                <div id="font-field" class="field">
+                    <label for="font-button"><b>Font</b></label>
+                    <button type="button" id="font-button">None</button>
+                </div>
+                <div id="glyph-mapping-field" class="field">
+                    <label for="glyph-mapping-chooser">Glyph Mapping</label>
+                    <select id="glyph-mapping-chooser"><option>Value</option></select>
+                </div>
+                <div id="glyphs-section" class="section"></div>
             </div>
         </div>
 

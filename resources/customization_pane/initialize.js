@@ -14,60 +14,56 @@ initializeMenu("edges");
 initializeMenu("corners");
 initializeMenu("glyphs");
 
-function hideSection(sectionId) {
-    document.getElementById(sectionId).style.display = "none";
+function hideElement(elementId) {
+    document.getElementById(elementId).style.display = "none";
 }
 
-hideSection("model-variables-section");
-hideSection("recess-faces-section");
-hideSection("straight-border-corners-section");
-hideSection("rounded-border-corners-section");
-hideSection("round-faces-section");
+hideElement("model-variables-section");
+hideElement("recess-faces-section");
+hideElement("straight-border-corners-section");
+hideElement("rounded-border-corners-section");
+hideElement("round-faces-section");
+hideElement("beveled-edge-type-section");
+hideElement("rounded-edge-type-section");
+hideElement("truncated-corner-type-section");
+hideElement("kleetoped-corner-type-section");
+hideElement("rounded-corner-type-section");
+hideElement("glyph-mapping-field");
+hideElement("glyphs-section");
 
+function configureSliderInput(fieldName) {
+    document.getElementById(`${fieldName}-slider`).addEventListener("input", function() {
+        synchronizeToSlider(fieldName);
+    });
+    document.getElementById(`${fieldName}-input`).addEventListener("input", function() {
+        synchronizeToInput(fieldName);
+    });
+    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function() {
+        fillEmptyInput(fieldName);
+    });
+    // TODO send a thing to sketchup.
+}
+
+configureSliderInput("face-depth");
+configureSliderInput("face-border-width");
+configureSliderInput("straight-border-corners-protrusion");
+configureSliderInput("rounded-border-corners-protrusion");
+configureSliderInput("rounded-border-corners-curvature");
+configureSliderInput("face-curvature");
+configureSliderInput("face-subdivisions");
+configureSliderInput("beveled-edge-depth");
+configureSliderInput("rounded-edge-depth");
+configureSliderInput("rounded-edge-curvature");
+configureSliderInput("truncated-corner-depth");
+configureSliderInput("kleetoped-corner-depth");
+configureSliderInput("kleetoped-corner-protrusion");
+configureSliderInput("rounded-corner-depth");
+configureSliderInput("rounded-corner-curvature");
+
+document.getElementById("base-model-button").addEventListener("click", selectBaseModel);
 document.getElementById("recess-faces-checkbox").addEventListener("change", updateRecessFacesCheckbox);
-
-document.getElementById("face-depth-slider").addEventListener("input", updateFaceDepthSlider);
-document.getElementById("face-depth-input").addEventListener("input", updateFaceDepthInput);
-document.getElementById("face-depth-input").addEventListener("focusout", function() {
-    fillEmptyInput("face-depth");
-});
-
-document.getElementById("face-border-width-slider").addEventListener("input", updateBorderWidthSlider);
-document.getElementById("face-border-width-input").addEventListener("input", updateBorderWidthInput);
-document.getElementById("face-border-width-input").addEventListener("focusout", function() {
-    fillEmptyInput("face-border-width");
-});
-
-document.getElementById("face-border-corners-chooser").addEventListener("change", updateBorderCornersChooser);
-
-document.getElementById("straight-border-corners-protrusion-slider").addEventListener("input", updateStraightBorderCornersProtrusionSlider);
-document.getElementById("straight-border-corners-protrusion-input").addEventListener("input", updateStraightBorderCornersProtrusionInput);
-document.getElementById("straight-border-corners-protrusion-input").addEventListener("focusout", function() {
-    fillEmptyInput("straight-border-corners-protrusion");
-});
-
-document.getElementById("rounded-border-corners-protrusion-slider").addEventListener("input", updateRoundedBorderCornersProtrusionSlider);
-document.getElementById("rounded-border-corners-protrusion-input").addEventListener("input", updateRoundedBorderCornersProtrusionInput);
-document.getElementById("rounded-border-corners-protrusion-input").addEventListener("focusout", function() {
-    fillEmptyInput("rounded-border-corners-protrusion");
-});
-
-document.getElementById("rounded-border-corners-curvature-slider").addEventListener("input", updateRoundedBorderCornersCurvatureSlider);
-document.getElementById("rounded-border-corners-curvature-input").addEventListener("input", updateRoundedBorderCornersCurvatureInput);
-document.getElementById("rounded-border-corners-curvature-input").addEventListener("focusout", function() {
-    fillEmptyInput("rounded-border-corners-curvature");
-});
-
+document.getElementById("face-border-corners-chooser").addEventListener("change", updateBorderCorners);
 document.getElementById("round-faces-checkbox").addEventListener("change", updateRoundFacesCheckbox);
-
-document.getElementById("face-curvature-slider").addEventListener("input", updateFaceCurvatureSlider);
-document.getElementById("face-curvature-input").addEventListener("input", updateFaceCurvatureInput);
-document.getElementById("face-curvature-input").addEventListener("focusout", function() {
-    fillEmptyInput("face-curvature");
-});
-
-document.getElementById("face-subdivisions-slider").addEventListener("input", updateFaceSubdivisionsSlider);
-document.getElementById("face-subdivisions-input").addEventListener("input", updateFaceSubdivisionsInput);
-document.getElementById("face-subdivisions-input").addEventListener("focusout", function() {
-    fillEmptyInput("face-subdivisions");
-});
+document.getElementById("edge-type-chooser").addEventListener("change", updateEdgeType);
+document.getElementById("corner-type-chooser").addEventListener("change", updateCornerType);
+document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock)
