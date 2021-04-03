@@ -162,7 +162,7 @@
                     </select>
                 </div>
                 <div id="lock-corner-edge-types-field" class="field">
-                    <label for="lock-corner-edge-types-checkbox">Lock Corners to Edge Type</label>
+                    <label for="lock-corner-edge-types-checkbox">Lock to Edge Type</label>
                     <input type="checkbox" id="lock-corner-edge-types-checkbox">
                 </div>
                 <div id="truncated-corner-type-section" class="section">
@@ -221,9 +221,20 @@
                 </div>
                 <div id="glyph-mapping-field" class="field">
                     <label for="glyph-mapping-chooser">Glyph Mapping</label>
-                    <select id="glyph-mapping-chooser"><option>Value</option></select>
+                    <select id="glyph-mapping-chooser"></select>
                 </div>
-                <div id="glyphs-section" class="section"></div>
+                <div id="glyphs-section" class="section">
+                    <table id="glyph-table">
+                        <thead>
+                            <tr>
+                                <th>&#x23</th>
+                                <th class="glyph-text-field">Text</th>
+                                <th class="glyph-font-button">Font</th>
+                            </tr>
+                        </thead>
+                        <tbody id="glyph-table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

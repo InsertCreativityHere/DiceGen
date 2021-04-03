@@ -40,14 +40,14 @@ hideElement("glyphs-section");
 // be left empty (they will be filled with their default values instead).
 function configureSliderInput(fieldName) {
     // Add a function to update the input box's value to match the slider's when the slider is changed.
-    document.getElementById(`${fieldName}-slider`).addEventListener("input", function(fieldName) {
+    document.getElementById(`${fieldName}-slider`).addEventListener("input", function() {
         const input = document.getElementById(`${fieldName}-input`);
         const slider = document.getElementById(`${fieldName}-slider`);
         input.value = slider.value;
     });
 
     // Add a function to update the slider's value to match the input box's when the input box is changed.
-    document.getElementById(`${fieldName}-input`).addEventListener("input", function(fieldName) {
+    document.getElementById(`${fieldName}-input`).addEventListener("input", function() {
         const input = document.getElementById(`${fieldName}-input`);
         const slider = document.getElementById(`${fieldName}-slider`);
 
@@ -60,7 +60,7 @@ function configureSliderInput(fieldName) {
     });
 
     // Add a function to fill the input box with it's default value if the user clicks off of it while it's empty.
-    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function(fieldName) {
+    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function() {
         const input = document.getElementById(`${fieldName}-input`);
 
         // If the input is empty, fill it with it's default value.
@@ -97,3 +97,5 @@ document.getElementById("round-faces-checkbox").addEventListener("change", updat
 document.getElementById("edge-type-chooser").addEventListener("change", updateEdgeType);
 document.getElementById("corner-type-chooser").addEventListener("change", updateCornerType);
 document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock)
+document.getElementById("font-button").addEventListener("click", selectFont);
+document.getElementById("glyph-mapping-chooser").addEventListener("change", updateGlyphMapping);

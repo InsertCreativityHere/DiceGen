@@ -6,16 +6,28 @@ h3 {
     margin: 0px;
 }
 
+table {
+    width: 100%;
+    text-align: center;
+}
+
+th, td {
+    padding-right: 8px;
+}
+
+select {
+    width: 90px;
+}
+
 button {
-    width: 200px;
     font-size: 12px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-select {
-    width: 90px;
+input[type="text"] {
+    font-size: 14px;
 }
 
 input[type="number"] {
@@ -51,14 +63,24 @@ input[type="range"] {
     justify-content: space-between;
 }
 
-.slider-input {
-    display: inline-block;
+.glyph-index-cell {
+    font-size: 18px;
+    font-weight: bold;
+    vertical-align: bottom;
 }
 
-#glyph-mapping-chooser {
+.glyph-text-field {
+    width: 95%;
+}
+
+.glyph-font-button {
+    width: 140px;
+}
+
+#base-model-button {
     width: 200px;
 }
 
-#glyphs-section {
-    display: grid;
+#font-button, #glyph-mapping-chooser {
+    width: 160px;
 }
