@@ -93,9 +93,9 @@ configureSliderInput("rounded-corner-curvature");
 
 // Add specific callback functions to the remaining input elements.
 document.getElementById("base-model-button").addEventListener("click", selectBaseModel);
-document.getElementById("recess-faces-checkbox").addEventListener("change", updateRecessFacesCheckbox);
+document.getElementById("recess-faces-checkbox").addEventListener("change", () => toggleSection("recess-faces"));
 document.getElementById("face-border-corners-chooser").addEventListener("change", updateBorderCorners);
-document.getElementById("round-faces-checkbox").addEventListener("change", updateRoundFacesCheckbox);
+document.getElementById("round-faces-checkbox").addEventListener("change", () => toggleSection("round-faces"));
 document.getElementById("edge-type-chooser").addEventListener("change", updateEdgeType);
 document.getElementById("corner-type-chooser").addEventListener("change", updateCornerType);
 document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock);

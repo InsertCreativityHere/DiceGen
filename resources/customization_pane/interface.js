@@ -1,246 +1,12 @@
 
-function updateRecessFacesCheckbox() {
-    toggleSection("recess-faces");
-    // TODO send a thing to sketchup
-}
-
-function updateBorderCorners() {
-    const chooser = document.getElementById("face-border-corners-chooser");
-    const straightCornersSection = document.getElementById("straight-border-corners-section");
-    const roundedCornersSection = document.getElementById("rounded-border-corners-section");
-
-    switch (chooser.value) {
-        case "EMPTY":
-            straightCornersSection.style.display = "none";
-            roundedCornersSection.style.display = "none";
-            break;
-        case "STRAIGHT":
-            straightCornersSection.style.display = "block";
-            roundedCornersSection.style.display = "none";
-            break;
-        case "ROUNDED":
-            straightCornersSection.style.display = "none";
-            roundedCornersSection.style.display = "block";
-            break;
-        default:
-            console.error(`Critical: impossible value stored in face-border-corners-chooser! value=${chooser.value}`);
-            break;
-    }
-
-    // TODO send a thing to sketchup
-}
-
-function updateRoundFacesCheckbox() {
-    toggleSection("round-faces");
-    // TODO send a thing to sketchup
-}
-
-function updateEdgeType() {
-    const chooser = document.getElementById("edge-type-chooser");
-    const beveledEdgeSection = document.getElementById("beveled-edge-type-section");
-    const roundedEdgeSection = document.getElementById("rounded-edge-type-section");
-
-    switch (chooser.value) {
-        case "NORMAL":
-            beveledEdgeSection.style.display = "none";
-            roundedEdgeSection.style.display = "none";
-            break;
-        case "BEVELED":
-            beveledEdgeSection.style.display = "block";
-            roundedEdgeSection.style.display = "none";
-            break;
-        case "ROUNDED":
-            beveledEdgeSection.style.display = "none";
-            roundedEdgeSection.style.display = "block";
-            break;
-        default:
-            console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
-            break;
-    }
-
-    // TODO send a thing to sketchup
-}
-
-function updateCornerType() {
-    const chooser = document.getElementById("corner-type-chooser");
-    const truncatedCornerSection = document.getElementById("truncated-corner-type-section");
-    const kleetopedCornerSection = document.getElementById("kleetoped-corner-type-section");
-    const roundedCornerSection = document.getElementById("rounded-corner-type-section");
-
-    switch (chooser.value) {
-        case "NORMAL":
-            truncatedCornerSection.style.display = "none";
-            kleetopedCornerSection.style.display = "none";
-            roundedCornerSection.style.display = "none";
-            break;
-        case "TRUNCATED":
-            truncatedCornerSection.style.display = "block";
-            kleetopedCornerSection.style.display = "none";
-            roundedCornerSection.style.display = "none";
-            break;
-        case "KLEETOPED":
-            truncatedCornerSection.style.display = "none";
-            kleetopedCornerSection.style.display = "block";
-            roundedCornerSection.style.display = "none";
-            break;
-        case "ROUNDED":
-            truncatedCornerSection.style.display = "none";
-            kleetopedCornerSection.style.display = "none";
-            roundedCornerSection.style.display = "block";
-            break;
-        default:
-            console.error(`Critical: impossible value stored in corner-type-chooser! value=${chooser.value}`);
-            break;
-    }
-
-    // TODO send a thing to sketchup
-}
-
-
-
-function updateEdgeCornerTypeLock() {
-    const checkbox = document.getElementById("lock-corner-edge-types-checkbox");
-    if (checkbox.checked) {
-        synchronizeToEdgeTypeChooser();
-        synchronizeToEdgeTypeChooser();
-        synchronizeToBelevedEdgeDepthSlider();
-        synchronizeToBelevedEdgeDepthInput();
-        synchronizeToRoundedEdgeDepthSlider();
-        synchronizeToRoundedEdgeDepthInput();
-        synchronizeToRoundedEdgeCurvatureSlider();
-        synchronizeToRoundedEdgeCurvatureInput();
-
-        document.getElementById("edge-type-chooser").addEventListener("change", synchronizeToEdgeTypeChooser);
-        document.getElementById("beveled-edge-depth-slider").addEventListener("input", synchronizeToBelevedEdgeDepthSlider);
-        document.getElementById("beveled-edge-depth-input").addEventListener("input", synchronizeToBelevedEdgeDepthInput);
-        document.getElementById("rounded-edge-depth-slider").addEventListener("input", synchronizeToRoundedEdgeDepthSlider);
-        document.getElementById("rounded-edge-depth-input").addEventListener("input", synchronizeToRoundedEdgeDepthInput);
-        document.getElementById("rounded-edge-curvature-slider").addEventListener("input", synchronizeToRoundedEdgeCurvatureSlider);
-        document.getElementById("rounded-edge-curvature-input").addEventListener("input", synchronizeToRoundedEdgeCurvatureInput);
-        document.getElementById("corner-type-chooser").disabled = true;
-        document.getElementById("kleetoped-corner-depth-input").disabled = true;
-        document.getElementById("kleetoped-corner-depth-slider").disabled = true;
-        document.getElementById("kleetoped-corner-depth-input").disabled = true;
-        document.getElementById("kleetoped-corner-depth-slider").disabled = true;
-        document.getElementById("rounded-corner-depth-input").disabled = true;
-        document.getElementById("rounded-corner-depth-slider").disabled = true;
-        document.getElementById("rounded-corner-depth-input").disabled = true;
-        document.getElementById("rounded-corner-depth-slider").disabled = true;
-        document.getElementById("rounded-corner-curvature-input").disabled = true;
-        document.getElementById("rounded-corner-curvature-slider").disabled = true;
-        document.getElementById("rounded-corner-curvature-input").disabled = true;
-        document.getElementById("rounded-corner-curvature-slider").disabled = true;
-    } else {
-        document.getElementById("edge-type-chooser").removeEventListener("change", synchronizeToEdgeTypeChooser);
-        document.getElementById("beveled-edge-depth-slider").removeEventListener("input", synchronizeToBelevedEdgeDepthSlider);
-        document.getElementById("beveled-edge-depth-input").removeEventListener("input", synchronizeToBelevedEdgeDepthInput);
-        document.getElementById("rounded-edge-depth-slider").removeEventListener("input", synchronizeToRoundedEdgeDepthSlider);
-        document.getElementById("rounded-edge-depth-input").removeEventListener("input", synchronizeToRoundedEdgeDepthInput);
-        document.getElementById("rounded-edge-curvature-slider").removeEventListener("input", synchronizeToRoundedEdgeCurvatureSlider);
-        document.getElementById("rounded-edge-curvature-input").removeEventListener("input", synchronizeToRoundedEdgeCurvatureInput);
-        document.getElementById("corner-type-chooser").disabled = false;
-        document.getElementById("kleetoped-corner-depth-input").disabled = false;
-        document.getElementById("kleetoped-corner-depth-slider").disabled = false;
-        document.getElementById("kleetoped-corner-depth-input").disabled = false;
-        document.getElementById("kleetoped-corner-depth-slider").disabled = false;
-        document.getElementById("rounded-corner-depth-input").disabled = false;
-        document.getElementById("rounded-corner-depth-slider").disabled = false;
-        document.getElementById("rounded-corner-depth-input").disabled = false;
-        document.getElementById("rounded-corner-depth-slider").disabled = false;
-        document.getElementById("rounded-corner-curvature-input").disabled = false;
-        document.getElementById("rounded-corner-curvature-slider").disabled = false;
-        document.getElementById("rounded-corner-curvature-input").disabled = false;
-        document.getElementById("rounded-corner-curvature-slider").disabled = false;
-    }
-}
-
-function synchronizeToEdgeSlider(edgeSliderName, cornerInputName) {
-    const edgeSlider = document.getElementById(edgeSliderName);
-    const cornerInput = document.getElementById(cornerInputName);
-
-    cornerInput.value = edgeSlider.value;
-    cornerInput.dispatchEvent(new Event("input"));
-}
-
-function synchronizeToEdgeInput(edgeInputName, cornerInputName) {
-    const edgeInput = document.getElementById(edgeInputName);
-    const cornerInput = document.getElementById(cornerInputName);
-
-    if (edgeInput.value == "") {
-        cornerInput.value = edgeInput.defaultValue;
-    } else {
-        cornerInput.value = edgeInput.value;
-    }
-    cornerInput.dispatchEvent(new Event("input"));
-}
-
-function synchronizeToEdgeTypeChooser() {
-    const edgeChooser = document.getElementById("edge-type-chooser");
-    const cornerChooser = document.getElementById("corner-type-chooser");
-
-    switch (edgeChooser.value) {
-        case "NORMAL":
-            cornerChooser.value = "NORMAL";
-            break;
-        case "BEVELED":
-            cornerChooser.value = "KLEETOPED";
-            break;
-        case "ROUNDED":
-            cornerChooser.value = "ROUNDED";
-            break;
-        default:
-            console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
-            break;
-    }
-    cornerChooser.dispatchEvent(new Event("change"));
-}
-
-function synchronizeToBelevedEdgeDepthSlider() {
-    synchronizeToEdgeSlider("beveled-edge-depth-slider", "kleetoped-corner-depth-input");
-}
-
-function synchronizeToBelevedEdgeDepthInput() {
-    synchronizeToEdgeInput("beveled-edge-depth-input", "kleetoped-corner-depth-input");
-}
-
-function synchronizeToRoundedEdgeDepthSlider() {
-    synchronizeToEdgeSlider("rounded-edge-depth-slider", "rounded-corner-depth-input");
-}
-
-function synchronizeToRoundedEdgeDepthInput() {
-    synchronizeToEdgeInput("rounded-edge-depth-input", "rounded-corner-depth-input");
-}
-
-function synchronizeToRoundedEdgeCurvatureSlider() {
-    synchronizeToEdgeSlider("rounded-edge-curvature-slider", "rounded-corner-curvature-input");
-}
-
-function synchronizeToRoundedEdgeCurvatureInput() {
-    synchronizeToEdgeInput("rounded-edge-curvature-input", "rounded-corner-curvature-input");
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function selectBaseModel() {
-    // TODO
+    //TODO sketchup.selectBaseModel();
 
+    // TODO remove all of this!
     clearModelVariableFields();
     clearGlyphMappings();
 
-    document.getElementById("base-model-button").innerHTML = ("(D10) Pentagonal Trapezohedron");
+    setButtonField("base-model", "(D10) Pentagonal Trapezohedron");
 
     addModelVariableField("die-width", "Die Width", 0, 10, 3, 0.1, 0.5);
     addModelVariableField("die-height", "Die Height", 0, 20, 5, 0.5, 1);
@@ -250,24 +16,12 @@ function selectBaseModel() {
     toggleGlyphMappingField(true);
     createGlyphFields(10);
     toggleGlyphSection(true);
+    // TODO remove all of this!
 }
 
 function selectFont() {
-    
+    //TODO sketchup.selectFont();
 }
-
-function updateGlyphMapping() {
-    // Send something to sketchup.
-}
-
-
-
-
-
-
-
-
-
 
 //==============================================================================
 // Display Toggling
@@ -278,7 +32,7 @@ function toggleMenu(menuName) {
     const dropdown = document.getElementById(`${menuName}-menu-dropdown`);
 
     if (content.style.display == "none") {
-        content.style.display = "block";
+        content.style.display = "";
         dropdown.innerHTML = "&#x25BE;";
     } else {
         content.style.display = "none";
@@ -291,10 +45,32 @@ function toggleSection(sectionName) {
     const checkbox = document.getElementById(`${sectionName}-checkbox`);
 
     if (checkbox.checked) {
-        content.style.display = "block";
+        content.style.display = "";
     } else {
         content.style.display = "none";
     }
+    sketchup.updateValue(sectionName, checkbox.checked);
+}
+
+//==============================================================================
+// Generic Field Setters
+//==============================================================================
+
+function setSliderField(fieldName, value) {
+    document.getElementById(`${fieldName}-slider`).value = value;
+    document.getElementById(`${fieldName}-input`).value = value;
+}
+
+function setCheckboxField(fieldName, value) {
+    document.getElementById(`${fieldName}-checkbox`).value = value;
+}
+
+function setChooserField(fieldName, value) {
+    document.getElementById(`${fieldName}-chooser`).value = value;
+}
+
+function setButtonField(fieldName, value) {
+    document.getElementById(`${fieldName}-button`).innerHTML = value;
 }
 
 //==============================================================================
@@ -415,6 +191,7 @@ function createGlyphFields(glyphCount) {
         glyphTextField.value = i;
         glyphTextField.defaultValue = i;
         glyphTextField.className = "glyph-text-field";
+        //TODO Add event listener for this!
         glyphRow.insertCell(-1).appendChild(glyphTextField);
 
         // Create a font selector button for changing the individual glyph's font.
@@ -423,19 +200,18 @@ function createGlyphFields(glyphCount) {
         fontSelector.id = `glyph-${i}-font`;
         fontSelector.className = "glyph-font-button";
         fontSelector.innerHTML = "None";
+        //TODO Add event listener for this!
         glyphRow.insertCell(-1).appendChild(fontSelector);
     }
 }
 
-function setGlyphData(index, text = null, font = null) {
+function setGlyphField(index, text = null, font = null) {
     if (text != null) {
-        const glyphTextField = document.getElementById(`glyph-${index}-text`);
-        glyphTextField.value = text;
+        document.getElementById(`glyph-${index}-text`).value = text;
     }
 
     if (font != null) {
-        const glyphFont = document.getElementById(`glyph-${index}-font`);
-        glyphFont.innerHTML = font;
+        document.getElementById(`glyph-${index}-font`).innerHTML = font;
     }
 }
 
@@ -449,4 +225,208 @@ function clearGlyphFields() {
 
 function toggleGlyphSection(isVisible) {
     document.getElementById("glyphs-section").style.display = (isVisible? "" : "none");
+}
+
+//==============================================================================
+// Corner to Edge Lock Synchronization
+//==============================================================================
+
+function updateEdgeCornerTypeLock() {
+    const edgeFields = {
+        "edge-type-chooser": synchronizeToEdgeTypeChooser,
+        "beveled-edge-depth-slider": synchronizeToBelevedEdgeDepthSlider,
+        "beveled-edge-depth-input": synchronizeToBelevedEdgeDepthInput,
+        "rounded-edge-depth-slider": synchronizeToRoundedEdgeDepthSlider,
+        "rounded-edge-depth-input": synchronizeToRoundedEdgeDepthInput,
+        "rounded-edge-curvature-slider": synchronizeToRoundedEdgeCurvatureSlider,
+        "rounded-edge-curvature-input": synchronizeToRoundedEdgeCurvatureInput,
+    };
+
+    const cornerFields = [
+        "corner-type-chooser",
+        "truncated-corner-depth-slider",
+        "truncated-corner-depth-input",
+        "kleetoped-corner-depth-slider",
+        "kleetoped-corner-depth-input",
+        "rounded-corner-depth-slider",
+        "rounded-corner-depth-input",
+        "rounded-corner-curvature-slider",
+        "rounded-corner-curvature-input"
+    ];
+
+    const checkbox = document.getElementById("lock-corner-edge-types-checkbox");
+    if (checkbox.checked) {
+        // Register event callbacks on each of the edge field elements that trigger when it's input is changed,
+        // and updates the corresponding corner field to match the new value, keeping them in sync.
+        for (let element in edgeFields) {
+            let func = edgeFields[element];
+            document.getElementById(element).addEventListener("input", func);
+            // Call the sychronization function to update the fields initially.
+            func();
+        }
+        // Disable each of the corner field elements so the user can't manually desyncronize them.
+        cornerFields.forEach(element => {
+            document.getElementById(element).disabled = true;
+        });
+    } else {
+        // Un-register the synchronization event listeners.
+        for (let element in edgeFields) {
+            let func = edgeFields[element];
+            document.getElementById(element).removeEventListener("input", func);
+        }
+        // Re-enable each of the corner field elements so the user can manually control them.
+        cornerFields.forEach(element => {
+            document.getElementById(element).disabled = false;
+        });
+    }
+}
+
+function synchronizeToEdgeTypeChooser() {
+    const edgeChooser = document.getElementById("edge-type-chooser");
+    const cornerChooser = document.getElementById("corner-type-chooser");
+
+    switch (edgeChooser.value) {
+        case "NORMAL":
+            cornerChooser.value = "NORMAL";
+            break;
+        case "BEVELED":
+            cornerChooser.value = "KLEETOPED";
+            break;
+        case "ROUNDED":
+            cornerChooser.value = "ROUNDED";
+            break;
+        default:
+            console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
+            break;
+    }
+    cornerChooser.dispatchEvent(new Event("change"));
+}
+
+function synchronizeToEdgeField(edgeElementId, cornerInputId) {
+    const edgeElement = document.getElementById(edgeElementId);
+    const cornerInput = document.getElementById(cornerInputId);
+
+    if (edgeElement.value == "") {
+        cornerInput.value = edgeElement.defaultValue;
+    } else {
+        cornerInput.value = edgeElement.value;
+    }
+    cornerInput.dispatchEvent(new Event("input"));
+}
+
+function synchronizeToBelevedEdgeDepthSlider() {
+    synchronizeToEdgeField("beveled-edge-depth-slider", "kleetoped-corner-depth-input");
+}
+
+function synchronizeToBelevedEdgeDepthInput() {
+    synchronizeToEdgeField("beveled-edge-depth-input", "kleetoped-corner-depth-input");
+}
+
+function synchronizeToRoundedEdgeDepthSlider() {
+    synchronizeToEdgeField("rounded-edge-depth-slider", "rounded-corner-depth-input");
+}
+
+function synchronizeToRoundedEdgeDepthInput() {
+    synchronizeToEdgeField("rounded-edge-depth-input", "rounded-corner-depth-input");
+}
+
+function synchronizeToRoundedEdgeCurvatureSlider() {
+    synchronizeToEdgeField("rounded-edge-curvature-slider", "rounded-corner-curvature-input");
+}
+
+function synchronizeToRoundedEdgeCurvatureInput() {
+    synchronizeToEdgeField("rounded-edge-curvature-input", "rounded-corner-curvature-input");
+}
+
+//==============================================================================
+// Chooser Update Functions
+//==============================================================================
+
+function updateBorderCorners() {
+    const chooser = document.getElementById("face-border-corners-chooser");
+    const straightCornersSection = document.getElementById("straight-border-corners-section");
+    const roundedCornersSection = document.getElementById("rounded-border-corners-section");
+
+    switch (chooser.value) {
+        case "EMPTY":
+            straightCornersSection.style.display = "none";
+            roundedCornersSection.style.display = "none";
+            break;
+        case "STRAIGHT":
+            straightCornersSection.style.display = "";
+            roundedCornersSection.style.display = "none";
+            break;
+        case "ROUNDED":
+            straightCornersSection.style.display = "none";
+            roundedCornersSection.style.display = "";
+            break;
+        default:
+            console.error(`Critical: impossible value stored in face-border-corners-chooser! value=${chooser.value}`);
+            break;
+    }
+    //TODO sketchup.updateValue("face-border-corners", chooser.value);
+}
+
+function updateEdgeType() {
+    const chooser = document.getElementById("edge-type-chooser");
+    const beveledEdgeSection = document.getElementById("beveled-edge-type-section");
+    const roundedEdgeSection = document.getElementById("rounded-edge-type-section");
+
+    switch (chooser.value) {
+        case "NORMAL":
+            beveledEdgeSection.style.display = "none";
+            roundedEdgeSection.style.display = "none";
+            break;
+        case "BEVELED":
+            beveledEdgeSection.style.display = "block";
+            roundedEdgeSection.style.display = "none";
+            break;
+        case "ROUNDED":
+            beveledEdgeSection.style.display = "none";
+            roundedEdgeSection.style.display = "block";
+            break;
+        default:
+            console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
+            break;
+    }
+    //TODO sketchup.updateValue("edge-type", chooser.value);
+}
+
+function updateCornerType() {
+    const chooser = document.getElementById("corner-type-chooser");
+    const truncatedCornerSection = document.getElementById("truncated-corner-type-section");
+    const kleetopedCornerSection = document.getElementById("kleetoped-corner-type-section");
+    const roundedCornerSection = document.getElementById("rounded-corner-type-section");
+
+    switch (chooser.value) {
+        case "NORMAL":
+            truncatedCornerSection.style.display = "none";
+            kleetopedCornerSection.style.display = "none";
+            roundedCornerSection.style.display = "none";
+            break;
+        case "TRUNCATED":
+            truncatedCornerSection.style.display = "block";
+            kleetopedCornerSection.style.display = "none";
+            roundedCornerSection.style.display = "none";
+            break;
+        case "KLEETOPED":
+            truncatedCornerSection.style.display = "none";
+            kleetopedCornerSection.style.display = "block";
+            roundedCornerSection.style.display = "none";
+            break;
+        case "ROUNDED":
+            truncatedCornerSection.style.display = "none";
+            kleetopedCornerSection.style.display = "none";
+            roundedCornerSection.style.display = "block";
+            break;
+        default:
+            console.error(`Critical: impossible value stored in corner-type-chooser! value=${chooser.value}`);
+            break;
+    }
+    //TODO sketchup.updateValue("corner-type", chooser.value);
+}
+
+function updateGlyphMapping() {
+    const chooser = document.getElementById("glyph-mapping-chooser");
+    //TODO sketchup.updateValue("glyph-mapping", chooser.value);
 }
