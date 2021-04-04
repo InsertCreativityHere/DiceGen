@@ -1,4 +1,12 @@
 
+function callSketchup(callback, ...args) {
+    //TODO sketchup[callback](...args);
+}
+
+//==============================================================================
+// Button Click Callbacks
+//==============================================================================
+
 function selectBaseModel() {
     //TODO sketchup.selectBaseModel();
 
@@ -364,7 +372,7 @@ function updateBorderCorners() {
             console.error(`Critical: impossible value stored in face-border-corners-chooser! value=${chooser.value}`);
             break;
     }
-    //TODO sketchup.updateValue("face-border-corners", chooser.value);
+    callSketchup("updateValue", "face-border-corners", chooser.value);
 }
 
 function updateEdgeType() {
@@ -389,7 +397,7 @@ function updateEdgeType() {
             console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
             break;
     }
-    //TODO sketchup.updateValue("edge-type", chooser.value);
+    callSketchup("updateValue", "edge-type", chooser.value);
 }
 
 function updateCornerType() {
@@ -423,10 +431,10 @@ function updateCornerType() {
             console.error(`Critical: impossible value stored in corner-type-chooser! value=${chooser.value}`);
             break;
     }
-    //TODO sketchup.updateValue("corner-type", chooser.value);
+    callSketchup("updateValue", "corner-type", chooser.value);
 }
 
 function updateGlyphMapping() {
     const chooser = document.getElementById("glyph-mapping-chooser");
-    //TODO sketchup.updateValue("glyph-mapping", chooser.value);
+    callSketchup("updateValue", "glyph-mapping", chooser.value);
 }
