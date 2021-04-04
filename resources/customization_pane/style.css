@@ -66,6 +66,7 @@ input[type="range"] {
 .glyph-index-cell {
     font-size: 18px;
     font-weight: bold;
+    text-align: right;
     vertical-align: bottom;
 }
 
@@ -82,5 +83,5 @@ input[type="range"] {
 }
 
 #font-button, #glyph-mapping-chooser {
-    width: 160px;
+    width: 150px;
 }

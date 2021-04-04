@@ -44,6 +44,7 @@ function configureSliderInput(fieldName) {
         const input = document.getElementById(`${fieldName}-input`);
         const slider = document.getElementById(`${fieldName}-slider`);
         input.value = slider.value;
+        //TODO sketchup.updateValue(fieldName, input.value);
     });
 
     // Add a function to update the slider's value to match the input box's when the input box is changed.
@@ -53,9 +54,11 @@ function configureSliderInput(fieldName) {
 
         // If the input box is empty, then use the slider's default value.
         if (input.value == "") {
-            slider.value = slider.defaultValue;
+            slider.value = input.defaultValue;
+            //TODO sketchup.updateValue(fieldName, input.defaultValue);
         } else {
             slider.value = input.value;
+            //TODO sketchup.updateValue(fieldName, input.value);
         }
     });
 
@@ -66,10 +69,9 @@ function configureSliderInput(fieldName) {
         // If the input is empty, fill it with it's default value.
         if (input.value == "") {
             input.value = input.defaultValue;
+            //TODO sketchup.updateValue(fieldName, input.value);
         }
     });
-
-    // TODO send a thing to sketchup.
 }
 
 // Configure the following field's sliders and input boxes.
@@ -96,6 +98,6 @@ document.getElementById("face-border-corners-chooser").addEventListener("change"
 document.getElementById("round-faces-checkbox").addEventListener("change", updateRoundFacesCheckbox);
 document.getElementById("edge-type-chooser").addEventListener("change", updateEdgeType);
 document.getElementById("corner-type-chooser").addEventListener("change", updateCornerType);
-document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock)
+document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock);
 document.getElementById("font-button").addEventListener("click", selectFont);
 document.getElementById("glyph-mapping-chooser").addEventListener("change", updateGlyphMapping);
