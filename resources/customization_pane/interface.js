@@ -1,18 +1,18 @@
 
-function callSketchup(callback, ...args) {
-    //TODO sketchup[callback](...args);
-}
+//TODO add popup windows to warn users when their settings might be overriden by changing something.
 
 //==============================================================================
-// Button Click Callbacks
+// Sketchup Callbacks
 //==============================================================================
 
 function selectBaseModel() {
     //TODO sketchup.selectBaseModel();
+    console.log("Select Base Model...");
 
     // TODO remove all of this!
     clearModelVariableFields();
     clearGlyphMappings();
+    clearGlyphFields();
 
     setButtonField("base-model", "(D10) Pentagonal Trapezohedron");
 
@@ -24,11 +24,21 @@ function selectBaseModel() {
     toggleGlyphMappingField(true);
     createGlyphFields(10);
     toggleGlyphSection(true);
-    // TODO remove all of this!
 }
 
 function selectFont() {
     //TODO sketchup.selectFont();
+    console.log("Select Font...");
+}
+
+function selectFontForGlyph(index) {
+    //TODO skectup.selectFontForGlyph(index);
+    console.log(`Select Font For ${index}...`);
+}
+
+function updateValue(fieldName, value) {
+    //TODO sketchup.updateValue(fieldName, value);
+    console.log(`Update ${fieldName} to ${value}...`);
 }
 
 //==============================================================================
@@ -57,7 +67,7 @@ function toggleSection(sectionName) {
     } else {
         content.style.display = "none";
     }
-    sketchup.updateValue(sectionName, checkbox.checked);
+    updateValue(sectionName, checkbox.checked);
 }
 
 //==============================================================================
@@ -199,7 +209,10 @@ function createGlyphFields(glyphCount) {
         glyphTextField.value = i;
         glyphTextField.defaultValue = i;
         glyphTextField.className = "glyph-text-field";
-        //TODO Add event listener for this!
+        glyphTextField.addEventListener("input", function() {
+            const input = document.getElementById(glyphTextField.id);
+            updateValue(`glyph-${i}-text`, input.value);
+        })
         glyphRow.insertCell(-1).appendChild(glyphTextField);
 
         // Create a font selector button for changing the individual glyph's font.
@@ -208,7 +221,9 @@ function createGlyphFields(glyphCount) {
         fontSelector.id = `glyph-${i}-font`;
         fontSelector.className = "glyph-font-button";
         fontSelector.innerHTML = "None";
-        //TODO Add event listener for this!
+        fontSelector.addEventListener("click", function() {
+            selectFontForGlyph(i);
+        })
         glyphRow.insertCell(-1).appendChild(fontSelector);
     }
 }
@@ -293,6 +308,10 @@ function synchronizeToEdgeTypeChooser() {
     const edgeChooser = document.getElementById("edge-type-chooser");
     const cornerChooser = document.getElementById("corner-type-chooser");
 
+    if (edgeChooser.value == cornerChooser.value) {
+        return;
+    }
+
     switch (edgeChooser.value) {
         case "NORMAL":
             cornerChooser.value = "NORMAL";
@@ -315,10 +334,16 @@ function synchronizeToEdgeField(edgeElementId, cornerInputId) {
     const cornerInput = document.getElementById(cornerInputId);
 
     if (edgeElement.value == "") {
-        cornerInput.value = edgeElement.defaultValue;
+        var newValue = edgeElement.defaultValue;
     } else {
-        cornerInput.value = edgeElement.value;
+        var newValue = edgeElement.value;
     }
+
+    if (cornerInput.value == newValue) {
+        return;
+    }
+
+    cornerInput.value = newValue;
     cornerInput.dispatchEvent(new Event("input"));
 }
 
@@ -372,7 +397,7 @@ function updateBorderCorners() {
             console.error(`Critical: impossible value stored in face-border-corners-chooser! value=${chooser.value}`);
             break;
     }
-    callSketchup("updateValue", "face-border-corners", chooser.value);
+    updateValue("face-border-corners", chooser.value);
 }
 
 function updateEdgeType() {
@@ -397,7 +422,7 @@ function updateEdgeType() {
             console.error(`Critical: impossible value stored in edge-type-chooser! value=${chooser.value}`);
             break;
     }
-    callSketchup("updateValue", "edge-type", chooser.value);
+    updateValue("edge-type", chooser.value);
 }
 
 function updateCornerType() {
@@ -431,10 +456,10 @@ function updateCornerType() {
             console.error(`Critical: impossible value stored in corner-type-chooser! value=${chooser.value}`);
             break;
     }
-    callSketchup("updateValue", "corner-type", chooser.value);
+    updateValue("corner-type", chooser.value);
 }
 
 function updateGlyphMapping() {
     const chooser = document.getElementById("glyph-mapping-chooser");
-    callSketchup("updateValue", "glyph-mapping", chooser.value);
+    updateValue("glyph-mapping", chooser.value);
 }

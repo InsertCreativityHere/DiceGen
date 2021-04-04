@@ -44,7 +44,7 @@ function configureSliderInput(fieldName) {
         const input = document.getElementById(`${fieldName}-input`);
         const slider = document.getElementById(`${fieldName}-slider`);
         input.value = slider.value;
-        callSketchup("updateValue", fieldName, input.value);
+        updateValue(fieldName, input.value);
     });
 
     // Add a function to update the slider's value to match the input box's when the input box is changed.
@@ -55,10 +55,10 @@ function configureSliderInput(fieldName) {
         // If the input box is empty, then use the slider's default value.
         if (input.value == "") {
             slider.value = input.defaultValue;
-            callSketchup("updateValue", fieldName, input.defaultValue);
+            updateValue(fieldName, input.defaultValue);
         } else {
             slider.value = input.value;
-            callSketchup("updateValue", fieldName, input.value);
+            updateValue(fieldName, input.value);
         }
     });
 
@@ -69,7 +69,7 @@ function configureSliderInput(fieldName) {
         // If the input is empty, fill it with it's default value.
         if (input.value == "") {
             input.value = input.defaultValue;
-            callSketchup("updateValue", fieldName, input.value);
+            updateValue(fieldName, input.value);
         }
     });
 }
