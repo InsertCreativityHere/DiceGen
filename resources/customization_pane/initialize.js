@@ -34,6 +34,7 @@ hideElement("kleetoped-corner-type-section");
 hideElement("rounded-corner-type-section");
 hideElement("glyph-mapping-field");
 hideElement("glyphs-section");
+hideElement("advanced-glyph-menu-button");
 
 // Sets a series of event listeners on fields that have a range slider and an input box in them.
 // These listeners keep the slider and input box in sync when their values change, and ensure that input boxes can never
@@ -101,3 +102,4 @@ document.getElementById("corner-type-chooser").addEventListener("change", update
 document.getElementById("lock-corner-edge-types-checkbox").addEventListener("change", updateEdgeCornerTypeLock);
 document.getElementById("font-button").addEventListener("click", selectFont);
 document.getElementById("glyph-mapping-chooser").addEventListener("change", updateGlyphMapping);
+document.getElementById("advanced-glyph-menu-button").addEventListener("click", openAdvancedGlyphMenu);
