@@ -35,6 +35,27 @@ function selectFontForGlyph(index) {
     console.log(`Select Font For ${index}...`);
 }
 
+function resetGlyphFields() {
+    // Prompt the user to make sure they want to do this, and if they hit cancel, return and do nothing.
+    if (!confirm(currentLocale["ResetGlyphFieldPrompt"])) {
+        return;
+    }
+
+    const glyphCount = document.getElementById("glyph-table-body").childElementCount;
+
+    // Iterate through each glyph's text box field and reset it to it's defaultValue.
+    for (let i = 1; i <= glyphCount; i++) {
+        const glyphTextField = document.getElementById(`glyph-${i}-text`);
+        if (glyphTextField.value != glyphTextField.defaultValue) {
+            glyphTextField.value = glyphTextField.defaultValue;
+            glyphTextField.dispatchEvent(new Event("input"));
+        }
+    }
+
+    //TODO skectup.resetGlyphFields();
+    console.log(`Reset glyph fields.`);
+}
+
 function openAdvancedGlyphMenu() {
     //TODO sketchup.openAdvancedGlyphMenu();
     console.log("Open Advanced Glyph Menu...");
@@ -78,7 +99,7 @@ function toggleGlyphFields(isVisible) {
     display = (isVisible? "" : "none");
     document.getElementById("glyph-mapping-field").style.display = display;
     document.getElementById("glyphs-section").style.display = display;
-    document.getElementById("advanced-glyph-menu-button").style.display = display;
+    document.getElementById("glyph-mapping-controls").style.display = display;
 }
 
 //==============================================================================
@@ -179,30 +200,19 @@ function addGlyphMapping(mappingName) {
 
     // Add the option to the glyph mapping chooser.
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
-    glyphMappingChooser.appendChild(option);
-}
-
-function setCustomGlyphMapping() {
-    // Create a 'Custom' option repesenting the one the user is making.
-    const option = document.createElement("option");
-    option.value = "CUSTOM";
-    option.innerHTML = "Custom";
-
-    // Add the custom option to the glyph mapping chooser.
-    const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
     glyphMappingChooser.add(option);
 }
 
-function unsetCustomGlyphMapping(customIndex) {
-    const chooser = document.getElementById("glyph-mapping-chooser");
-    chooser.remove(customIndex);
+function setGlyphMapping(mappingName) {
+    const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
+    glyphMappingChooser.value = mappingName.toUpperCase();
 }
 
 function clearGlyphMappings() {
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
     // Remove the options from the chooser.
-    while (glyphMappingChooser.firstChild) {
-        glyphMappingChooser.removeChild(glyphMappingChooser.lastChild)
+    while (glyphMappingChooser.length > 0) {
+        glyphMappingChooser.remove(0);
     }
 }
 
@@ -243,7 +253,7 @@ function createGlyphFields(glyphCount) {
         fontSelector.type = "button";
         fontSelector.id = `glyph-${i}-font`;
         fontSelector.className = "glyph-font-button";
-        fontSelector.innerHTML = "None";
+        fontSelector.innerHTML = currentLocale["None"];
         fontSelector.addEventListener("click", function() {
             selectFontForGlyph(i);
         })
@@ -254,6 +264,7 @@ function createGlyphFields(glyphCount) {
 function setGlyphFields(index, text = null, font = null) {
     if (text != null) {
         document.getElementById(`glyph-${index}-text`).value = text;
+        document.getElementById(`glyph-${index}-text`).defaultValue = text;
     }
 
     if (font != null) {
@@ -271,6 +282,20 @@ function clearGlyphFields() {
     // Remove the all the elements from the glyphs section.
     while (glyphTableBody.firstChild) {
         glyphTableBody.removeChild(glyphTableBody.lastChild)
+    }
+}
+
+function getCustomizedGlyphFields() {
+    const glyphCount = document.getElementById("glyph-table-body").childElementCount;
+
+    // This array stores the indexes of every glyph whose text was manually set by the user.
+    let customized = [];
+    for (let i = 1; i <= glyphCount; i++) {
+        const glyphTextField = document.getElementById(`glyph-${i}-text`);
+        // Check if the glyph's text was customized (it's value isn't the default for the current glyph mapping).
+        if (glyphTextField.value != glyphTextField.defaultValue) {
+            customized.push(i);
+        }
     }
 }
 
@@ -485,21 +510,5 @@ function updateCornerType() {
 
 function updateGlyphMapping() {
     const chooser = document.getElementById("glyph-mapping-chooser");
-
-    // Check if the user has customized the current glyph mapping by looking for a glyph mapping option named 'CUSTOM'.
-    let customIndex = -1;
-    for (let i = 0; i < chooser.length; i++) {
-        if (chooser.options[i].value == "CUSTOM") {
-            customIndex = i;
-            break;
-        }
-    }
-    if (customIndex > -1) {
-        // warn the user that changing the mapping will erase their changes.
-        if (!confirm("Switching glyph mappings will erase any changes you've made.\nYou sure you're okay with that?")) {
-            return;
-        }
-        unsetCustomGlyphMapping(customIndex);
-    }
     updateValue("glyph-mapping", chooser.value);
 }
