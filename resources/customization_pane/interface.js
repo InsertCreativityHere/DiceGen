@@ -78,6 +78,7 @@ function toggleGlyphFields(isVisible) {
     display = (isVisible? "" : "none");
     document.getElementById("glyph-mapping-field").style.display = display;
     document.getElementById("glyphs-section").style.display = display;
+    document.getElementById("reset-glyph-mapping-button").style.display = display;
     document.getElementById("advanced-glyph-menu-button").style.display = display;
 }
 
@@ -179,31 +180,46 @@ function addGlyphMapping(mappingName) {
 
     // Add the option to the glyph mapping chooser.
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
-    glyphMappingChooser.appendChild(option);
+    glyphMappingChooser.add(option);
+    currentGlyphMapping = glyphMappingChooser.value;
 }
 
 function setCustomGlyphMapping() {
     // Create a 'Custom' option repesenting the one the user is making.
     const option = document.createElement("option");
     option.value = "CUSTOM";
-    option.innerHTML = "Custom";
+    option.innerHTML = currentLocale["Custom"];
 
     // Add the custom option to the glyph mapping chooser.
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
     glyphMappingChooser.add(option);
+    glyphMappingChooser.value = option.value;
+    currentGlyphMapping = glyphMappingChooser.value;
 }
 
-function unsetCustomGlyphMapping(customIndex) {
-    const chooser = document.getElementById("glyph-mapping-chooser");
-    chooser.remove(customIndex);
+function unsetCustomGlyphMapping() {
+    const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
+
+    // Search through the options to find one with a value of "CUSTOM". This is the 'Custom' placeholder mapping.
+    for (let i = 0; i < chooser.length; i++) {
+        if (chooser.options[i].value == "CUSTOM") {
+            // Remove the option and update the current mapping.
+            glyphMappingChooser.remove(i);
+            currentGlyphMapping = glyphMappingChooser.value;
+            return;
+        }
+    }
+    // Assert, since there was no "CUSTOM" option to remove if this is reached.
+    console.assert(false, "Error: No CUSTOM glyph mapping was set!");
 }
 
 function clearGlyphMappings() {
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
     // Remove the options from the chooser.
-    while (glyphMappingChooser.firstChild) {
-        glyphMappingChooser.removeChild(glyphMappingChooser.lastChild)
+    while (glyphMappingChooser.length > 0) {
+        glyphMappingChooser.remove(0);
     }
+    currentGlyphMapping = glyphMappingChooser.value;
 }
 
 //==============================================================================
@@ -243,7 +259,7 @@ function createGlyphFields(glyphCount) {
         fontSelector.type = "button";
         fontSelector.id = `glyph-${i}-font`;
         fontSelector.className = "glyph-font-button";
-        fontSelector.innerHTML = "None";
+        fontSelector.innerHTML = currentLocale["None"];
         fontSelector.addEventListener("click", function() {
             selectFontForGlyph(i);
         })
@@ -254,6 +270,7 @@ function createGlyphFields(glyphCount) {
 function setGlyphFields(index, text = null, font = null) {
     if (text != null) {
         document.getElementById(`glyph-${index}-text`).value = text;
+        document.getElementById(`glyph-${index}-text`).defaultValue = text;
     }
 
     if (font != null) {
@@ -271,6 +288,29 @@ function clearGlyphFields() {
     // Remove the all the elements from the glyphs section.
     while (glyphTableBody.firstChild) {
         glyphTableBody.removeChild(glyphTableBody.lastChild)
+    }
+}
+
+function checkForGlyphChanges() {
+    const glyphCount = document.getElementById("glyph-table-body").childElementCount;
+
+    // This array stores the indexes of every glyph whose text was manually set by the user.
+    let changes = [];
+    for (let i = 1; i <= glyphCount; i++) {
+        const glyphTextField = document.getElementById(`glyph-${i}-text`);
+        // Check if the glyph's text was changed from the default for the current glyph mapping.
+        if (glyphTextField.value != glyphTextField.defaultValue) {
+            changes.push(i);
+        }
+    }
+
+    // If the user changed any of the glyphs, display a prompt asking if they want to keep the text or not.
+    if (confirm(currentLocale["GlyphTextPreservePrompt"])) {
+        // Overwrite the text by returning that no indexes should be preserved.
+        return [];
+    } else {
+        // Keep the customized text by returning the indexes of which glyphs should be preserved.
+        return changes;
     }
 }
 
@@ -486,20 +526,36 @@ function updateCornerType() {
 function updateGlyphMapping() {
     const chooser = document.getElementById("glyph-mapping-chooser");
 
-    // Check if the user has customized the current glyph mapping by looking for a glyph mapping option named 'CUSTOM'.
-    let customIndex = -1;
-    for (let i = 0; i < chooser.length; i++) {
-        if (chooser.options[i].value == "CUSTOM") {
-            customIndex = i;
-            break;
-        }
-    }
-    if (customIndex > -1) {
-        // warn the user that changing the mapping will erase their changes.
-        if (!confirm("Switching glyph mappings will erase any changes you've made.\nYou sure you're okay with that?")) {
+    // Check if the user customized the current glyph mapping.
+    if (currentGlyphMapping == "CUSTOM") {
+        // Warn the user that switching glyph mappings will erase their changes, and give them a chance to cancel it.
+        if (confirm(currentLocale["OverwriteCustomGlyphMappingPrompt"])) {
+            // If Okayed, remove the 'Custom' placeholder option, and update the current mapping.
+            unsetCustomGlyphMapping();
+            currentGlyphMapping = chooser.value;
+        } else {
+            // If canceled, reset the glyph mapping to it's previous value, and return.
+            chooser.value = currentGlyphMapping;
             return;
         }
-        unsetCustomGlyphMapping(customIndex);
     }
     updateValue("glyph-mapping", chooser.value);
 }
+
+EN_US = {
+    "Custom": "Custom",
+    "None": "None",
+    "GlyphTextPreservePrompt": "",
+    "OverwriteCustomGlyphMappingPrompt": "Switching glyph ma",
+};
+
+currentLocale = EN_US;
+
+//"Switching glyph mappings will erase any changes you've made.\nYou sure you're okay with that?"
+//"The selected glyph mapping overwrites text you've specified.\nPress \"Ok\" for the mapping to overwrite your changes, or \"Cancel\" to preserve your changes.",
+
+
+
+
+
+//glyph-mapping-controls          reset-glyph-mapping-button      resetGlyphMapping

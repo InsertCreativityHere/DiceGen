@@ -83,6 +83,11 @@ input[type="range"] {
     width: 200px;
 }
 
-#font-button, #glyph-mapping-chooser {
+#font-button, #glyph-mapping-chooser, #reset-glyph-mapping-button, #advanced-glyph-menu-button {
     width: 150px;
+}
+
+#glyph-mapping-controls {
+    display: flex;
+    justify-content: space-around;
 }
