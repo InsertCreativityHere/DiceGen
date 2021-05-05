@@ -223,6 +223,13 @@
                     <label for="glyph-mapping-chooser">Glyph Mapping</label>
                     <select id="glyph-mapping-chooser"></select>
                 </div>
+                <div id="emboss-depth-field" class="field">
+                    <label for="emboss-depth-slider">Emboss Depth</label>
+                    <div class="slider-input">
+                        0<input type="range" id="emboss-depth-slider" step="0.05" value="1.5" min="0" max="3">3
+                        <input type="number" id="emboss-depth-input" step="0.1" value="1.5">
+                    </div>
+                </div>
                 <div id="glyphs-section" class="section" style="margin-bottom: 5px;">
                     <table id="glyph-table">
                         <thead>

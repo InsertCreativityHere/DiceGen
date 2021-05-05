@@ -97,6 +97,7 @@ function toggleSection(sectionName) {
 
 function toggleGlyphFields(isVisible) {
     display = (isVisible? "" : "none");
+    document.getElementById("emboss-depth-field").style.display = display;
     document.getElementById("glyph-mapping-field").style.display = display;
     document.getElementById("glyphs-section").style.display = display;
     document.getElementById("glyph-mapping-controls").style.display = display;

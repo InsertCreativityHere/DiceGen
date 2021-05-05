@@ -32,6 +32,7 @@ hideElement("rounded-edge-type-section");
 hideElement("truncated-corner-type-section");
 hideElement("kleetoped-corner-type-section");
 hideElement("rounded-corner-type-section");
+hideElement("emboss-depth-field");
 hideElement("glyph-mapping-field");
 hideElement("glyphs-section");
 hideElement("glyph-mapping-controls");
@@ -91,6 +92,7 @@ configureSliderInput("kleetoped-corner-depth");
 configureSliderInput("kleetoped-corner-protrusion");
 configureSliderInput("rounded-corner-depth");
 configureSliderInput("rounded-corner-curvature");
+configureSliderInput("emboss-depth");
 
 // Add specific callback functions to the remaining input elements.
 document.getElementById("base-model-button").addEventListener("click", selectBaseModel);
