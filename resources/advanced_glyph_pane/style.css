@@ -29,6 +29,11 @@ input[type="number"] {
     vertical-align: bottom;
 }
 
+.glyph-face-index-field-error {
+    background-color: #FFBDBD;
+    border-color: #FF0000;
+}
+
 #glyph-mapping-section {
     height: 25px;
     display: flex;

@@ -1,7 +1,21 @@
 
+//==============================================================================
+// Sketchup Callbacks
+//==============================================================================
+
 function updateValue(fieldName, value) {
     //TODO sketchup.updateValue(fieldName, value);
     console.log(`Update ${fieldName} to ${value}...`);
+}
+
+function importGlyphMapping() {
+    //TODO sketchup.importGlyphMapping();
+    console.log("Import Glyph Mapping...");
+}
+
+function exportGlyphMapping() {
+    //TODO sketchup.exportGlyphMapping();
+    console.log("Export Glyph Mapping...");
 }
 
 //==============================================================================
@@ -109,8 +123,10 @@ function createAdvancedGlyphFields(glyphCount) {
 
         // Create a numerical input box for controlling the face the glyph is placed on.
         let glyphFaceIndexField = createNumericalInputField("face-index", i, 0, 1);
+        glyphFaceIndexField.min = 0;
+        glyphFaceIndexField.max = glyphCount;
         // Add a callback to check for any face index conflicts.
-        glyphFaceIndexField.addEventListener("input", () => checkFaceIndexValidity(glyphFaceIndexField.id, glyphCount));
+        glyphFaceIndexField.addEventListener("input", () => checkFaceIndexValidity(glyphCount));
         glyphRow.insertCell(-1).appendChild(glyphFaceIndexField);
     }
 }
@@ -126,6 +142,12 @@ function createNumericalInputField(name, index, value, step) {
 
     // Add a function to update the Sketchup model and glyph mapping field when the input box's value is changed.
     input.addEventListener("input", function() {
+        // Remove any leading 0's from the index.
+        let currentValue = input.value;
+        if (currentValue.length > 1) {
+            input.value = currentValue.replace(/^0+/, "");
+        }
+
         updateValue(input.id, input.value);
 
         // Change the glyph mapping field to say 'Custom' if it doesn't already.
@@ -176,23 +198,39 @@ function clearAdvancedGlyphFields() {
     }
 }
 
-function checkFaceIndexValidity(fieldId, glyphCount) {
-    const faceIndexInput = document.getElementById(fieldId);
-    const value = faceIndexInput.value;
-    let hasError = false;
+function checkFaceIndexValidity(glyphCount) {
+    let errors = new Set();//TODO make this a dictionary with <i, hoverovertext> pairs.
+    for (let i = 1; i <= glyphCount; i++) {
+        const value = document.getElementById(`glyph-${i}-face-index`).value;
 
-    // Check that the face index is within bounds and an integer.
-    if ((value < 1) || (value > glyphCount) || (false/*INTEGER CHECK*/)) {
-        hasError = true;
-        //TODO set the hover-over text!
+        let hasError = false;
+        // Check if the index conflicts with any other faces.
+        for (let j = (i+1); j <= glyphCount; j++) {
+            if (document.getElementById(`glyph-${j}-face-index`).value == value) {
+                errors.add(j);
+                hasError = true;
+            }
+        }
+
+        // If this index conflicted with another face, add it to the error list and skip the remaining checks.
+        if (hasError) {
+            errors.add(i);
+            continue;
+        }
+
+        // Check that the face index is within bounds and an integer.
+        if ((value < 1) || (value > glyphCount) || !Number.isInteger(Number(value))) {
+            errors.add(i);
+        }
     }
 
-    // Check if the face index is used by any other glyphs.
-    const faceIndexFields = document.getElementsByClassName("glyph-face-index");
-    // TODO DO THAT!
-
-    if (hasError) {
-        // Change the class so it has a red border or something.
-        // OH and add a hover-over explaining the error.
+    // Iterate through the faces and update their classes to reflect their error statuses.
+    for (let i = 1; i <= glyphCount; i++) {
+        const faceIndexInput = document.getElementById(`glyph-${i}-face-index`);
+        if (errors.has(i)) {
+            faceIndexInput.className = "glyph-face-index-field-error";
+        } else {
+            faceIndexInput.className = "glyph-face-index-field";
+        }
     }
 }
