@@ -41,19 +41,17 @@ hideElement("glyph-mapping-controls");
 // These listeners keep the slider and input box in sync when their values change, and ensure that input boxes can never
 // be left empty (they will be filled with their default values instead).
 function configureSliderInput(fieldName) {
+    const input = document.getElementById(`${fieldName}-input`);
+    const slider = document.getElementById(`${fieldName}-slider`);
+
     // Add a function to update the input box's value to match the slider's when the slider is changed.
-    document.getElementById(`${fieldName}-slider`).addEventListener("input", function() {
-        const input = document.getElementById(`${fieldName}-input`);
-        const slider = document.getElementById(`${fieldName}-slider`);
+    slider.addEventListener("input", function() {
         input.value = slider.value;
         updateValue(fieldName, input.value);
     });
 
     // Add a function to update the slider's value to match the input box's when the input box is changed.
-    document.getElementById(`${fieldName}-input`).addEventListener("input", function() {
-        const input = document.getElementById(`${fieldName}-input`);
-        const slider = document.getElementById(`${fieldName}-slider`);
-
+    input.addEventListener("input", function() {
         // If the input box is empty, then use the slider's default value.
         if (input.value == "") {
             slider.value = input.defaultValue;
@@ -65,9 +63,7 @@ function configureSliderInput(fieldName) {
     });
 
     // Add a function to fill the input box with it's default value if the user clicks off of it while it's empty.
-    document.getElementById(`${fieldName}-input`).addEventListener("focusout", function() {
-        const input = document.getElementById(`${fieldName}-input`);
-
+    input.addEventListener("focusout", function() {
         // If the input is empty, fill it with it's default value.
         if (input.value == "") {
             input.value = input.defaultValue;

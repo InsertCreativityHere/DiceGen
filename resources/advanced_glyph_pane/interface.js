@@ -1,14 +1,4 @@
 
-    // TODO HAVE TO ADD FILLEMPTYFIELD TO THE OTHER ADVANCED MENU STILL!!!
-
-    // So if the user has messed with the advanced stuff, we'll issue a warning everytime and unset the CUSTOM mapping.
-    // If the user has changed the text... Hmmm, I say tough titties. I can't think of when it would really be use...
-    // No. No, that's wrong. Like if someone is switchinig between Rybonator and Chessex numbering, we should keep the text.
-    // So. If the user has changed the text, we'll let sketchup launch a 
-
-
-
-
 function updateValue(fieldName, value) {
     //TODO sketchup.updateValue(fieldName, value);
     console.log(`Update ${fieldName} to ${value}...`);
@@ -59,7 +49,7 @@ function setCustomMapping() {
     const glyphMappingChooser = document.getElementById("glyph-mapping-chooser");
     glyphMappingChooser.add(option);
     glyphMappingChooser.value = "CUSTOM_MAPPING!";
-    
+
     isMappingCustomized = true;
 }
 
@@ -126,23 +116,34 @@ function createAdvancedGlyphFields(glyphCount) {
 }
 
 function createNumericalInputField(name, index, value, step) {
-    let field = document.createElement("input");
-    field.type = "number";
-    field.id = `glyph-${index}-${name}`;
-    field.className = `glyph-${name}-field`;
-    field.value = value;
-    field.defaultValue = value;
-    field.step = step;
-    field.addEventListener("input", function() {
-        const input = document.getElementById(field.id);
-        updateValue(field.id, input.value);
+    let input = document.createElement("input");
+    input.type = "number";
+    input.id = `glyph-${index}-${name}`;
+    input.className = `glyph-${name}-field`;
+    input.value = value;
+    input.defaultValue = value;
+    input.step = step;
+
+    // Add a function to update the Sketchup model and glyph mapping field when the input box's value is changed.
+    input.addEventListener("input", function() {
+        updateValue(input.id, input.value);
 
         // Change the glyph mapping field to say 'Custom' if it doesn't already.
         if (document.getElementById("glyph-mapping-chooser").value != "CUSTOM_MAPPING!") {
             setCustomMapping();
         }
     });
-    return field;
+
+    // Add a function to fill the input box with it's default value if the user clicks off of it while it's empty.
+    input.addEventListener("focusout", function() {
+        // If the input is empty, fill it with it's default value.
+        if (input.value == "") {
+            input.value = input.defaultValue;
+            updateValue(input.id, input.value);
+        }
+    });
+
+    return input;
 }
 
 function setAdvancedGlyphFields(index, scale = null, angle = null, x = null, y = null, faceIndex = null) {
