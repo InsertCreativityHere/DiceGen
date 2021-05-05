@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DiceForge - Advanced Glyph Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <script src="interface.js"></script>
+    <form novalidate>
+        <div id="glyph-mapping-section">
+            <div id="glyph-mapping-fields">
+                <label for="glyph-mapping-chooser"><b>Glyph Mapping</b></label>
+                <select id="glyph-mapping-chooser"></select>
+            </div>
+            <div id="glyph-mapping-buttons">
+                <button type="button" id="glyph-mapping-import-button">Import</button>
+                <button type="button" id="glyph-mapping-import-button">Export</button>
+            </div>
+        </div>
+        <hr>
+        <table id="advanced-glyph-table">
+            <thead>
+                <tr>
+                    <th class="glyph-index-cell">&#x23</th>
+                    <th style="width: 25%;">Scale</th>
+                    <th style="width: 25%;">Angle</th>
+                    <th style="width: 25%;">X Offset</th>
+                    <th style="width: 25%;">Y Offset</th>
+                    <th style="width: 15em">Face</th>
+                </tr>
+            </thead>
+            <tbody id="advanced-glyph-table-body"></tbody>
+        </table>
+    </form>
+    <script src="initialize.js"></script>
+    <script>
+        currentLocale = EN_US;
+    </script>
+</body>
