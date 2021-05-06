@@ -1,0 +1,80 @@
+
+html {
+    height: 100%
+}
+
+body {
+    display: flex;
+    height: 100%;
+    margin: 0px;
+    font-family: Arial;
+    background-color: #ECECEC;
+}
+
+h3 {
+    margin: 0px;
+}
+
+hr {
+    border-top: 1px solid;
+    color: black
+}
+
+input[type="checkbox"] {
+    margin: 0px 0px 0px 10px;
+    box-sizing: border-box;
+    width: 25px;
+    height: 25px;
+}
+
+.filter-field {
+    height: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-arrow {
+    width: 10px;
+    display: inline-block;
+}
+
+.model-card {
+    background-color: red;
+}
+
+#sidebar {
+    width: 200px;
+    margin: 10px;
+}
+
+#search-bar {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 18px;
+}
+
+#sort-by-field {
+    margin-top: 2px;
+    margin-left: 3px;
+}
+
+#sort-by-chooser {
+    margin-left: 5px;
+}
+
+#divider {
+    width: 2px;
+    height: 100%;
+    background-color: black;
+    cursor: ew-resize;
+}
+
+#warehouse-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-auto-rows: 200px;
+    row-gap: 6px;
+    column-gap: 6px;
+    flex: 1 1 auto;
+    margin: 10px;
+}
