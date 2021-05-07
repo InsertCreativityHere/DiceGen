@@ -1,9 +1,6 @@
 // Sets functions on the main menu labels and drop-down arrows that toggle the menu's visibility when clicked.
 function initializeMenu(menuName) {
     document.getElementById(`${menuName}-menu-content`).style.display = "none";
-    document.getElementById(`${menuName}-menu-dropdown`).addEventListener("click", function() {
-        toggleMenu(menuName);
-    });
     document.getElementById(`${menuName}-menu-label`).addEventListener("click", function() {
         toggleMenu(menuName);
     });
