@@ -9,7 +9,7 @@ function initializeMenu(menuName) {
     });
 }
 
-// Initialize the following menus.
+// Initialize the menus.
 initializeMenu("model");
 initializeMenu("faces");
 initializeMenu("edges");

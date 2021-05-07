@@ -1,6 +1,7 @@
 
 //TODO add hover-over text explaining what each thing does.
 //TODO change all my lets into consts where applicable
+//TODO add validation logic to fields before accepting them.
 
 //==============================================================================
 // Sketchup Callbacks
