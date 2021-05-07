@@ -11,7 +11,7 @@ body {
     background-color: #ECECEC;
 }
 
-h3 {
+h4 {
     margin: 0px;
 }
 
@@ -23,14 +23,20 @@ hr {
 input[type="checkbox"] {
     margin: 0px 0px 0px 10px;
     box-sizing: border-box;
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
+}
+
+.filters-header {
+    margin-bottom: 6px;
 }
 
 .filter-field {
-    height: 25px;
+    height: 20px;
     display: flex;
-    align-items: center;
+    justify-items: center;
+    font-size: 14px;
+    margin: 2px;
 }
 
 .dropdown-arrow {
@@ -39,23 +45,59 @@ input[type="checkbox"] {
 }
 
 .model-card {
-    background-color: red;
+    width: 260px;
+    height: 210px;
+    padding: 6px;
+    margin: 12px;
+    background-color: #C7C7C7;
+    border-style: outset;
+    border-color: #D9D9D9;
+    cursor: pointer;
+}
+
+.model-card * {
+    cursor: pointer;
+}
+
+.model-image {
+    width: auto;
+    max-height: 100%;
+}
+
+.model-image-holder {
+    height: 180px;
+    display: block;
+    background-color: #929292;
+}
+
+.model-name-label {
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.model-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
 }
 
 #sidebar {
-    width: 200px;
+    width: 160px;
     margin: 10px;
 }
 
 #search-bar {
     width: 100%;
     box-sizing: border-box;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 #sort-by-field {
     margin-top: 2px;
     margin-left: 3px;
+    font-size: 15px;
 }
 
 #sort-by-chooser {
@@ -70,11 +112,5 @@ input[type="checkbox"] {
 }
 
 #warehouse-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    grid-auto-rows: 200px;
-    row-gap: 6px;
-    column-gap: 6px;
     flex: 1 1 auto;
-    margin: 10px;
 }

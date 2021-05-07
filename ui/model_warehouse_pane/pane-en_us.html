@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <script src="interface.js"></script>
     <div id="sidebar">
         <input type="text" id="search-bar" value="Search...">
         <div id="sort-by-field">
@@ -20,26 +21,26 @@
         <hr>
         <div id="filters">
             <div id="family-filters" class="filter-section">
-                <h3 id=family-filters-header class="filters-header">
+                <h4 id=family-filters-header class="filters-header">
                     <span id=family-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
                     <span id=family-filters-label>Family</span>
-                </h3>
+                </h4>
                 <div id=family-filters-content class="menu-content"></div>
             </div>
             <hr>
             <div id="side-count-filters" class="filter-section">
-                <h3 id=side-count-filters-header class="filters-header">
+                <h4 id=side-count-filters-header class="filters-header">
                     <span id=side-count-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
                     <span id=side-count-filters-label>Side Count</span>
-                </h3>
+                </h4>
                 <div id=side-count-filters-content class="menu-content"></div>
             </div>
             <hr>
             <div id="standard-filters" class="filter-section">
-                <h3 id=standard-filters-header class="filters-header">
+                <h4 id=standard-filters-header class="filters-header">
                     <span id=standard-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
                     <span id=standard-filters-label>Standard</span>
-                </h3>
+                </h4>
                 <div id=standard-filters-content class="menu-content">
                     <div id="standard-dice-filter" class="filter-field">
                         <input type="checkbox" id="standard-dice-checkbox" checked>
@@ -54,13 +55,7 @@
         </div>
     </div>
     <div id="divider"></div>
-    <div id="warehouse-content">
-        <div class="model-card"></div>
-        <div class="model-card"></div>
-        <div class="model-card"></div>
-        <div class="model-card"></div>
-        <div class="model-card"></div>
-    </div>
+    <div id="warehouse-content"></div>
     <script src="initialize.js"></script>
     <script>
         currentLocale = EN_US;
