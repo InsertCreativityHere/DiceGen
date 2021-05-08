@@ -1,23 +1,6 @@
 
 //TODO Add localization somehow.
 
-
-// For skecthup to call (in order):
-// addModel...
-// finishedAddingModels
-// setSortBy
-// setSearchBar
-// setFilter...
-// computeFilteredModelArray
-
-// sketchup callbacks:
-// chooseModel
-// updateSearchBar
-// updateSortBy
-// updateFilter
-
-
-
 //==============================================================================
 // Sketchup Callbacks
 //==============================================================================
@@ -49,7 +32,7 @@ function updateSortBy() {
 
 function updateFilter(category, filter) {
     // Update the filtering criteria.
-    const isChecked = document.getElementById(`${filterName}-checkbox`).checked;
+    const isChecked = document.getElementById(`${filter}-checkbox`).checked;
     if (isChecked) {
         filterCategories[category].add(filter);
     } else {
@@ -58,8 +41,8 @@ function updateFilter(category, filter) {
     // Filter the models according to the new filter criteria and display the remaining cards in order.
     computeFilteredModelArray();
 
-    //TODO sketchup.updateFilter(filterName, isChecked);
-    console.log(`Toggling the ${filterName} filter to ${isChecked}...`);
+    //TODO sketchup.updateFilter(filter, isChecked);
+    console.log(`Toggling the ${filter} filter to ${isChecked}...`);
 }
 
 //==============================================================================
@@ -115,7 +98,7 @@ class ModelCard {
 
         // Create the model's name label.
         const modelLabel = document.createElement("label");
-        modelLabel.class = "model-name-label";
+        modelLabel.className = "model-name-label";
         modelLabel.innerText = modelName;
         modelCard.appendChild(modelLabel);
 
@@ -134,8 +117,9 @@ class ModelCard {
         rightLabel.innerText = family;
         modelDetails.appendChild(rightLabel);
 
-        // Store a reference to the card div.
-        this.cardElement = modelCard;
+        // Wrap the card div in a table entry and store a reference to the entry.
+        this.cardElement = document.createElement("td");
+        this.cardElement.appendChild(modelCard);
     }
 }
 
@@ -150,13 +134,13 @@ function finishedAddingModels() {
     // Array containing the side counts for all the models that have been added to the warehouse.
     let sideCounts = [];
 
-    for (modelCard in modelCardArray) {
+    for (let i = 0, modelCard; modelCard = modelCardArray[i]; i++) {
         // If this model's family hasn't been seen yet, add it to the family array.
-        if (!families.has(modelCard.family)) {
+        if (!families.includes(modelCard.family)) {
             families.push(modelCard.family);
         }
         // If this model's side count hasn't been seen yet, add it the side count array.
-        if (!sideCounts.has(modelCard.sideCount)) {
+        if (!sideCounts.includes(modelCard.sideCount)) {
             sideCounts.push(modelCard.sideCount);
         }
     }
@@ -267,13 +251,13 @@ function createFilters(families, sideCounts) {
     createFilterField("standard", "Nonstandard Dice");
 
     // Create UI fields for each of the family filters.
-    for (familyFilter in familyFilters) {
+    for (let familyFilter of familyFilters) {
         createFilterField("family", familyFilter);
     }
 
     // Create UI fields for each of the side count filters.
-    for (sideCountFilter in sideCountFilters) {
-        createFilterField("sideCount", sideCountFilter);
+    for (let sideCountFilter of sideCountFilters) {
+        createFilterField("side-count", sideCountFilter.toString());
     }
 }
 
@@ -303,7 +287,7 @@ function createFilterField(category, filter) {
     checkbox.addEventListener("change", () => updateFilter(category, sanitizedFilter));
 
     // Add the div to the filter category's container.
-    document.getElementById(`${category}-filters`).appendChild(filterField);
+    document.getElementById(`${category}-filters-content`).appendChild(filterField);
 }
 
 function setSearchBar(value) {
@@ -343,7 +327,7 @@ function computeFilteredModelArray() {
     const searchValue = document.getElementById("search-bar").value.toLowerCase();
 
     // Filter the array down and store the result.
-    filteredModelArray = sortedList.filter(function(model) {
+    filteredModelArray = sortedModelArray.filter(function(model) {
         return (standardFilters.has(model.isStandard) &&
                 familyFilters.has(model.family) &&
                 sideCountFilters.has(model.sideCount) &&
@@ -351,13 +335,56 @@ function computeFilteredModelArray() {
     });
 
     // Update the model card display.
-    updateCardDisplay();
+    updateWarehouseListings();
 }
 
 //==============================================================================
 // Warehouse Display
 //==============================================================================
 
+function updateWarehouseListings() {
+    const warehouseTable = document.getElementById("warehouse-content");
+    // Compute how much space is usable in the warehouse by subtracting the left margin.
+    const warehousePaneWidth = warehouseTable.clientWidth - cardMargin;
+
+    const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
+    const rowCount = Math.ceil(filteredModelArray.length / columnCount);
+    const cardWidth = (warehousePaneWidth / columnCount) - (cardBorderWidth + cardMargin);
+
+    // Remove all the cards from the table.
+    for (let i = 0, row; row = warehouseTable.rows[i]; i++) {
+        while (row.firstChild) {
+            row.removeChild(row.lastChild);
+        }
+    }
+
+    // Add or remove rows to reach the correct number of rows in the warehouse table.
+    const rowDelta = rowCount - warehouseTable.rows.length;
+    if (rowDelta > 0) {
+        for (let i = 0; i < rowDelta; i++) {
+            warehouseTable.insertRow(-1);
+        }
+    } else
+    if (rowDelta < 0) {
+        for (let i = 0; i < rowDelta; i++) {
+            warehouseTable.deleteRow(-1);
+        }
+    }
+
+    // Iterate through the rows and add the cards back into the table in the new order.
+    for (let i = 0; i < filteredModelArray.length; i++) {
+        let card = filteredModelArray[i].cardElement;
+        // First resize the card to fit the page though.
+        card.style.width = `${cardWidth}px`;
+        let testing = Math.floor(i / columnCount);
+        warehouseTable.rows[testing].appendChild(card);
+    }
+
+    // Set how many cards there are per row.
+    currentCardsPerRow = columnCount;
+}
+
+// TODO WRITE COMMENTS AND FIGURE OUT WHY THE CURSOR GOES AHEAD OF THE BAR!!!
 let startX = -1;
 let sidebarWidth = -1;
 
@@ -381,11 +408,101 @@ function endDrag() {
 
 function onDrag(event) {
     if (sidebarWidth > -1) {
-        let newWidth = Math.max((sidebarWidth + (event.clientX - startX)), 144);
+        let newWidth = Math.max((sidebarWidth + (event.clientX - startX)), 150);
         document.getElementById("sidebar").style.width = `${newWidth}px`;
+        updateCardDisplay();
     }
 }
 
-function updateCardDisplay() {
+// TODO FIX THE WEIRD SIZING ISSUE AND WRITE A COMMENT HERE!
+let currentCardsPerRow = -1;
 
+function updateCardDisplay() {
+    const warehouseTable = document.getElementById("warehouse-content");
+    // Compute how much space is usable in the warehouse by subtracting the left margin.
+    const warehousePaneWidth = warehouseTable.clientWidth - cardMargin;
+    const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
+
+    // If the number of cards that fit in a margin has changed, relayout the entire grid.
+    //if (currentCardsPerRow != columnCount) {
+    //    return updateWarehouseListings();
+    //}
+
+    // Change the width of each of the table's cells.
+    const cardWidth = (warehousePaneWidth / columnCount) - (cardBorderWidth + cardMargin);
+    for (let i = 0; i < filteredModelArray.length; i++) {
+        let card = filteredModelArray[i].cardElement;
+        card.style.width = `${cardWidth}px`;
+    }
+
+    const searchBar = document.getElementById("search-bar");
+    searchBar.value = `c: ${columnCount}, w: ${Math.trunc(cardWidth)}, w: ${warehousePaneWidth}, b: ${cardBorderWidth}, m: ${cardMargin}`;
 }
+
+
+
+
+
+
+
+
+
+//currentCardsPerRow = -1;
+//
+//function updateCardDisplay() {
+//    const warehouseTable = document.getElementById("warehouse-content");
+//    const warehousePaneWidth = warehouseTable.offsetWidth;
+//
+//    const cardsPerRow = Math.floor((warehousePaneWidth - cardMargin - 18) / (minCardWidth + cardMargin)); // TODO 18px.
+//    const cardWidth = ((warehousePaneWidth - cardMargin) / cardsPerRow) - cardMargin - 18; // Leave 18px for scrollbars.
+//    const cardCount = filteredModelArray.length;
+//
+//    // If the number of cards has changed, 
+//    if (cardCount != currentCardCount) {
+//
+//    }
+//}
+
+
+
+//function createWarehouse() {
+//
+//
+//    let currentRow = document.createElement("tr");
+//    warehouseTable.appendChild(currentRow);
+//    for (let i = 0; i < filteredModelArray.length;) {
+//        currentRow.appendChild(filteredModelArray[i++].cardElement);
+//        if (i % cardsPerRow == 0) {
+//            currentRow = document.createElement("tr");
+//            warehouseTable.appendChild(currentRow);
+//        }
+//    }
+//}
+
+// Stores the current number of cards in each row of the warehouse.
+//let currentCardsPerRow = 0;
+
+//function updateCardDisplay() {
+//    const warehouseTable = document.getElementById("warehouse-content");
+//    const warehousePaneWidth = warehouseTable.offsetWidth;
+//    const cardCount = filteredModelArray.length;
+//
+//    const cardsPerRow = Math.floor((warehousePaneWidth - cardMargin) / (minCardWidth + cardMargin));
+//    const cardWidth = ((warehousePaneWidth - cardMargin) / cardsPerRow) - cardMargin;
+//
+//
+//}
+
+
+
+//while (warehouse.firstChild) {
+//  warehouse.removeChild(warehouse.lastChild);
+//}
+//
+//let currentRow = document.createElement("tr");
+//warehouseTable.appendChild(currentRow);
+//
+//for (let i = 0; i < cardCount; i++) {
+//  let currentEntry = document.createElement("td");
+//  currentEntry.app
+//}

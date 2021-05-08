@@ -27,10 +27,9 @@ document.addEventListener("mouseup", endDrag);
 
     let cardStyle = getComputedStyle(dummyCard);
     // Initialize variables for dynamically spacing and sizing the model cards, so we don't have to later.
-    var minCardWidth = parseInt(cardStyle.width, 10);
+    var minCardWidth = parseInt(cardStyle.minWidth, 10);
+    var cardBorderWidth = dummyCard.offsetWidth - minCardWidth;
     var cardMargin = parseInt(cardStyle.marginLeft, 10) * 2; //Multiplied by 2 since margins are on left and right.
-    console.log(cardMargin);
-    console.log(dummyCard.offsetWidth);
 
     // Remove the dummy card from the document.
     document.body.removeChild(dummyCard);
@@ -53,4 +52,3 @@ finishedAddingModels()
 // setSearchBar()
 // setFilter()
 computeFilteredModelArray()
-createWarehouse() //MUST BE CALLED LAST!!!

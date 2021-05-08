@@ -45,10 +45,10 @@ input[type="checkbox"] {
 }
 
 .model-card {
-    width: 260px;
+    min-width: 260px;
     height: 210px;
     padding: 6px;
-    margin: 12px;
+    margin: 6px;
     background-color: #C7C7C7;
     border-style: outset;
     border-color: #D9D9D9;
@@ -105,4 +105,15 @@ input[type="checkbox"] {
     height: 100%;
     background-color: black;
     cursor: ew-resize;
+}
+
+#warehouse {
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    overflow-x: auto;
+    padding: 6px;
+}
+
+#warehouse-content {
+    display: block;
 }
