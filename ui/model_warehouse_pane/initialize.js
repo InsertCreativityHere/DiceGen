@@ -17,6 +17,8 @@ document.getElementById("sort-by-chooser").addEventListener("change", updateSort
 document.getElementById("divider").addEventListener("mousedown", startDrag)
 document.addEventListener("mousemove", onDrag);
 document.addEventListener("mouseup", endDrag);
+// Add a window callback to update the warehouse's card display when the window is resized.
+window.addEventListener("resize", updateCardDisplay);
 
 {
     // Create a dummy card to get the style fields out of.

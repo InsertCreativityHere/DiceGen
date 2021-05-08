@@ -1,5 +1,6 @@
 
 //TODO Add localization somehow.
+//TODO make the search bar fancier so it can also search for D% and stuff. Maybe?...
 
 //==============================================================================
 // Sketchup Callbacks
@@ -299,8 +300,6 @@ function createFilterField(category, filterValue, filterLabel) {
 
 // TODO Add a reset for the filters to re-enable them all. Also add a reverse/forward button next to the search bar.
 // Also also add a number thing for typing in the min and max number of sides.
-// MAKE SURE THE DIVIDER FOLLOWS THE MOUSE STILL, CHECK FOR ANY WEIRD SPACING ISSUES, AND SEE
-// WHY IT HANGS WHEN I TRY TO OVER-COMPRESS A SINGLE CARD!
 
 function setSearchBar(value) {
     document.getElementById("search-bar").value = value;
@@ -355,7 +354,8 @@ function computeFilteredModelArray() {
 // Warehouse Display
 //==============================================================================
 
-// TODO FIX THE WEIRD SIZING ISSUE AND WRITE A COMMENT HERE!
+// The number of cards currently being shown per row in the warehouse. This is stored globally so the
+// 'updateCardDisplay' function can compare against it effeciently, instead of needing to compute it every time.
 let currentCardsPerRow = -1;
 
 function updateWarehouseListings() {
@@ -363,7 +363,7 @@ function updateWarehouseListings() {
     // Compute how much space is usable in the warehouse by subtracting the left margin.
     const warehousePaneWidth = warehouse.clientWidth - cardMargin;
 
-    const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
+    const columnCount = Math.max(Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin)), 1);
     const rowCount = Math.ceil(filteredModelArray.length / columnCount);
     const cardWidth = (warehousePaneWidth / columnCount) - (cardBorderWidth + cardMargin);
 
@@ -400,8 +400,9 @@ function updateWarehouseListings() {
     currentCardsPerRow = columnCount;
 }
 
-// TODO WRITE COMMENTS AND FIGURE OUT WHY THE CURSOR GOES AHEAD OF THE BAR!!!
+// The x coord that the user clicked when the dragging began. -1 means the user isn't currently dragging the divider.
 let startX = -1;
+// The width of the sidebar when the dragging began. -1 means the user isn't currently dragging the divider.
 let sidebarWidth = -1;
 
 function startDrag(event) {
@@ -440,7 +441,7 @@ function updateCardDisplay() {
     const warehouse = document.getElementById("warehouse");
     // Compute how much space is usable in the warehouse by subtracting the left margin.
     const warehousePaneWidth = warehouse.clientWidth - cardMargin;
-    const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
+    const columnCount = Math.max(Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin)), 1);
 
     // If the number of cards that fit in a margin has changed, relayout the entire grid.
     if (currentCardsPerRow != columnCount) {
@@ -453,7 +454,4 @@ function updateCardDisplay() {
         let card = filteredModelArray[i].cardElement;
         card.style.width = `${cardWidth}px`;
     }
-
-    const searchBar = document.getElementById("search-bar");
-    searchBar.value = `c: ${columnCount}, w: ${Math.trunc(cardWidth)}, w: ${warehousePaneWidth}, b: ${cardBorderWidth}, m: ${cardMargin}`;
 }
