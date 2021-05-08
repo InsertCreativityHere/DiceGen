@@ -18,12 +18,39 @@ document.getElementById("divider").addEventListener("mousedown", startDrag)
 document.addEventListener("mousemove", onDrag);
 document.addEventListener("mouseup", endDrag);
 
+{
+    // Create a dummy card to get the style fields out of.
+    let dummyCard = document.createElement("div");
+    dummyCard.classList.add("model-card");
+    // The card MUST be a part of the DOM in order to have computed styles.
+    document.body.appendChild(dummyCard);
+
+    let cardStyle = getComputedStyle(dummyCard);
+    // Initialize variables for dynamically spacing and sizing the model cards, so we don't have to later.
+    var minCardWidth = parseInt(cardStyle.width, 10);
+    var cardMargin = parseInt(cardStyle.marginLeft, 10) * 2; //Multiplied by 2 since margins are on left and right.
+    console.log(cardMargin);
+    console.log(dummyCard.offsetWidth);
+
+    // Remove the dummy card from the document.
+    document.body.removeChild(dummyCard);
+}
+
 const EN_US = {
     "None": "None",
 };
 
 //TODO remove this
-//addModel()...
-//displayFilters();
-//setFilterState()...
-//setSortBy("STANDARD");
+addModel("Tetrahedron", "blob", true, "Platonic Solid", 4);
+addModel("Hexahedron", "blob", true, "Platonic Solid", 6);
+addModel("Octahedron", "blob", true, "Platonic Solid", 8);
+addModel("Dodecahedron", "blob", true, "Platonic Solid", 12);
+addModel("Icosahedron", "blob", true, "Platonic Solid", 20);
+addModel("Pentagonal Trapezohedron", "blob", true, "Trapezohedron", 10);
+addModel("DeltoidalHexecontahedron", "blob", false, "Quadrohedron", 60);
+finishedAddingModels()
+// setSortBy()
+// setSearchBar()
+// setFilter()
+computeFilteredModelArray()
+createWarehouse() //MUST BE CALLED LAST!!!
