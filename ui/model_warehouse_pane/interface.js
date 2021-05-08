@@ -117,9 +117,8 @@ class ModelCard {
         rightLabel.innerText = family;
         modelDetails.appendChild(rightLabel);
 
-        // Wrap the card div in a table entry and store a reference to the entry.
-        this.cardElement = document.createElement("td");
-        this.cardElement.appendChild(modelCard);
+        // Store a reference to the model's card.
+        this.cardElement = modelCard;
     }
 }
 
@@ -144,6 +143,7 @@ function finishedAddingModels() {
             sideCounts.push(modelCard.sideCount);
         }
     }
+    sideCounts.sort((a, b) => a-b);
 
     // Create filters for each of the families and side counts.
     createFilters(families, sideCounts);
@@ -226,7 +226,6 @@ function setSortBy(sortByOption) {
 //==============================================================================
 
 // Set of all the currently enabled standard filters.
-// These are stored as booleans ('true' for standard and 'false' for nonstandard).
 let standardFilters;
 // Set of all the currently enabled family filters.
 let familyFilters;
@@ -240,7 +239,7 @@ let filteredModelArray;
 
 function createFilters(families, sideCounts) {
     // First create arrays for storing all the filter's states.
-    standardFilters = new Set([true, false]);
+    standardFilters = new Set(["standard-dice", "nonstandard-dice"]);
     familyFilters = new Set(families);
     sideCountFilters = new Set(sideCounts);
     // Store all the filter arrays in the filterCategories dictionary.
@@ -251,13 +250,13 @@ function createFilters(families, sideCounts) {
     createFilterField("standard", "Nonstandard Dice");
 
     // Create UI fields for each of the family filters.
-    for (let familyFilter of familyFilters) {
-        createFilterField("family", familyFilter);
+    for (let family of families) {
+        createFilterField("family", family);
     }
 
     // Create UI fields for each of the side count filters.
-    for (let sideCountFilter of sideCountFilters) {
-        createFilterField("side-count", sideCountFilter.toString());
+    for (let sideCount of sideCounts) {
+        createFilterField("side-count", sideCount.toString());
     }
 }
 
@@ -284,17 +283,30 @@ function createFilterField(category, filter) {
     filterField.appendChild(label);
 
     // Add an action listener to toggle the filter when clicked.
-    checkbox.addEventListener("change", () => updateFilter(category, sanitizedFilter));
+    // We need to create a temporary set of the parameters for 'updateFilter' AND need them to be in a seperate scope,
+    // so they're dropped after the scope exits. Otherwise, the action listener's closure will capture pointers to this
+    // function's parameters, which will change every time 'createFilterField' is called.
+    {
+        let categoryCopy = category;
+        let sanitizedFilterCopy = sanitizedFilter;
+        checkbox.addEventListener("change", () => updateFilter(categoryCopy, sanitizedFilterCopy));
+    }
 
     // Add the div to the filter category's container.
     document.getElementById(`${category}-filters-content`).appendChild(filterField);
 }
+
+// AUSTIN AFTER LUNCH YOU NEED TO SORT THE NUMBER FIELDS, FIND OUT WHY THE FIELDS AREN'T WORKING, TEST THE SEARCH BAR,
+// TEST THE SORTING THING, MAKE SURE THE DIVIDER FOLLOWS THE MOUSE STILL, CHECK FOR ANY WEIRD SPACING ISSUES, AND SEE
+// WHY IT HANGS WHEN I TRY TO OVER-COMPRESS A SINGLE CARD!
+
 
 function setSearchBar(value) {
     document.getElementById("search-bar").value = value;
 }
 
 function setFilter(category, filter, isEnabled) {
+    document.getElementById(`${filter}-checkbox`).checked = isEnabled;
     if (isEnabled) {
         filterCategories[category].add(filter);
     } else {
@@ -328,7 +340,7 @@ function computeFilteredModelArray() {
 
     // Filter the array down and store the result.
     filteredModelArray = sortedModelArray.filter(function(model) {
-        return (standardFilters.has(model.isStandard) &&
+        return (standardFilters.has(model.isStandard? "standard-dice" : "nonstandard-dice") &&
                 familyFilters.has(model.family) &&
                 sideCountFilters.has(model.sideCount) &&
                 model.name.toLowerCase().includes(searchValue));
@@ -342,32 +354,35 @@ function computeFilteredModelArray() {
 // Warehouse Display
 //==============================================================================
 
+// TODO FIX THE WEIRD SIZING ISSUE AND WRITE A COMMENT HERE!
+let currentCardsPerRow = -1;
+
 function updateWarehouseListings() {
-    const warehouseTable = document.getElementById("warehouse-content");
+    const warehouse = document.getElementById("warehouse");
     // Compute how much space is usable in the warehouse by subtracting the left margin.
-    const warehousePaneWidth = warehouseTable.clientWidth - cardMargin;
+    const warehousePaneWidth = warehouse.clientWidth - cardMargin;
 
     const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
     const rowCount = Math.ceil(filteredModelArray.length / columnCount);
     const cardWidth = (warehousePaneWidth / columnCount) - (cardBorderWidth + cardMargin);
 
     // Remove all the cards from the table.
-    for (let i = 0, row; row = warehouseTable.rows[i]; i++) {
+    for (let i = 0, row; row = warehouse.children[i]; i++) {
         while (row.firstChild) {
             row.removeChild(row.lastChild);
         }
     }
 
-    // Add or remove rows to reach the correct number of rows in the warehouse table.
-    const rowDelta = rowCount - warehouseTable.rows.length;
+    // Add or remove divs to reach the correct number of rows in the warehouse.
+    const rowDelta = rowCount - warehouse.childElementCount;
     if (rowDelta > 0) {
         for (let i = 0; i < rowDelta; i++) {
-            warehouseTable.insertRow(-1);
+            warehouse.appendChild(document.createElement("div"));
         }
     } else
     if (rowDelta < 0) {
         for (let i = 0; i < rowDelta; i++) {
-            warehouseTable.deleteRow(-1);
+            warehouse.removeChild(warehouse.lastChild);
         }
     }
 
@@ -377,7 +392,7 @@ function updateWarehouseListings() {
         // First resize the card to fit the page though.
         card.style.width = `${cardWidth}px`;
         let testing = Math.floor(i / columnCount);
-        warehouseTable.rows[testing].appendChild(card);
+        warehouse.children[testing].appendChild(card);
     }
 
     // Set how many cards there are per row.
@@ -408,25 +423,28 @@ function endDrag() {
 
 function onDrag(event) {
     if (sidebarWidth > -1) {
+        // Set the sidebar's new width.
         let newWidth = Math.max((sidebarWidth + (event.clientX - startX)), 150);
         document.getElementById("sidebar").style.width = `${newWidth}px`;
+        // Update the card display so they neatly fit within the warehouse window.
         updateCardDisplay();
+        // Stop the event from propogating and doing anything weird (like trying to 'drag' the divider element, or
+        // highlighting text in the window while the divider is being moved).
+        event.preventDefault();
+        event.stopPropagation();
     }
 }
 
-// TODO FIX THE WEIRD SIZING ISSUE AND WRITE A COMMENT HERE!
-let currentCardsPerRow = -1;
-
 function updateCardDisplay() {
-    const warehouseTable = document.getElementById("warehouse-content");
+    const warehouse = document.getElementById("warehouse");
     // Compute how much space is usable in the warehouse by subtracting the left margin.
-    const warehousePaneWidth = warehouseTable.clientWidth - cardMargin;
+    const warehousePaneWidth = warehouse.clientWidth - cardMargin;
     const columnCount = Math.floor(warehousePaneWidth / (minCardWidth + cardBorderWidth + cardMargin));
 
     // If the number of cards that fit in a margin has changed, relayout the entire grid.
-    //if (currentCardsPerRow != columnCount) {
-    //    return updateWarehouseListings();
-    //}
+    if (currentCardsPerRow != columnCount) {
+        return updateWarehouseListings();
+    }
 
     // Change the width of each of the table's cells.
     const cardWidth = (warehousePaneWidth / columnCount) - (cardBorderWidth + cardMargin);
