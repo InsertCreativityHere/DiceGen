@@ -78,6 +78,7 @@ class ModelCard {
         this.imageURL = imageURL;
         this.isStandard = isStandard;
         this.family = family;
+        this.sanitizedFamily = family.replace(' ', '-').toLowerCase();
         this.sideCount = sideCount;
 
         // Create the UI card element that will display this model to the user. Starting with the card's div.
@@ -130,6 +131,8 @@ function addModel(modelName, imageURL, isStandard, family, sideCount) {
 function finishedAddingModels() {
     // Array containing the polyhedral families of all the models that have been added to the warehouse.
     let families = [];
+    // Array of all the family names but lowercased and with spaces sanitized into dashes.
+    let sanitizedFamilies = [];
     // Array containing the side counts for all the models that have been added to the warehouse.
     let sideCounts = [];
 
@@ -137,6 +140,7 @@ function finishedAddingModels() {
         // If this model's family hasn't been seen yet, add it to the family array.
         if (!families.includes(modelCard.family)) {
             families.push(modelCard.family);
+            sanitizedFamilies.push(modelCard.sanitizedFamily);
         }
         // If this model's side count hasn't been seen yet, add it the side count array.
         if (!sideCounts.includes(modelCard.sideCount)) {
@@ -146,7 +150,7 @@ function finishedAddingModels() {
     sideCounts.sort((a, b) => a-b);
 
     // Create filters for each of the families and side counts.
-    createFilters(families, sideCounts);
+    createFilters(families, sanitizedFamilies, sideCounts);
     // Compute and cache sorted arrays of the models, one for each possible sorting.
     computeSortedModelArrays(families);
     // Filter the models and display the remaining cards in order.
@@ -237,49 +241,46 @@ let filterCategories;
 // Array containing only the filtered model cards that should be displayed to the user, in sorted order.
 let filteredModelArray;
 
-function createFilters(families, sideCounts) {
-    // First create arrays for storing all the filter's states.
-    standardFilters = new Set(["standard-dice", "nonstandard-dice"]);
-    familyFilters = new Set(families);
+function createFilters(families, sanitizedFamilies, sideCounts) {
+    // Create arrays for storing all the filter's states.
+    standardFilters = new Set(["standard", "nonstandard"]);
+    familyFilters = new Set(sanitizedFamilies);
     sideCountFilters = new Set(sideCounts);
     // Store all the filter arrays in the filterCategories dictionary.
     filterCategories = { "standard": standardFilters, "family": familyFilters, "side-count": sideCountFilters};
 
     // Create UI fields for each of the standard filters.
-    createFilterField("standard", "Standard Dice");
-    createFilterField("standard", "Nonstandard Dice");
+    createFilterField("standard", "standard", "Standard Dice");
+    createFilterField("standard", "nonstandard", "Nonstandard Dice");
 
     // Create UI fields for each of the family filters.
-    for (let family of families) {
-        createFilterField("family", family);
+    for (let i = 0; i < families.length; i++) {
+        createFilterField("family", sanitizedFamilies[i], families[i]);
     }
 
     // Create UI fields for each of the side count filters.
     for (let sideCount of sideCounts) {
-        createFilterField("side-count", sideCount.toString());
+        createFilterField("side-count", sideCount, sideCount.toString());
     }
 }
 
-function createFilterField(category, filter) {
-    // Lowercase the filter name and replace spaces with dashes.
-    sanitizedFilter = filter.replace(' ', '-').toLowerCase();
-
+function createFilterField(category, filterValue, filterLabel) {
     // Create a div for placing the field's elements into.
     const filterField =  document.createElement("div");
-    filterField.id = `${sanitizedFilter}-filter`;
+    filterField.id = `${filterValue}-filter`;
     filterField.className = "filter-field";
 
     // Create a checkbox for toggling the filter.
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
-    checkbox.id = `${sanitizedFilter}-checkbox`;
+    checkbox.id = `${filterValue}-checkbox`;
     checkbox.checked = true;
     filterField.appendChild(checkbox);
 
     // Create a label saying what the filter is for.
     const label = document.createElement("label");
     label.for = checkbox.id;
-    label.innerText = filter;
+    label.innerText = filterLabel;
     filterField.appendChild(label);
 
     // Add an action listener to toggle the filter when clicked.
@@ -288,8 +289,8 @@ function createFilterField(category, filter) {
     // function's parameters, which will change every time 'createFilterField' is called.
     {
         let categoryCopy = category;
-        let sanitizedFilterCopy = sanitizedFilter;
-        checkbox.addEventListener("change", () => updateFilter(categoryCopy, sanitizedFilterCopy));
+        let filterValueCopy = filterValue;
+        checkbox.addEventListener("change", () => updateFilter(categoryCopy, filterValueCopy));
     }
 
     // Add the div to the filter category's container.
@@ -340,8 +341,8 @@ function computeFilteredModelArray() {
 
     // Filter the array down and store the result.
     filteredModelArray = sortedModelArray.filter(function(model) {
-        return (standardFilters.has(model.isStandard? "standard-dice" : "nonstandard-dice") &&
-                familyFilters.has(model.family) &&
+        return (standardFilters.has(model.isStandard? "standard" : "nonstandard") &&
+                familyFilters.has(model.sanitizedFamily) &&
                 sideCountFilters.has(model.sideCount) &&
                 model.name.toLowerCase().includes(searchValue));
     });
