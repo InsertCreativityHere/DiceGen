@@ -5,13 +5,14 @@
     <title>DiceForge - Model Warehouse</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body ondragstart="return false;">
     <script src="interface.js"></script>
+
     <div id="sidebar">
-        <input type="text" id="search-bar" value="Search...">
+        <input type="text" id="search-bar" placeholder="Search...">
         <div id="sort-by-field">
             <label for="sort-by-chooser">Sort by:</label>
-            <select id="sort-by-chooser">
+            <select id="sort-by-chooser" style="margin-left: 5px;">
                 <option value="STANDARD">Standard</option>
                 <option value="FAMILY">Family</option>
                 <option value="SIDES">Sides</option>
@@ -20,42 +21,40 @@
         </div>
         <hr>
         <div id="filters">
-            <div id="family-filters" class="filter-section">
-                <h4 id=family-filters-header class="filters-header">
-                    <span id=family-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
-                    <span id=family-filters-label>Family</span>
+            <div id="standard-filters" class="filter-section">
+                <h4 id="standard-filters-header" class="filters-header">
+                    <span id="standard-filters-label">
+                        <span id="standard-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Standard
+                    </span>
                 </h4>
-                <div id=family-filters-content class="menu-content"></div>
+                <div id="standard-filters-content" class="menu-content"></div>
+            </div>
+            <hr>
+            <div id="family-filters" class="filter-section">
+                <h4 id="family-filters-header" class="filters-header">
+                    <span id="family-filters-label">
+                        <span id="family-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Family
+                    </span>
+                </h4>
+                <div id="family-filters-content" class="menu-content"></div>
             </div>
             <hr>
             <div id="side-count-filters" class="filter-section">
-                <h4 id=side-count-filters-header class="filters-header">
-                    <span id=side-count-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
-                    <span id=side-count-filters-label>Side Count</span>
+                <h4 id="side-count-filters-header" class="filters-header">
+                    <span id="side-count-filters-label">
+                        <span id="side-count-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Side Count
+                    </span>
                 </h4>
-                <div id=side-count-filters-content class="menu-content"></div>
-            </div>
-            <hr>
-            <div id="standard-filters" class="filter-section">
-                <h4 id=standard-filters-header class="filters-header">
-                    <span id=standard-filters-dropdown class="dropdown-arrow">&#x25B8;</span>
-                    <span id=standard-filters-label>Standard</span>
-                </h4>
-                <div id=standard-filters-content class="menu-content">
-                    <div id="standard-dice-filter" class="filter-field">
-                        <input type="checkbox" id="standard-dice-checkbox" checked>
-                        <label for="standard-dice-checkbox">Standard Dice</label>
-                    </div>
-                    <div id="nonstandard-dice-filter" class="filter-field">
-                        <input type="checkbox" id="nonstandard-dice-checkbox" checked>
-                        <label for="nonstandard-dice-checkbox">Non Standard Dice</label>
-                    </div>
-                </div>
+                <div id="side-count-filters-content" class="menu-content"></div>
             </div>
         </div>
     </div>
     <div id="divider"></div>
-    <div id="warehouse-content"></div>
+    <div id="warehouse-content" style="flex: 1 1 auto;"></div>
+
     <script src="initialize.js"></script>
     <script>
         currentLocale = EN_US;

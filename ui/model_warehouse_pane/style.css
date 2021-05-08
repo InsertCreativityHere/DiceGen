@@ -100,17 +100,9 @@ input[type="checkbox"] {
     font-size: 15px;
 }
 
-#sort-by-chooser {
-    margin-left: 5px;
-}
-
 #divider {
     width: 2px;
     height: 100%;
     background-color: black;
     cursor: ew-resize;
-}
-
-#warehouse-content {
-    flex: 1 1 auto;
 }

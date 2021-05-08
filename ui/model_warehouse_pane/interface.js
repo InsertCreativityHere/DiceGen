@@ -1,50 +1,101 @@
 
 //TODO Add localization somehow.
 
+
+// For skecthup to call (in order):
+// addModel...
+// finishedAddingModels
+// setSortBy
+// setSearchBar
+// setFilter...
+// computeFilteredModelArray
+
+// sketchup callbacks:
+// chooseModel
+// updateSearchBar
+// updateSortBy
+// updateFilter
+
+
+
 //==============================================================================
 // Sketchup Callbacks
 //==============================================================================
 
-function setModel(modelName) {
-    //TODO sketchup.setModel(modelName);
+function chooseModel(modelName) {
+    //TODO change the background of the currently selected model!
+
+    //TODO sketchup.chooseModel(modelName);
     console.log(`Set Model to ${modelName}...`);
 }
 
-function setSortBy(sortType) {
-    //TODO sketchup.setSortBy(sortType);
+function updateSearchBar() {
+    // Filter the models according to the new search criteria and display the remaining cards in order.
+    computeFilteredModelArray();
+
+    const search = document.getElementById("search-bar").value;
+    //TODO sketchup.updateSearchBar(search);
+    console.log(`Set Search to ${search}...`);
+}
+
+function updateSortBy() {
+    // Change the sorting criteria and display the re-filtered cards in order.
+    computeFilteredModelArray();
+
+    const sortType = document.getElementById("sort-by-chooser").value;
+    //TODO sketchup.updateSortBy(sortType);
     console.log(`Set SortType to ${sortType}...`);
 }
 
-function toggleFilter(filterName, isChecked) {
-    //TODO sketchup.toggleFilter(filterName, isChecked);
+function updateFilter(category, filter) {
+    // Update the filtering criteria.
+    const isChecked = document.getElementById(`${filterName}-checkbox`).checked;
+    if (isChecked) {
+        filterCategories[category].add(filter);
+    } else {
+        filterCategories[category].delete(filter);
+    }
+    // Filter the models according to the new filter criteria and display the remaining cards in order.
+    computeFilteredModelArray();
+
+    //TODO sketchup.updateFilter(filterName, isChecked);
     console.log(`Toggling the ${filterName} filter to ${isChecked}...`);
+}
+
+//==============================================================================
+// Sidebar
+//==============================================================================
+
+function toggleSection(sectionName) {
+    const content = document.getElementById(`${sectionName}-filters-content`);
+    const dropdown = document.getElementById(`${sectionName}-filters-dropdown`);
+
+    if (content.style.display == "none") {
+        content.style.display = "";
+        dropdown.innerHTML = "&#x25BE;";
+    } else {
+        content.style.display = "none";
+        dropdown.innerHTML = "&#x25B8;";
+    }
 }
 
 //==============================================================================
 // Model Management
 //==============================================================================
 
+// Array containing all the instances of ModelCard.
+let modelCardArray = [];
+
+// Class for storing all the information about a model, and that generates a UI card element to display the model with.
 class ModelCard {
-    static modelCardArray = [];
-
-    static modelFamilies = Set();
-    static modelSideCounts = Set();
-
-    constructor(modelName, imageURL, family, sideCount, isStandard) {
+    // Create a new model card.
+    constructor(modelName, imageURL, isStandard, family, sideCount) {
         // Store the provided data.
         this.name = modelName;
         this.imageURL = imageURL;
+        this.isStandard = isStandard;
         this.family = family;
         this.sideCount = sideCount;
-        this.isStandard = isStandard;
-
-        // Add entries to the 'families' and 'sidecounts' arrays if this model has new entries.
-        if (!modelFamilies.has(family)) {
-            modelFamilies.add(family);
-        }
-        if (!modelSideCounts.has(sideCount)) {
-            modelSideCounts.add(sideCount);
-        }
 
         // Create the UI card element that will display this model to the user. Starting with the card's div.
         const modelCard = document.createElement("div");
@@ -85,129 +136,256 @@ class ModelCard {
 
         // Store a reference to the card div.
         this.cardElement = modelCard;
-
-
     }
 }
 
-//==============================================================================
-// Sorting and Filtering
-//==============================================================================
+function addModel(modelName, imageURL, isStandard, family, sideCount) {
+    // Construct a new model card and add it to the model card array.
+    modelCardArray.push(new ModelCard(modelName, imageURL, isStandard, family, sideCount));
+}
 
+function finishedAddingModels() {
+    // Array containing the polyhedral families of all the models that have been added to the warehouse.
+    let families = [];
+    // Array containing the side counts for all the models that have been added to the warehouse.
+    let sideCounts = [];
 
+    for (modelCard in modelCardArray) {
+        // If this model's family hasn't been seen yet, add it to the family array.
+        if (!families.has(modelCard.family)) {
+            families.push(modelCard.family);
+        }
+        // If this model's side count hasn't been seen yet, add it the side count array.
+        if (!sideCounts.has(modelCard.sideCount)) {
+            sideCounts.push(modelCard.sideCount);
+        }
+    }
 
-
-
-
-
-
-
-//==============================================================================
-// Model Management
-//==============================================================================
-
-// List of all the models currently in the warehouse, unsorted (or sorted in the order they were added).
-// Models are stored as the 'div's representing their cards.
-let modelCardArray = [];
-// This array stores the order to display models in according to the current 'sort-by' criteria.
-// Models are referenced by index (corresponding to their index in 'modelArray'), and the array contains all models.
-// Even those that have been filtered out.
-let sortedModelArray = [];
-// This array stores whether each model should be displayed or whether it's been filtered out. True means it should be
-// displayed, and false means it's been filtered out and shouldn't be. It shares indexes with 'modelArray'.
-let enabledModelList = [];
-
-// Dictionary that sorts all the models by polyhedral family. Keys are the names of a family, and the corresponding
-// values are arrays that store each of the models in that family by index (their index in modelCardArray).
-let modelFamilies = {};
-
-// Dictionary that sorts all the models by side count. Keys are an integer representing the number of sides, and the
-// corresponding values are arrays that store every model with that many sides by index (their index in modelCardArray).
-let modelSideCounts = {};
-
-// Dictionary that sorts all the models by whether they're standard. There are 2 keys: "standard" and "nonstandard" each
-// of which has an array value that stores all the models corresponding to the key (by their index in modelCardArray).
-let modelStandardness = { "standard" : [], "nonstandard": [] };
-
-function addModel(modelName, imageURL, sideCount, family, isStandard) {
-
+    // Create filters for each of the families and side counts.
+    createFilters(families, sideCounts);
+    // Compute and cache sorted arrays of the models, one for each possible sorting.
+    computeSortedModelArrays(families);
+    // Filter the models and display the remaining cards in order.
+    computeFilteredModelArray();
 }
 
 //==============================================================================
-// Sorting and Filtering
+// Sorting
 //==============================================================================
 
-function setSortBy(sortType) {
+// Array of all the model cards sorted by whether they're standard (Standard comes first, followed by nonstandard).
+let sortedByStandard = [];
+// Array of all the model cards sorted by their polyhedral family (Families are sorted in the order of 'modelFamilies').
+let sortedByFamily = [];
+// Array of all the model cards sorted by the number of sides they have (Sorted from least to greatest).
+let sortedBySideCount = [];
+// Array of all the model cards sorted alphabetically (A to Z).
+let sortedByName = [];
 
+function computeSortedModelArrays(families) {
+    sortedByStandard = sortArray(modelCardArray, function(a, b) {
+        // Don't move the models if they're both of the same standardness.
+        if (a.isStandard == b.isStandard) return 0;
+        // If 'a' is standard, move it to the left, otherwise move it to the right (since it's nonstandard).
+        // This works because we know that 'b' must be the opposite standardness to 'a' by this point.
+        return (a.isStandard? -1 : 1);
+    });
+
+    sortedByFamily = sortArray(modelCardArray, function(a, b) {
+        // Return the difference in family indexes. If they're in the same family, they won't be moved, otherwise they
+        // be moved to match the order of families in 'families'.
+        return (families.indexOf(a.family) - families.indexOf(b.family));
+    });
+
+    sortedBySideCount = sortArray(modelCardArray, function(a, b) {
+        // Return the difference in side counts. If 'a' has less sides than 'b', it'll be moved to the left, if it has
+        // more sides, it'll be moved to the right, and if they have the same number, they won't be moved.
+        return (a.sideCount - b.sideCount);
+    });
+
+    sortedByName = sortArray(modelCardArray, function(a, b) {
+        // Don't move the models if they both have the same name.
+        if (a.name == b.name) return 0;
+        // Use the standard alphabetical comparator to sort them otherwise.
+        return ((a.name < b.name)? -1 : 1);
+    });
 }
 
-function setFilterState(filterName, isChecked) {
+function sortArray(array, comparator) {
+    // A stabilized sorting algorithm which preserves the order of elements that equal under the provided comparator.
+    let stableCompare = function(a, b) {
+        // Attempt to compare them normally, and if the element's aren't equal under the comparison, return the result.
+        let compareResult = comparator(a[0], b[0]);
+        if (compareResult != 0) return compareResult;
+        // If the elements were equal, return the difference in their indexes, to ensure they still in the same order.
+        return (a[1] - b[1]);
+    };
 
+    // Create a new array where each element is replaced with a sub-array of the element and it's index.
+    elementIndexArray = array.map((el, index) => [el, index]);
+    // Sort this array with the stablized sorting algorithm.
+    elementIndexArray.sort(stableCompare);
+
+    // Extract the elements back out of the derived array and return it.
+    elementIndexArray.forEach(function(element, index, arr) {
+        arr[index] = element[0];
+    });
+    return elementIndexArray;
 }
 
-function sortModels() {
-
+function setSortBy(sortByOption) {
+    document.getElementById("sort-by-chooser").value = sortByOption;
 }
 
-function filterModels() {
+//==============================================================================
+// Filtering
+//==============================================================================
 
+// Set of all the currently enabled standard filters.
+// These are stored as booleans ('true' for standard and 'false' for nonstandard).
+let standardFilters;
+// Set of all the currently enabled family filters.
+let familyFilters;
+// Set of all the currently enabled side count filters.
+let sideCountFilters;
+// Dictionary mapping category names to their corresponding filter arrays.
+let filterCategories;
+
+// Array containing only the filtered model cards that should be displayed to the user, in sorted order.
+let filteredModelArray;
+
+function createFilters(families, sideCounts) {
+    // First create arrays for storing all the filter's states.
+    standardFilters = new Set([true, false]);
+    familyFilters = new Set(families);
+    sideCountFilters = new Set(sideCounts);
+    // Store all the filter arrays in the filterCategories dictionary.
+    filterCategories = { "standard": standardFilters, "family": familyFilters, "side-count": sideCountFilters};
+
+    // Create UI fields for each of the standard filters.
+    createFilterField("standard", "Standard Dice");
+    createFilterField("standard", "Nonstandard Dice");
+
+    // Create UI fields for each of the family filters.
+    for (familyFilter in familyFilters) {
+        createFilterField("family", familyFilter);
+    }
+
+    // Create UI fields for each of the side count filters.
+    for (sideCountFilter in sideCountFilters) {
+        createFilterField("sideCount", sideCountFilter);
+    }
 }
 
+function createFilterField(category, filter) {
+    // Lowercase the filter name and replace spaces with dashes.
+    sanitizedFilter = filter.replace(' ', '-').toLowerCase();
 
+    // Create a div for placing the field's elements into.
+    const filterField =  document.createElement("div");
+    filterField.id = `${sanitizedFilter}-filter`;
+    filterField.className = "filter-field";
 
-        // Add the model's card's index to the correct categories.
-        if (!(family in modelFamilies)) {
-          modelFamilies[family] = [];
-      }
-      modelFamilies[family].push(index);
+    // Create a checkbox for toggling the filter.
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = `${sanitizedFilter}-checkbox`;
+    checkbox.checked = true;
+    filterField.appendChild(checkbox);
 
-      if (!(sideCount in modelSideCounts)) {
-          modelSideCounts[sideCount] = [];
-      }
-      modelSideCounts[sideCount].push(index);
+    // Create a label saying what the filter is for.
+    const label = document.createElement("label");
+    label.for = checkbox.id;
+    label.innerText = filter;
+    filterField.appendChild(label);
 
-      modelStandardness[(isStandard? "standard" : "nonstandard")].push(index);
+    // Add an action listener to toggle the filter when clicked.
+    checkbox.addEventListener("change", () => updateFilter(category, sanitizedFilter));
 
+    // Add the div to the filter category's container.
+    document.getElementById(`${category}-filters`).appendChild(filterField);
+}
 
-  
+function setSearchBar(value) {
+    document.getElementById("search-bar").value = value;
+}
 
+function setFilter(category, filter, isEnabled) {
+    if (isEnabled) {
+        filterCategories[category].add(filter);
+    } else {
+        filterCategories[category].delete(filter);
+    }
+}
 
-It should be an AND operation. So if any filter is unchecked that applies to a model, then the model is totally disabled.
+function computeFilteredModelArray() {
+    // Determine which sorted list should be used based on the current value of the sort by chooser.
+    const chooser = document.getElementById("sort-by-chooser");
+    let sortedModelArray;
+    switch (chooser.value) {
+        case "STANDARD":
+            sortedModelArray = sortedByStandard;
+            break;
+        case "FAMILY":
+            sortedModelArray = sortedByFamily;
+            break;
+        case "SIDES":
+            sortedModelArray = sortedBySideCount;
+            break;
+        case "NAME":
+            sortedModelArray = sortedByName;
+            break;
+        default:
+            console.error(`Critical: impossible value stored in sort-by-chooser! value=${chooser.value}`);
+    }
 
-So we need the dictionaries, that's for sure. One for standardness, family, and sideCount. We'll definitely keep those.
-For the sorting... We don't actually need to sort them. We can just iterate through the dictionaries... And that's good
-enough actually. So for sorting, we don't even need a separate list, we can just clear the div, then append children in
-the order of the dictionary.
+    // Get the current value of the search bar and lowercase it for comparisons.
+    const searchValue = document.getElementById("search-bar").value.toLowerCase();
 
-And then for filtering things... We will need to store the filters somehow...
-Okay, side note, we'll use a Map instead of a 'dictionary' object object. But anyways, for filters... I guess while iterating
-over one of the maps we'll need to check every single element, which is meh. So we'll keep... 
+    // Filter the array down and store the result.
+    filteredModelArray = sortedList.filter(function(model) {
+        return (standardFilters.has(model.isStandard) &&
+                familyFilters.has(model.family) &&
+                sideCountFilters.has(model.sideCount) &&
+                model.name.toLowerCase().includes(searchValue));
+    });
 
-Okay, so the simple iterating idea doesn't actually work. It won't work for alphabetical, nor for side counts.
-So, maybe we'll want presorted lists?
+    // Update the model card display.
+    updateCardDisplay();
+}
 
-No, we'll make presorted arrays, one for each option. There's no reason not too, the models wont change very often.
-So, yeah presorted arrays are okay, and then for filtering.class
+//==============================================================================
+// Warehouse Display
+//==============================================================================
 
+let startX = -1;
+let sidebarWidth = -1;
 
-modelCardArray = [];
-  class modelCard {
-    cardElement
-    name
-    family
-    isStandard
-    sideCount
-  }
+function startDrag(event) {
+    // Start the divider dragging by storing the initial sidebar width, and the x coordinate of the user's click.
+    startX = event.clientX;
+    sidebarWidth = document.getElementById("sidebar").offsetWidth;
+    // Set the page's cursor to 'ew-resize' to match the divider's hover-over cursor. This prevents the cursor from
+    // flickering back and forth while the divider is catching up the mouse location.
+    document.body.style.cursor = "ew-resize";
+}
 
-familyFilters = Set()
-sideCountFilters = Set()
-standardFilters = Set()
+function endDrag() {
+    if (sidebarWidth > -1) {
+        // Clear all the properties set during the divider drag.
+        startX = -1;
+        sidebarWidth = -1;
+        document.body.style.cursor = "";
+    }
+}
 
-families = [];
-sideCounts = [];
+function onDrag(event) {
+    if (sidebarWidth > -1) {
+        let newWidth = Math.max((sidebarWidth + (event.clientX - startX)), 144);
+        document.getElementById("sidebar").style.width = `${newWidth}px`;
+    }
+}
 
-// Presorted array for each card.
-NameSortedCard = [];
-...
+function updateCardDisplay() {
 
-// Iterare in order through presorted array checking filters while going.
+}
