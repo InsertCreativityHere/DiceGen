@@ -97,7 +97,7 @@ function createAdvancedGlyphFields(glyphCount) {
 
         // Create a label saying which glyph index this row's fields are for.
         let glyphIndexLabel = document.createElement("label");
-        glyphIndexLabel.for = `glyph-${i}-text`;
+        glyphIndexLabel.htmlFor = `glyph-${i}-text`;
         glyphIndexLabel.innerHTML = i;
 
         // Create a cell for holding the glyph index label in.

@@ -2,6 +2,10 @@
 //TODO add hover-over text explaining what each thing does.
 //TODO change all my lets into consts where applicable
 //TODO add validation logic to fields before accepting them.
+//TODO figure out how to handle having multiple models open at once!
+//TODO  Every function should have a comment on it.
+//TODO also check that I'm not being dumb and making global variables anywhere either
+//TODO ALSO CHECK FOR SEMICOLONS
 
 //==============================================================================
 // Sketchup Callbacks
@@ -138,7 +142,7 @@ function addModelVariableField(fieldName, displayName, min, max, defaultValue, s
 
     // Create the field's label.
     const sliderLabel = document.createElement("label");
-    sliderLabel.for = variableField.id;
+    sliderLabel.htmlFor = variableField.id;
     sliderLabel.innerHTML = displayName;
     variableField.appendChild(sliderLabel);
 
@@ -183,7 +187,7 @@ function clearModelVariableFields() {
     const modelVariablesSection = document.getElementById("model-variables-section");
     // Remove the field elements from the section.
     while (modelVariablesSection.firstChild) {
-        modelVariablesSection.removeChild(modelVariablesSection.lastChild)
+        modelVariablesSection.removeChild(modelVariablesSection.lastChild);
     }
 }
 
@@ -230,7 +234,7 @@ function createGlyphFields(glyphCount) {
 
         // Create a label saying which glyph index this row's fields are for.
         let glyphIndexLabel = document.createElement("label");
-        glyphIndexLabel.for = `glyph-${i}-text`;
+        glyphIndexLabel.htmlFor = `glyph-${i}-text`;
         glyphIndexLabel.innerHTML = i;
 
         // Create a cell for holding the glyph index label in.
@@ -241,7 +245,7 @@ function createGlyphFields(glyphCount) {
         // Create a text input box so users can customize the text content of the glyph.
         let glyphTextField = document.createElement("input");
         glyphTextField.type = "text";
-        glyphTextField.id = glyphIndexLabel.for;
+        glyphTextField.id = glyphIndexLabel.htmlFor;
         glyphTextField.className = "glyph-text-field";
         glyphTextField.value = i;
         glyphTextField.defaultValue = i;

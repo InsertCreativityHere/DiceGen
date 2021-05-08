@@ -279,7 +279,7 @@ function createFilterField(category, filterValue, filterLabel) {
 
     // Create a label saying what the filter is for.
     const label = document.createElement("label");
-    label.for = checkbox.id;
+    label.htmlFor = checkbox.id;
     label.innerText = filterLabel;
     filterField.appendChild(label);
 
@@ -297,10 +297,10 @@ function createFilterField(category, filterValue, filterLabel) {
     document.getElementById(`${category}-filters-content`).appendChild(filterField);
 }
 
-// AUSTIN AFTER LUNCH YOU NEED TO SORT THE NUMBER FIELDS, FIND OUT WHY THE FIELDS AREN'T WORKING, TEST THE SEARCH BAR,
-// TEST THE SORTING THING, MAKE SURE THE DIVIDER FOLLOWS THE MOUSE STILL, CHECK FOR ANY WEIRD SPACING ISSUES, AND SEE
+// TODO Add a reset for the filters to re-enable them all. Also add a reverse/forward button next to the search bar.
+// Also also add a number thing for typing in the min and max number of sides.
+// MAKE SURE THE DIVIDER FOLLOWS THE MOUSE STILL, CHECK FOR ANY WEIRD SPACING ISSUES, AND SEE
 // WHY IT HANGS WHEN I TRY TO OVER-COMPRESS A SINGLE CARD!
-
 
 function setSearchBar(value) {
     document.getElementById("search-bar").value = value;
@@ -457,71 +457,3 @@ function updateCardDisplay() {
     const searchBar = document.getElementById("search-bar");
     searchBar.value = `c: ${columnCount}, w: ${Math.trunc(cardWidth)}, w: ${warehousePaneWidth}, b: ${cardBorderWidth}, m: ${cardMargin}`;
 }
-
-
-
-
-
-
-
-
-
-//currentCardsPerRow = -1;
-//
-//function updateCardDisplay() {
-//    const warehouseTable = document.getElementById("warehouse-content");
-//    const warehousePaneWidth = warehouseTable.offsetWidth;
-//
-//    const cardsPerRow = Math.floor((warehousePaneWidth - cardMargin - 18) / (minCardWidth + cardMargin)); // TODO 18px.
-//    const cardWidth = ((warehousePaneWidth - cardMargin) / cardsPerRow) - cardMargin - 18; // Leave 18px for scrollbars.
-//    const cardCount = filteredModelArray.length;
-//
-//    // If the number of cards has changed, 
-//    if (cardCount != currentCardCount) {
-//
-//    }
-//}
-
-
-
-//function createWarehouse() {
-//
-//
-//    let currentRow = document.createElement("tr");
-//    warehouseTable.appendChild(currentRow);
-//    for (let i = 0; i < filteredModelArray.length;) {
-//        currentRow.appendChild(filteredModelArray[i++].cardElement);
-//        if (i % cardsPerRow == 0) {
-//            currentRow = document.createElement("tr");
-//            warehouseTable.appendChild(currentRow);
-//        }
-//    }
-//}
-
-// Stores the current number of cards in each row of the warehouse.
-//let currentCardsPerRow = 0;
-
-//function updateCardDisplay() {
-//    const warehouseTable = document.getElementById("warehouse-content");
-//    const warehousePaneWidth = warehouseTable.offsetWidth;
-//    const cardCount = filteredModelArray.length;
-//
-//    const cardsPerRow = Math.floor((warehousePaneWidth - cardMargin) / (minCardWidth + cardMargin));
-//    const cardWidth = ((warehousePaneWidth - cardMargin) / cardsPerRow) - cardMargin;
-//
-//
-//}
-
-
-
-//while (warehouse.firstChild) {
-//  warehouse.removeChild(warehouse.lastChild);
-//}
-//
-//let currentRow = document.createElement("tr");
-//warehouseTable.appendChild(currentRow);
-//
-//for (let i = 0; i < cardCount; i++) {
-//  let currentEntry = document.createElement("td");
-//  currentEntry.app
-//}
