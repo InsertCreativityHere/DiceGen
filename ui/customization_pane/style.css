@@ -1,3 +1,5 @@
+/* Copyright (c) 2021 Austin Henriksen <me@austinsplace.net> */
+
 body {
     font-family: Arial;
     background-color: #ECECEC;
@@ -41,8 +43,8 @@ input[type="range"] {
 }
 
 .dropdown-arrow {
-    width: 10px;
     display: inline-block;
+    width: 10px;
 }
 
 .menu-content {
@@ -58,8 +60,8 @@ input[type="range"] {
 }
 
 .field {
-    height: 25px;
     display: flex;
+    height: 25px;
     align-items: center;
     justify-content: space-between;
 }
@@ -81,6 +83,14 @@ input[type="range"] {
 
 #base-model-button {
     width: 200px;
+}
+
+#recess-faces-section {
+    margin-bottom: 10px;
+}
+
+#glyphs-section {
+    margin-bottom: 5px;
 }
 
 #font-button, #glyph-mapping-chooser, #reset-glyph-mapping-button, #advanced-glyph-menu-button {

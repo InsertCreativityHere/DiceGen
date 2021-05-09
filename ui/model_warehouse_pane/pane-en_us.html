@@ -1,3 +1,5 @@
+<!-- Copyright (c) 2021 Austin Henriksen <me@austinsplace.net> -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +9,12 @@
 </head>
 <body>
     <script src="interface.js"></script>
+
     <div id="sidebar">
-        <input type="text" id="search-bar" placeholder="Search...">
+        <input type="text" placeholder="Search..." id="search-bar" >
         <div id="sort-by-field">
             <label for="sort-by-chooser">Sort by:</label>
-            <select id="sort-by-chooser" style="margin-left: 5px;">
+            <select id="sort-by-chooser">
                 <option value="STANDARD">Standard</option>
                 <option value="FAMILY">Family</option>
                 <option value="SIDES">Sides</option>
@@ -24,8 +27,8 @@
         <hr>
         <div id="filters">
             <div id="standard-filters" class="filter-section">
-                <h4 id="standard-filters-header" class="filters-header">
-                    <span id="standard-filters-label">
+                <h4>
+                    <span id="standard-filters-label" class="filter-section-label">
                         <span id="standard-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
                         Standard
                     </span>
@@ -34,8 +37,8 @@
             </div>
             <hr>
             <div id="family-filters" class="filter-section">
-                <h4 id="family-filters-header" class="filters-header">
-                    <span id="family-filters-label">
+                <h4>
+                    <span id="family-filters-label" class="filter-section-label">
                         <span id="family-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
                         Family
                     </span>
@@ -44,8 +47,8 @@
             </div>
             <hr>
             <div id="side-count-filters" class="filter-section">
-                <h4 id="side-count-filters-header" class="filters-header">
-                    <span id="side-count-filters-label">
+                <h4>
+                    <span id="side-count-filters-label" class="filter-section-label">
                         <span id="side-count-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
                         Side Count
                     </span>

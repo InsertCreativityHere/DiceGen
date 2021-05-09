@@ -1,3 +1,5 @@
+/* Copyright (c) 2021 Austin Henriksen <me@austinsplace.net> */
+
 body {
     font-family: Arial;
     background-color: #ECECEC;
@@ -30,13 +32,13 @@ input[type="number"] {
 }
 
 .glyph-face-index-field-error {
-    background-color: #FFBDBD;
     border-color: #FF0000;
+    background-color: #FFBDBD;
 }
 
 #glyph-mapping-section {
-    height: 25px;
     display: flex;
+    height: 25px;
     align-items: center;
     justify-content: space-between;
 }

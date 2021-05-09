@@ -1,3 +1,4 @@
+/* Copyright (c) 2021 Austin Henriksen <me@austinsplace.net> */
 
 html {
     height: 100%
@@ -21,47 +22,43 @@ hr {
 }
 
 input[type="checkbox"] {
-    margin: 0px 0px 0px 10px;
-    box-sizing: border-box;
     width: 20px;
     height: 20px;
-}
-
-.filters-header {
-    margin-bottom: 6px;
+    margin: 0px 0px 0px 10px;
+    box-sizing: border-box;
 }
 
 .filter-field {
-    height: 20px;
     display: flex;
-    justify-items: center;
-    font-size: 14px;
+    height: 20px;
     margin: 2px;
+    font-size: 14px;
+    justify-items: center;
 }
 
 .dropdown-arrow {
-    width: 10px;
     display: inline-block;
-}
-
-.selected-model {
-    color: blue;
+    width: 10px;
 }
 
 .model-card {
+    display: inline-block;
     min-width: 260px;
     height: 210px;
-    display: inline-block;
-    padding: 6px;
     margin: 6px;
-    background-color: #C7C7C7;
+    padding: 6px;
     border-style: outset;
     border-color: #D9D9D9;
+    background-color: #C7C7C7;
     cursor: pointer;
 }
 
 .model-card * {
     cursor: pointer;
+}
+
+.selected-model {
+    color: blue;
 }
 
 .model-image {
@@ -70,27 +67,27 @@ input[type="checkbox"] {
 }
 
 .model-image-holder {
-    height: 180px;
     display: block;
+    height: 180px;
     background-color: #929292;
 }
 
 .model-name-label {
     display: block;
-    text-align: center;
     font-size: 16px;
     font-weight: bold;
+    text-align: center;
 }
 
 .model-details {
     display: flex;
-    justify-content: space-between;
     font-size: 12px;
+    justify-content: space-between;
 }
 
 #sidebar {
-    min-width: 160px;
     width: 175px;
+    min-width: 160px;
     padding: 10px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -98,8 +95,8 @@ input[type="checkbox"] {
 
 #search-bar {
     width: 100%;
-    box-sizing: border-box;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
 #sort-by-field {
@@ -108,9 +105,13 @@ input[type="checkbox"] {
     font-size: 15px;
 }
 
+#sort-by-chooser {
+    margin-left: 5px;
+}
+
 #sort-by-svg {
-    vertical-align: middle;
     padding-left: 3px;
+    vertical-align: middle;
 }
 
 #clear-filters-button {
@@ -119,16 +120,16 @@ input[type="checkbox"] {
 }
 
 #divider {
-    min-width: 2px;
     width: 2px;
+    min-width: 2px;
     height: 100%;
     background-color: black;
     cursor: ew-resize;
 }
 
 #warehouse {
-    flex: 1 1 auto;
     padding: 6px;
+    flex: 1 1 auto;
     overflow-x: hidden;
     overflow-y: scroll;
     white-space: nowrap;
