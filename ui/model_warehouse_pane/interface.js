@@ -7,7 +7,7 @@
 //==============================================================================
 
 function chooseModel(modelName) {
-    //TODO No, make the text of the model card turn blue for the selected model.
+    setCurrentModel(modelName);
 
     //TODO sketchup.chooseModel(modelName);
     console.log(`Set Model to ${modelName}...`);
@@ -81,6 +81,8 @@ function toggleSection(sectionName) {
 
 // Array containing all the instances of ModelCard.
 let modelCardArray = [];
+// Reference to the currently selected model card.
+let currentModel;
 
 // Class for storing all the information about a model, and that generates a UI card element to display the model with.
 class ModelCard {
@@ -96,7 +98,9 @@ class ModelCard {
 
         // Create the UI card element that will display this model to the user. Starting with the card's div.
         const modelCard = document.createElement("div");
+        modelCard.id = `${this.name}-model-card`;
         modelCard.className = "model-card";
+        modelCard.addEventListener("click", () => chooseModel(this.name));
 
         // Create the div that will hold the model's image (This is to be able to set a background color).
         const imageHolder = document.createElement("div");
@@ -139,6 +143,16 @@ class ModelCard {
 function addModel(modelName, imageURL, isStandard, family, sideCount) {
     // Construct a new model card and add it to the model card array.
     modelCardArray.push(new ModelCard(modelName, imageURL, isStandard, family, sideCount));
+}
+
+function setCurrentModel(modelName) {
+    // Remove the current model status from the old model's card.
+    if (currentModel) {
+        currentModel.classList.remove("selected-model");
+    }
+    // Add the status to the new current model and store a reference to it.
+    currentModel = document.getElementById(`${modelName}-model-card`);
+    currentModel.classList.add("selected-model")
 }
 
 function finishedAddingModels() {

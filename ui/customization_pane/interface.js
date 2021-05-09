@@ -9,6 +9,10 @@
 //TODO try to track and set more of the window states (like what's open and closed or check and whatever)
 //TODO go through and refactor all this code. There's definitely lots of places that could be better centralized.
 
+// Maybe every kind of field should have a set-function which literally just performs the setting of the data.
+// And an update that does other things (most importantly it'll callback into Sketchup).
+// We need to stop having a single method do too much though, since it's hurting re-usability. Idk.
+
 //==============================================================================
 // Sketchup Callbacks
 //==============================================================================

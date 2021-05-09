@@ -7,55 +7,53 @@
 </head>
 <body>
     <script src="interface.js"></script>
-    <div id="sidebar-holder">
-        <div id="sidebar">
-            <input type="text" id="search-bar" placeholder="Search...">
-            <div id="sort-by-field">
-                <label for="sort-by-chooser">Sort by:</label>
-                <select id="sort-by-chooser" style="margin-left: 5px;">
-                    <option value="STANDARD">Standard</option>
-                    <option value="FAMILY">Family</option>
-                    <option value="SIDES">Sides</option>
-                    <option value="NAME">Name</option>
-                </select>
-                <svg width="6" height="16" id="sort-by-svg">
-                    <polygon id="sort-by-direction-arrow" points="2 0, 2 10, 0 10, 3 16, 6 10, 4 10, 4 0">
-                </svg>
+    <div id="sidebar">
+        <input type="text" id="search-bar" placeholder="Search...">
+        <div id="sort-by-field">
+            <label for="sort-by-chooser">Sort by:</label>
+            <select id="sort-by-chooser" style="margin-left: 5px;">
+                <option value="STANDARD">Standard</option>
+                <option value="FAMILY">Family</option>
+                <option value="SIDES">Sides</option>
+                <option value="NAME">Name</option>
+            </select>
+            <svg width="6" height="16" id="sort-by-svg">
+                <polygon id="sort-by-direction-arrow" points="2 0, 2 10, 0 10, 3 16, 6 10, 4 10, 4 0">
+            </svg>
+        </div>
+        <hr>
+        <div id="filters">
+            <div id="standard-filters" class="filter-section">
+                <h4 id="standard-filters-header" class="filters-header">
+                    <span id="standard-filters-label">
+                        <span id="standard-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Standard
+                    </span>
+                </h4>
+                <div id="standard-filters-content" class="menu-content"></div>
             </div>
             <hr>
-            <div id="filters">
-                <div id="standard-filters" class="filter-section">
-                    <h4 id="standard-filters-header" class="filters-header">
-                        <span id="standard-filters-label">
-                            <span id="standard-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
-                            Standard
-                        </span>
-                    </h4>
-                    <div id="standard-filters-content" class="menu-content"></div>
-                </div>
-                <hr>
-                <div id="family-filters" class="filter-section">
-                    <h4 id="family-filters-header" class="filters-header">
-                        <span id="family-filters-label">
-                            <span id="family-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
-                            Family
-                        </span>
-                    </h4>
-                    <div id="family-filters-content" class="menu-content"></div>
-                </div>
-                <hr>
-                <div id="side-count-filters" class="filter-section">
-                    <h4 id="side-count-filters-header" class="filters-header">
-                        <span id="side-count-filters-label">
-                            <span id="side-count-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
-                            Side Count
-                        </span>
-                    </h4>
-                    <div id="side-count-filters-content" class="menu-content"></div>
-                </div>
-                <hr>
-                <button type="button" id="clear-filters-button">Clear Filters</button>
+            <div id="family-filters" class="filter-section">
+                <h4 id="family-filters-header" class="filters-header">
+                    <span id="family-filters-label">
+                        <span id="family-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Family
+                    </span>
+                </h4>
+                <div id="family-filters-content" class="menu-content"></div>
             </div>
+            <hr>
+            <div id="side-count-filters" class="filter-section">
+                <h4 id="side-count-filters-header" class="filters-header">
+                    <span id="side-count-filters-label">
+                        <span id="side-count-filters-dropdown" class="dropdown-arrow">&#x25B8;</span>
+                        Side Count
+                    </span>
+                </h4>
+                <div id="side-count-filters-content" class="menu-content"></div>
+            </div>
+            <hr>
+            <button type="button" id="clear-filters-button">Clear Filters</button>
         </div>
     </div>
     <div id="divider"></div>

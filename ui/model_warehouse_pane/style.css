@@ -44,6 +44,10 @@ input[type="checkbox"] {
     display: inline-block;
 }
 
+.selected-model {
+    color: blue;
+}
+
 .model-card {
     min-width: 260px;
     height: 210px;
@@ -86,11 +90,9 @@ input[type="checkbox"] {
 
 #sidebar {
     min-width: 160px;
-    width: 160px;
-    margin: 10px;
-}
-
-#sidebar-holder {
+    width: 175px;
+    padding: 10px;
+    overflow-x: hidden;
     overflow-y: auto;
 }
 
@@ -126,8 +128,8 @@ input[type="checkbox"] {
 
 #warehouse {
     flex: 1 1 auto;
-    overflow-y: scroll;
-    overflow-x: hidden;
     padding: 6px;
+    overflow-x: hidden;
+    overflow-y: scroll;
     white-space: nowrap;
 }
