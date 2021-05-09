@@ -31,6 +31,18 @@ function updateSortBy() {
     console.log(`Set SortType to ${sortType}...`);
 }
 
+function toggleSortByDirection() {
+    // By default (with no transform) is points down and sorts descendingly. If there is a transform, it's ascending.
+    const sortDirection = document.getElementById("sort-by-direction-arrow").hasAttribute("transform");
+    setSortByDirection(!sortDirection);
+
+    // Change the sorting criteria and display the re-filtered cards in order.
+    computeFilteredModelArray();
+
+    //TODO sketchup.updateSortByDirection(!sortDirection);
+    console.log(`Set SortDirection to ${!sortDirection}...`);
+}
+
 function updateFilter(category, filter) {
     // Update the filtering criteria.
     const isChecked = document.getElementById(`${filter}-checkbox`).checked;
@@ -226,6 +238,16 @@ function setSortBy(sortByOption) {
     document.getElementById("sort-by-chooser").value = sortByOption;
 }
 
+function setSortByDirection(direction) {
+    const arrow = document.getElementById("sort-by-direction-arrow");
+    // True means sort ascending, false means sort descending.
+    if (direction) {
+        arrow.setAttribute("transform", "rotate(180, 3, 8)");
+    } else {
+        arrow.removeAttribute("transform");
+    }
+}
+
 //==============================================================================
 // Filtering
 //==============================================================================
@@ -298,7 +320,7 @@ function createFilterField(category, filterValue, filterLabel) {
     document.getElementById(`${category}-filters-content`).appendChild(filterField);
 }
 
-// TODO Add a reset for the filters to re-enable them all. Also add a reverse/forward button next to the search bar.
+// TODO Add a reset for the filters to re-enable them all.
 // Also also add a number thing for typing in the min and max number of sides.
 
 function setSearchBar(value) {
@@ -345,6 +367,12 @@ function computeFilteredModelArray() {
                 sideCountFilters.has(model.sideCount) &&
                 model.name.toLowerCase().includes(searchValue));
     });
+
+    // Check if the array should be sorted descendingly (default) or ascendingly. With no transform, the sorting
+    // direction arrows points down for descending. If it is transformed, it's pointing up for ascending.
+    if (document.getElementById("sort-by-direction-arrow").hasAttribute("transform")) {
+        filteredModelArray.reverse();
+    }
 
     // Update the model card display.
     updateWarehouseListings();

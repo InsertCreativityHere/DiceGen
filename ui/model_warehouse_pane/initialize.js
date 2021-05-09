@@ -14,6 +14,7 @@ initializeSection("side-count");
 // Add specific callback functions to the remaining input elements.
 document.getElementById("search-bar").addEventListener("input", updateSearchBar);
 document.getElementById("sort-by-chooser").addEventListener("change", updateSortBy);
+document.getElementById("sort-by-svg").addEventListener("click", toggleSortByDirection);
 document.getElementById("divider").addEventListener("mousedown", startDrag)
 document.addEventListener("mousemove", onDrag);
 document.addEventListener("mouseup", endDrag);

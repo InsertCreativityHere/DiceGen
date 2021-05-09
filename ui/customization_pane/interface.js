@@ -6,6 +6,7 @@
 //TODO  Every function should have a comment on it.
 //TODO also check that I'm not being dumb and making global variables anywhere either
 //TODO ALSO CHECK FOR SEMICOLONS
+//TODO try to track and set more of the window states (like what's open and closed or check and whatever)
 
 //==============================================================================
 // Sketchup Callbacks
