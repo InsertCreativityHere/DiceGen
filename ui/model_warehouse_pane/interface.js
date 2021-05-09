@@ -7,7 +7,7 @@
 //==============================================================================
 
 function chooseModel(modelName) {
-    //TODO change the background of the currently selected model!
+    //TODO No, make the text of the model card turn blue for the selected model.
 
     //TODO sketchup.chooseModel(modelName);
     console.log(`Set Model to ${modelName}...`);
@@ -47,9 +47,9 @@ function updateFilter(category, filter) {
     // Update the filtering criteria.
     const isChecked = document.getElementById(`${filter}-checkbox`).checked;
     if (isChecked) {
-        filterCategories[category].add(filter);
+        currentFilters[category].add(filter);
     } else {
-        filterCategories[category].delete(filter);
+        currentFilters[category].delete(filter);
     }
     // Filter the models according to the new filter criteria and display the remaining cards in order.
     computeFilteredModelArray();
@@ -252,14 +252,15 @@ function setSortByDirection(direction) {
 // Filtering
 //==============================================================================
 
-// Set of all the currently enabled standard filters.
+// Set of all the possible standard filters.
 let standardFilters;
-// Set of all the currently enabled family filters.
+// Set of all the possible family filters.
 let familyFilters;
-// Set of all the currently enabled side count filters.
+// Set of all the possible side count filters.
 let sideCountFilters;
-// Dictionary mapping category names to their corresponding filter arrays.
-let filterCategories;
+// Dictionary that contains all the currently enabled filters.
+// They are grouped into categories and stored as sets keyed by the name of the category.
+let currentFilters;
 
 // Array containing only the filtered model cards that should be displayed to the user, in sorted order.
 let filteredModelArray;
@@ -269,8 +270,10 @@ function createFilters(families, sanitizedFamilies, sideCounts) {
     standardFilters = new Set(["standard", "nonstandard"]);
     familyFilters = new Set(sanitizedFamilies);
     sideCountFilters = new Set(sideCounts);
-    // Store all the filter arrays in the filterCategories dictionary.
-    filterCategories = { "standard": standardFilters, "family": familyFilters, "side-count": sideCountFilters};
+    // Store all the filter arrays in the currentFilters dictionary.
+    currentFilters = { "standard": new Set(standardFilters),
+                       "family": new Set(familyFilters),
+                       "side-count": new Set(sideCountFilters)};
 
     // Create UI fields for each of the standard filters.
     createFilterField("standard", "standard", "Standard Dice");
@@ -320,9 +323,6 @@ function createFilterField(category, filterValue, filterLabel) {
     document.getElementById(`${category}-filters-content`).appendChild(filterField);
 }
 
-// TODO Add a reset for the filters to re-enable them all.
-// Also also add a number thing for typing in the min and max number of sides.
-
 function setSearchBar(value) {
     document.getElementById("search-bar").value = value;
 }
@@ -330,10 +330,37 @@ function setSearchBar(value) {
 function setFilter(category, filter, isEnabled) {
     document.getElementById(`${filter}-checkbox`).checked = isEnabled;
     if (isEnabled) {
-        filterCategories[category].add(filter);
+        currentFilters[category].add(filter);
     } else {
-        filterCategories[category].delete(filter);
+        currentFilters[category].delete(filter);
     }
+}
+
+function clearFilters() {
+    // Enable all the filters by resetting the filter categories dictionary.
+    currentFilters = { "standard": new Set(standardFilters),
+                       "family": new Set(familyFilters),
+                       "side-count": new Set(sideCountFilters)};
+
+    // Update all the UI elements and call the appropiate sketchup callbacks.
+    for (let filter of standardFilters) {
+        document.getElementById(`${filter}-checkbox`).checked = true;
+        //TODO sketchup.updateFilter(filter, true);
+        console.log(`Toggling the ${filter} filter to true...`);
+    }
+    for (let filter of familyFilters) {
+        document.getElementById(`${filter}-checkbox`).checked = true;
+        //TODO sketchup.updateFilter(filter, true);
+        console.log(`Toggling the ${filter} filter to true...`);
+    }
+    for (let filter of sideCountFilters) {
+        document.getElementById(`${filter}-checkbox`).checked = true;
+        //TODO sketchup.updateFilter(filter, true);
+        console.log(`Toggling the ${filter} filter to true...`);
+    }
+
+    // Recompute the model array now that all the filters have been enabled.
+    computeFilteredModelArray();
 }
 
 function computeFilteredModelArray() {
@@ -362,9 +389,9 @@ function computeFilteredModelArray() {
 
     // Filter the array down and store the result.
     filteredModelArray = sortedModelArray.filter(function(model) {
-        return (standardFilters.has(model.isStandard? "standard" : "nonstandard") &&
-                familyFilters.has(model.sanitizedFamily) &&
-                sideCountFilters.has(model.sideCount) &&
+        return (currentFilters["standard"].has(model.isStandard? "standard" : "nonstandard") &&
+                currentFilters["family"].has(model.sanitizedFamily) &&
+                currentFilters["side-count"].has(model.sideCount) &&
                 model.name.toLowerCase().includes(searchValue));
     });
 

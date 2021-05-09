@@ -7,6 +7,7 @@
 //TODO also check that I'm not being dumb and making global variables anywhere either
 //TODO ALSO CHECK FOR SEMICOLONS
 //TODO try to track and set more of the window states (like what's open and closed or check and whatever)
+//TODO go through and refactor all this code. There's definitely lots of places that could be better centralized.
 
 //==============================================================================
 // Sketchup Callbacks

@@ -90,6 +90,10 @@ input[type="checkbox"] {
     margin: 10px;
 }
 
+#sidebar-holder {
+    overflow-y: auto;
+}
+
 #search-bar {
     width: 100%;
     box-sizing: border-box;
@@ -105,6 +109,11 @@ input[type="checkbox"] {
 #sort-by-svg {
     vertical-align: middle;
     padding-left: 3px;
+}
+
+#clear-filters-button {
+    width: 150px;
+    margin: 0px 5px;
 }
 
 #divider {
