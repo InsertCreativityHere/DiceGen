@@ -70,6 +70,7 @@ function configureSliderInput(fieldName) {
 }
 
 // Configure the following field's sliders and input boxes.
+configureSliderInput("model-scale");
 configureSliderInput("face-depth");
 configureSliderInput("face-border-width");
 configureSliderInput("straight-border-corners-protrusion");
