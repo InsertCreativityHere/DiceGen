@@ -10,6 +10,7 @@ function initializeSection(sectionName) {
 initializeSection("standard");
 initializeSection("family");
 initializeSection("side-count");
+initializeSection("glyph-mapping");
 
 // Add specific callback functions to the remaining input elements.
 document.getElementById("search-bar").addEventListener("input", updateSearchBar);
@@ -44,13 +45,13 @@ const EN_US = {
 };
 
 //TODO remove this
-addModel("Tetrahedron", "blob", true, "Platonic Solid", 4);
-addModel("Hexahedron", "blob", true, "Platonic Solid", 6);
-addModel("Octahedron", "blob", true, "Platonic Solid", 8);
-addModel("Dodecahedron", "blob", true, "Platonic Solid", 12);
-addModel("Icosahedron", "blob", true, "Platonic Solid", 20);
-addModel("Pentagonal Trapezohedron", "blob", true, "Trapezohedron", 10);
-addModel("DeltoidalHexecontahedron", "blob", false, "Quadrohedron", 60);
+addModel("Tetrahedron", "blob", true, "Platonic Solid", 4, ["D4"]);
+addModel("Hexahedron", "blob", true, "Platonic Solid", 6, ["D6"]);
+addModel("Octahedron", "blob", true, "Platonic Solid", 8, ["D8"]);
+addModel("Dodecahedron", "blob", true, "Platonic Solid", 12, ["D12"]);
+addModel("Icosahedron", "blob", true, "Platonic Solid", 20, ["D20"]);
+addModel("Pentagonal Trapezohedron", "blob", true, "Trapezohedron", 10, ["D10", "D%"]);
+addModel("DeltoidalHexecontahedron", "blob", false, "Quadrohedron", 60, ["D60"]);
 finishedAddingModels()
 // setCurrentModel()
 // setSortBy()

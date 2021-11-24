@@ -87,7 +87,7 @@ let currentModel;
 // Class for storing all the information about a model, and that generates a UI card element to display the model with.
 class ModelCard {
     // Create a new model card.
-    constructor(modelName, imageURL, isStandard, family, sideCount) {
+    constructor(modelName, imageURL, isStandard, family, sideCount, mappings) {
         // Store the provided data.
         this.name = modelName;
         this.imageURL = imageURL;
@@ -95,6 +95,7 @@ class ModelCard {
         this.family = family;
         this.sanitizedFamily = family.replace(' ', '-').toLowerCase();
         this.sideCount = sideCount;
+        this.mappings = mappings;
 
         // Create the UI card element that will display this model to the user. Starting with the card's div.
         const modelCard = document.createElement("div");
@@ -127,7 +128,7 @@ class ModelCard {
 
         // Create a label describing the die's normal name, side count, and whether or not it's standard.
         const leftLabel = document.createElement("label");
-        leftLabel.innerText = (isStandard? "Standard" : "Nonstandard") + ` D${sideCount}`;
+        leftLabel.innerText = (isStandard? "Standard" : "Nonstandard") + ' ' + mappings[0];
         modelDetails.appendChild(leftLabel);
 
         // Create a label describing what polyhedral family the die belongs to.
@@ -140,9 +141,9 @@ class ModelCard {
     }
 }
 
-function addModel(modelName, imageURL, isStandard, family, sideCount) {
+function addModel(modelName, imageURL, isStandard, family, sideCount, mappings) {
     // Construct a new model card and add it to the model card array.
-    modelCardArray.push(new ModelCard(modelName, imageURL, isStandard, family, sideCount));
+    modelCardArray.push(new ModelCard(modelName, imageURL, isStandard, family, sideCount, mappings));
 }
 
 function setCurrentModel(modelName) {
@@ -162,6 +163,8 @@ function finishedAddingModels() {
     let sanitizedFamilies = [];
     // Array containing the side counts for all the models that have been added to the warehouse.
     let sideCounts = [];
+    // Array containing all the glyph mappings for all the models that have been added to the warehouse.
+    let glyphMappings = [];
 
     for (let i = 0, modelCard; modelCard = modelCardArray[i]; i++) {
         // If this model's family hasn't been seen yet, add it to the family array.
@@ -173,11 +176,17 @@ function finishedAddingModels() {
         if (!sideCounts.includes(modelCard.sideCount)) {
             sideCounts.push(modelCard.sideCount);
         }
+        // If any of this model's glyph mappings haven't been seen yet, add them to the glyph mapping array.
+        for (let j = 0, mapping; mapping = modelCard.mappings[j]; j++) {
+            if (!glyphMappings.includes(mapping)) {
+                glyphMappings.push(mapping);
+            }
+        }
     }
     sideCounts.sort((a, b) => a-b);
 
     // Create filters for each of the families and side counts.
-    createFilters(families, sanitizedFamilies, sideCounts);
+    createFilters(families, sanitizedFamilies, sideCounts, glyphMappings);
     // Compute and cache sorted arrays of the models, one for each possible sorting.
     computeSortedModelArrays(families);
     // Filter the models and display the remaining cards in order.
@@ -272,6 +281,8 @@ let standardFilters;
 let familyFilters;
 // Set of all the possible side count filters.
 let sideCountFilters;
+// Set of all the possible glyph mapping filters.
+let glyphMappingFilters;
 // Dictionary that contains all the currently enabled filters.
 // They are grouped into categories and stored as sets keyed by the name of the category.
 let currentFilters;
@@ -279,15 +290,17 @@ let currentFilters;
 // Array containing only the filtered model cards that should be displayed to the user, in sorted order.
 let filteredModelArray;
 
-function createFilters(families, sanitizedFamilies, sideCounts) {
+function createFilters(families, sanitizedFamilies, sideCounts, glyphMappings) {
     // Create arrays for storing all the filter's states.
     standardFilters = new Set(["standard", "nonstandard"]);
     familyFilters = new Set(sanitizedFamilies);
     sideCountFilters = new Set(sideCounts);
+    glyphMappingFilters = new Set(glyphMappings);
     // Store all the filter arrays in the currentFilters dictionary.
     currentFilters = { "standard": new Set(standardFilters),
                        "family": new Set(familyFilters),
-                       "side-count": new Set(sideCountFilters)};
+                       "side-count": new Set(sideCountFilters),
+                       "glyph-mapping": new Set(glyphMappingFilters)};
 
     // Create UI fields for each of the standard filters.
     createFilterField("standard", "standard", "Standard Dice");
@@ -301,6 +314,11 @@ function createFilters(families, sanitizedFamilies, sideCounts) {
     // Create UI fields for each of the side count filters.
     for (let sideCount of sideCounts) {
         createFilterField("side-count", sideCount, sideCount.toString());
+    }
+
+    // Create UI fields for each of the glyph mapping filters.
+    for (let glyphMapping of glyphMappings) {
+        createFilterField("glyph-mapping", glyphMapping, glyphMapping);
     }
 }
 
@@ -354,7 +372,8 @@ function clearFilters() {
     // Enable all the filters by resetting the filter categories dictionary.
     currentFilters = { "standard": new Set(standardFilters),
                        "family": new Set(familyFilters),
-                       "side-count": new Set(sideCountFilters)};
+                       "side-count": new Set(sideCountFilters),
+                       "glyph-mapping": new Set(glyphMappingFilters)};
 
     // Update all the UI elements and call the appropiate sketchup callbacks.
     for (let filter of standardFilters) {
@@ -368,6 +387,11 @@ function clearFilters() {
         console.log(`Toggling the ${filter} filter to true...`);
     }
     for (let filter of sideCountFilters) {
+        document.getElementById(`${filter}-checkbox`).checked = true;
+        //TODO sketchup.updateFilter(filter, true);
+        console.log(`Toggling the ${filter} filter to true...`);
+    }
+    for (let filter of glyphMappingFilters) {
         document.getElementById(`${filter}-checkbox`).checked = true;
         //TODO sketchup.updateFilter(filter, true);
         console.log(`Toggling the ${filter} filter to true...`);
@@ -406,6 +430,9 @@ function computeFilteredModelArray() {
         return (currentFilters["standard"].has(model.isStandard? "standard" : "nonstandard") &&
                 currentFilters["family"].has(model.sanitizedFamily) &&
                 currentFilters["side-count"].has(model.sideCount) &&
+                // TODO here we need to check that there is at least one element in the intersection
+                // between currentFilters["glyph-mapping"] and model.mappings.
+                //currentFilters["glyph-mapping"].has(model.mappings) &&
                 model.name.toLowerCase().includes(searchValue));
     });
 
