@@ -95,6 +95,7 @@ class ModelCard {
         this.family = family;
         this.sanitizedFamily = family.replace(' ', '-').toLowerCase();
         this.sideCount = sideCount;
+        // Mappings must have at least 1 element, and all elements must be uppercased.
         this.mappings = mappings;
 
         // Create the UI card element that will display this model to the user. Starting with the card's div.
@@ -423,7 +424,7 @@ function computeFilteredModelArray() {
     }
 
     // Get the current value of the search bar and lowercase it for comparisons.
-    const searchValue = document.getElementById("search-bar").value.toLowerCase();
+    const searchValue = document.getElementById("search-bar").value;
 
     // Filter the array down and store the result.
     filteredModelArray = sortedModelArray.filter(function(model) {
@@ -433,7 +434,8 @@ function computeFilteredModelArray() {
                 // TODO here we need to check that there is at least one element in the intersection
                 // between currentFilters["glyph-mapping"] and model.mappings.
                 //currentFilters["glyph-mapping"].has(model.mappings) &&
-                model.name.toLowerCase().includes(searchValue));
+                (model.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+                 model.mappings.includes(searchValue.toUpperCase())));
     });
 
     // Check if the array should be sorted descendingly (default) or ascendingly. With no transform, the sorting
