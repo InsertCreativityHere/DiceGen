@@ -18,8 +18,10 @@
 //==============================================================================
 
 function selectBaseModel() {
-    //TODO sketchup.selectBaseModel();
     console.log("Select Base Model...");
+    if (typeof sketchup !== 'undefined') {
+        sketchup.selectBaseModel();
+    }
 
     // TODO remove all of this!
     clearModelVariableFields();
@@ -38,13 +40,17 @@ function selectBaseModel() {
 }
 
 function selectFont() {
-    //TODO sketchup.selectFont();
     console.log("Select Font...");
+    if (typeof sketchup !== 'undefined') {
+        sketchup.selectFont();
+    }
 }
 
 function selectFontForGlyph(index) {
-    //TODO skectup.selectFontForGlyph(index);
     console.log(`Select Font For ${index}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.selectFontForGlyph(index);
+    }
 }
 
 function resetGlyphFields() {
@@ -64,18 +70,24 @@ function resetGlyphFields() {
         }
     }
 
-    //TODO skectup.resetGlyphFields();
     console.log(`Reset glyph fields.`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.resetGlyphFields();
+    }
 }
 
 function openAdvancedGlyphMenu() {
-    //TODO sketchup.openAdvancedGlyphMenu();
     console.log("Open Advanced Glyph Menu...");
+    if (typeof sketchup !== 'undefined') {
+        sketchup.openAdvancedGlyphMenu();
+    }
 }
 
 function updateValue(fieldName, value) {
-    //TODO sketchup.updateValue(fieldName, value);
     console.log(`Update ${fieldName} to ${value}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateValue(fieldName, value);
+    }
 }
 
 //==============================================================================

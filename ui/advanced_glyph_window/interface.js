@@ -4,18 +4,24 @@
 //==============================================================================
 
 function updateValue(fieldName, value) {
-    //TODO sketchup.updateValue(fieldName, value);
     console.log(`Update ${fieldName} to ${value}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateValue(fieldName, value);
+    }
 }
 
 function importGlyphMapping() {
-    //TODO sketchup.importGlyphMapping();
     console.log("Import Glyph Mapping...");
+    if (typeof sketchup !== 'undefined') {
+        sketchup.importGlyphMapping();
+    }
 }
 
 function exportGlyphMapping() {
-    //TODO sketchup.exportGlyphMapping();
     console.log("Export Glyph Mapping...");
+    if (typeof sketchup !== 'undefined') {
+        sketchup.exportGlyphMapping();
+    }
 }
 
 //==============================================================================

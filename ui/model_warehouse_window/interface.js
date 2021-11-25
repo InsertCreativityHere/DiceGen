@@ -10,8 +10,10 @@ function chooseModel(modelName) {
     // and then close out of this window after it's finished.
     setCurrentModel(modelName);
 
-    //TODO sketchup.chooseModel(modelName);
     console.log(`Set Model to ${modelName}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.chooseModel(modelName);
+    }
 }
 
 function updateSearchBar() {
@@ -19,8 +21,10 @@ function updateSearchBar() {
     computeFilteredModelArray();
 
     const search = document.getElementById("search-bar").value;
-    //TODO sketchup.updateSearchBar(search);
     console.log(`Set Search to ${search}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateSearchBar(search);
+    }
 }
 
 function updateSortBy() {
@@ -28,20 +32,24 @@ function updateSortBy() {
     computeFilteredModelArray();
 
     const sortType = document.getElementById("sort-by-chooser").value;
-    //TODO sketchup.updateSortBy(sortType);
     console.log(`Set SortType to ${sortType}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateSortBy(sortType);
+    }
 }
 
 function toggleSortByDirection() {
     // By default (with no transform) is points down and sorts descendingly. If there is a transform, it's ascending.
-    const sortDirection = document.getElementById("sort-by-direction-arrow").hasAttribute("transform");
-    setSortByDirection(!sortDirection);
+    const sortDirection = !document.getElementById("sort-by-direction-arrow").hasAttribute("transform");
+    setSortByDirection(sortDirection);
 
     // Change the sorting criteria and display the re-filtered cards in order.
     computeFilteredModelArray();
 
-    //TODO sketchup.updateSortByDirection(!sortDirection);
-    console.log(`Set SortDirection to ${!sortDirection}...`);
+    console.log(`Set SortDirection to ${sortDirection}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateSortByDirection(sortDirection);
+    }
 }
 
 function updateFilter(category, filter) {
@@ -55,8 +63,10 @@ function updateFilter(category, filter) {
     // Filter the models according to the new filter criteria and display the remaining cards in order.
     computeFilteredModelArray();
 
-    //TODO sketchup.updateFilter(filter, isChecked);
     console.log(`Toggling the ${filter} filter to ${isChecked}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateFilter(filter, isChecked);
+    }
 }
 
 //==============================================================================
@@ -380,23 +390,31 @@ function clearFilters() {
     // Update all the UI elements and call the appropiate sketchup callbacks.
     for (let filter of standardFilters) {
         document.getElementById(`${filter}-checkbox`).checked = true;
-        //TODO sketchup.updateFilter(filter, true);
-        console.log(`Toggling the ${filter} filter to true...`);
+        console.log(`Clearing the ${filter} filter to true...`);
+        if (typeof sketchup !== 'undefined') {
+            sketchup.updateFilter(filter, true);
+        }
     }
     for (let filter of familyFilters) {
         document.getElementById(`${filter}-checkbox`).checked = true;
-        //TODO sketchup.updateFilter(filter, true);
-        console.log(`Toggling the ${filter} filter to true...`);
+        console.log(`Clearing the ${filter} filter to true...`);
+        if (typeof sketchup !== 'undefined') {
+            sketchup.updateFilter(filter, true);
+        }
     }
     for (let filter of sideCountFilters) {
         document.getElementById(`${filter}-checkbox`).checked = true;
-        //TODO sketchup.updateFilter(filter, true);
-        console.log(`Toggling the ${filter} filter to true...`);
+        console.log(`Clearing the ${filter} filter to true...`);
+        if (typeof sketchup !== 'undefined') {
+            sketchup.updateFilter(filter, true);
+        }
     }
     for (let filter of glyphMappingFilters) {
         document.getElementById(`${filter}-checkbox`).checked = true;
-        //TODO sketchup.updateFilter(filter, true);
-        console.log(`Toggling the ${filter} filter to true...`);
+        console.log(`Clearing the ${filter} filter to true...`);
+        if (typeof sketchup !== 'undefined') {
+            sketchup.updateFilter(filter, true);
+        }
     }
 
     // Recompute the model array now that all the filters have been enabled.
