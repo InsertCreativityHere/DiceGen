@@ -1,12 +1,13 @@
 
 //TODO Add localization somehow.
-//TODO make the search bar fancier so it can also search for D% and stuff. Maybe?...
 
 //==============================================================================
 // Sketchup Callbacks
 //==============================================================================
 
 function chooseModel(modelName) {
+    // TODO open a popup prompt to confirm the user's choice here,
+    // and then close out of this window after it's finished.
     setCurrentModel(modelName);
 
     //TODO sketchup.chooseModel(modelName);
@@ -431,9 +432,8 @@ function computeFilteredModelArray() {
         return (currentFilters["standard"].has(model.isStandard? "standard" : "nonstandard") &&
                 currentFilters["family"].has(model.sanitizedFamily) &&
                 currentFilters["side-count"].has(model.sideCount) &&
-                // TODO here we need to check that there is at least one element in the intersection
-                // between currentFilters["glyph-mapping"] and model.mappings.
-                //currentFilters["glyph-mapping"].has(model.mappings) &&
+                // Check that at least 1 of the die's glyph mappings match the current filters.
+                hasCommonElements(model.mappings, currentFilters["glyph-mapping"], ) &&
                 (model.name.toLowerCase().includes(searchValue.toLowerCase()) ||
                  model.mappings.includes(searchValue.toUpperCase())));
     });
@@ -446,6 +446,17 @@ function computeFilteredModelArray() {
 
     // Update the model card display.
     updateWarehouseListings();
+}
+
+function hasCommonElements(array1, array2) {
+    for (let elem1 of array1) {
+        for (let elem2 of array2) {
+            if (elem1 == elem2) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 //==============================================================================
