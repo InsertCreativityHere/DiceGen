@@ -77,12 +77,18 @@ function toggleSection(sectionName) {
     const content = document.getElementById(`${sectionName}-filters-content`);
     const dropdown = document.getElementById(`${sectionName}-filters-dropdown`);
 
-    if (content.style.display == "none") {
+    const isHidden = content.style.display == "none";
+    if (isHidden) {
         content.style.display = "";
         dropdown.innerHTML = "&#x25BE;";
     } else {
         content.style.display = "none";
         dropdown.innerHTML = "&#x25B8;";
+    }
+
+    console.log(`Toggled the ${sectionName} menu to ${!isHidden}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateToggleState(sectionName, !isHidden);
     }
 }
 

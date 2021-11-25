@@ -6,7 +6,6 @@
 //TODO  Every function should have a comment on it.
 //TODO also check that I'm not being dumb and making global variables anywhere either
 //TODO ALSO CHECK FOR SEMICOLONS
-//TODO try to track and set more of the window states (like what's open and closed or check and whatever)
 //TODO go through and refactor all this code. There's definitely lots of places that could be better centralized.
 
 // Maybe every kind of field should have a set-function which literally just performs the setting of the data.
@@ -98,12 +97,18 @@ function toggleMenu(menuName) {
     const content = document.getElementById(`${menuName}-menu-content`);
     const dropdown = document.getElementById(`${menuName}-menu-dropdown`);
 
-    if (content.style.display == "none") {
+    const isHidden = content.style.display == "none";
+    if (isHidden) {
         content.style.display = "";
         dropdown.innerHTML = "&#x25BE;";
     } else {
         content.style.display = "none";
         dropdown.innerHTML = "&#x25B8;";
+    }
+
+    console.log(`Toggled the ${menuName} menu to ${!isHidden}...`);
+    if (typeof sketchup !== 'undefined') {
+        sketchup.updateToggleState(menuName, !isHidden);
     }
 }
 
